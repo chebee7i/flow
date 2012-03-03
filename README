@@ -1,0 +1,54 @@
+========================================================================
+README for Dynamics Toolset 
+Copyright (c) 2006-2008 Jordan Van Aalsburg
+========================================================================
+
+Overview
+========
+
+Dynamics Toolset is an application for exploring dynamical systems. It is
+built using the Vrui software development toolkit and is capable of running
+on everything from desktops to fully immersive CAVE environments.
+
+Requirements
+============
+
+3D Visualizer requires Vrui version 1.0 build 050 or newer. Additionally, 
+libpng has to be installed, and Vrui has to be configured with support for PNG 
+images (see Vrui README file).
+
+Installation Guide
+==================
+
+1. Change into the Dynamics Toolset base directory:
+   > cd DynamicsToolset
+
+2. Edit the Makefile, setting the VRUIDIR variable to the root Vrui
+   directory. NOTE: this is not the directory containing the Vrui
+   source files, but rather the directory specified via the INSTALLDIR
+   variable in Vrui's makefile.
+
+3. Generate the dynamics source code. The Dynamics Toolset comes with 
+   several systems already defined (etc/dynamics.xml). You may add more
+   by simply adding the necessary information to the xml file. To 
+   generate the source code run the python script:
+   > bin/generate_generate_plugin_code.py etc/dynamics.xml
+
+4. Build the Dynamics Toolset and compile plugin code:
+   > make
+
+5. [Optional] Generate documentation. If you are planning on modifying
+   the source code it may be helpful to have documentation. To generate
+   it using Doxygen:
+   > make doc
+
+Running the Dynamics Toolset
+============================================
+
+To run the program simply type
+   > FieldViewer
+   
+The tool selector can be brought up by pressing '2' on the numeric keypad (make
+sure that NumLock is on). Once a tool is selected it can be used by pressing
+'0'. All other options and settings can be accessed from the program's main 
+menu, which is bought up by clicking the right mouse button.

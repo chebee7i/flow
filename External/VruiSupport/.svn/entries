@@ -1,0 +1,61 @@
+9
+
+dir
+34
+http://babel.physics.ucdavis.edu/svn/DTS/branches/ndim/External/VruiSupport
+http://babel.physics.ucdavis.edu/svn/DTS
+
+
+
+2008-07-15T18:30:13.704319Z
+2
+jvan
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+599f3e28-a2c4-40d9-8905-ce4e10b5eab7
+
+GLMotif
+dir
+
+Vrui
+dir
+
+VruiStreamManip.cpp
+file
+
+
+
+
+2008-08-07T21:40:24.000000Z
+9fb414477b3caaf6984f39bedb06f874
+2008-07-15T18:30:13.704319Z
+2
+jvan
+
+Misc
+dir
+
+VruiStreamManip.h
+file
+
+
+
+
+2008-08-07T21:40:24.000000Z
+0374e0862154a1016c2357870a658aa2
+2008-07-15T18:30:13.704319Z
+2
+jvan
+
