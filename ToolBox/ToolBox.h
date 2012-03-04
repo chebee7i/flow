@@ -20,7 +20,7 @@ along with the Tool Box Library. If not, see <http://www.gnu.org/licenses/>.
 #ifndef TOOLBOX_TOOLBOX_H
 #define TOOLBOX_TOOLBOX_H
 
-#include <Vrui/Tools/Tool.h>
+#include <Vrui/Tool.h>
 
 #include <list>
 #include <map>
@@ -116,7 +116,7 @@ class ToolBox : public Vrui::Tool
 	/* Methods from Vrui::Tool */
 	public:
 	const Vrui::ToolFactory* getFactory ( ) const ;
-	void buttonCallback ( int deviceIndex, int buttonIndex, Vrui::InputDevice::ButtonCallbackData* cbData ) ;
+	void buttonCallback ( int buttonIndex, Vrui::InputDevice::ButtonCallbackData* cbData ) ;
 	void frame ( ) ;
 	void display ( GLContextData& contextData ) const ;
 

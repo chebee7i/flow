@@ -42,9 +42,9 @@ Viewer::Viewer(int &argc, char** argv, char** appDefaults) :
    Vrui::Application(argc, argv, appDefaults), tools(ToolList()), model(NULL),
    frameRateDialog(NULL),
    positionDialog(NULL),
-   parameterDialog(NULL), 
-   currentOptionsDialog(NULL), 
-   optionsDialogs(DialogArray()), 
+   parameterDialog(NULL),
+   currentOptionsDialog(NULL),
+   optionsDialogs(DialogArray()),
    elapsedTime(0.0), stepSizeVersion(0), modelVersion(0),
    masterout(std::cout), nodeout(std::cout), debugout(std::cerr)
 {
@@ -132,10 +132,10 @@ std::vector<std::string> Viewer::loadPlugins() throw(std::runtime_error)
       // open the library
       dlib=dlopen(file.c_str(), RTLD_NOW);
       //dlib=dlopen(file.c_str(), RTLD_LAZY|RTLD_GLOBAL);
-      
+
       if (dlib == NULL)
          throw std::runtime_error(dlerror());
-	  
+
       // add the handle to our list
       dl_list.insert(dl_list.end(), dlib);
    }
@@ -147,7 +147,7 @@ std::vector<std::string> Viewer::loadPlugins() throw(std::runtime_error)
    {
       model_names.insert(model_names.end(), itr->first);
    }
-      
+
    // return the name array
    return model_names;
 }
@@ -210,7 +210,7 @@ void Viewer::frame()
    // frame rate
    double frameTime = Vrui::getCurrentFrameTime();
    double throttledFrameRate = frameRateDialog->getThrottledFrameRate();
-   frameRateDialog->setFrameRate(1.0/frameTime); 
+   frameRateDialog->setFrameRate(1.0/frameTime);
    elapsedTime += frameTime;
 
    bool stepTools = false;
@@ -230,9 +230,9 @@ void Viewer::frame()
      }
      else
      {
-       if (updatedIntegrator) 
+       if (updatedIntegrator)
        {
-          (*tool)->updatedIntegrator();       
+          (*tool)->updatedIntegrator();
        }
        if (stepTools)
        {
@@ -240,7 +240,7 @@ void Viewer::frame()
        }
 
        // If we want multiple users to be able to track various tools,
-       // we'll need to go back to the TrackerTool creation. For single 
+       // we'll need to go back to the TrackerTool creation. For single
        // position tracking, we just track the position of the first tool.
        if (tool == tools.begin())
        {
@@ -402,7 +402,7 @@ void Viewer::toolCreationCallback(Vrui::ToolManager::ToolCreationCallbackData* c
       optionsDialogs.push_back(tool->createOptionsDialog(mainMenu));
 
       toolmap["DynamicSolverTool"]=tool;
-      
+
       // automatically load the first tool and set options dialog
       AbstractDynamicsTool* currentTool = static_cast<AbstractDynamicsTool*>(tools.front());
       currentTool->grab();
@@ -412,6 +412,9 @@ void Viewer::toolCreationCallback(Vrui::ToolManager::ToolCreationCallbackData* c
 
 void Viewer::toolDestructionCallback(Vrui::ToolManager::ToolDestructionCallbackData* cbData)
 {
+      // need to fix this to handle multiple users each with their own toolbox
+      tools.clear();
+      toolmap.clear();
 }
 
 void Viewer::resetNavigationCallback(Misc::CallbackData* cbData)
@@ -528,7 +531,7 @@ void Viewer::dynamicsMenuCallback(GLMotif::ToggleButton::ValueChangedCallbackDat
 
    // create/assign parameter dialog
    parameterDialog=model->createParameterDialog(mainMenu);
-    
+
    parameterDialog->setTransformation(oldTrans);
 
    // popup parameter dialog if previously shown or system requests it

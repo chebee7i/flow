@@ -3,14 +3,14 @@ Copyright (c) 2006-2008 Braden Pellett
 
 This file is part of the Tool Box Library.
 
-The Tool Box Library is free software: you can redistribute it and/or modify 
-it under the terms of the GNU General Public License as published by the Free 
-Software Foundation, either version 3 of the License, or (at your option) any 
+The Tool Box Library is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by the Free
+Software Foundation, either version 3 of the License, or (at your option) any
 later version.
 
-The Tool Box Library is distributed in the hope that it will be useful, but 
-WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more 
+The Tool Box Library is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
 details.
 
 You should have received a copy of the GNU General Public License
@@ -130,13 +130,13 @@ const AliasSet& ToolBoxFactory::aliasesForButton ( const ButtonId & button ) con
 /*
  * Utilities
  */
- 
+
 void ToolBoxFactory::initialize ( Vrui::ToolManager & toolManager )
 {
 	// Load class settings:
 	Misc::ConfigurationFileSection configFileSection ( toolManager . getToolClassSection ( getClassName ( ) ) ) ;
 	mProjectToScreenDefault = configFileSection . retrieveValue < bool > ( "./projectToScreen", false ) ;
-	int numberOfButtons ( configFileSection . retrieveValue < int > ( "./numberOfButtons" ) ) ;
+	int numberOfButtons ( configFileSection . retrieveValue < int > ( "./numberOfButtons", 3 ) ) ;
 
 	typedef std::list < std::string > StringList ;
 	mButtonToAliases . push_back ( AliasSetVector ( ) ) ;
@@ -144,7 +144,6 @@ void ToolBoxFactory::initialize ( Vrui::ToolManager & toolManager )
 	{
 		mButtonToAliases [ 0 ] . push_back ( AliasSet ( ) ) ;
 		std::stringstream buttonIndexTag;
-		buttonIndexTag << "./buttonIndex" << buttonIndex;
 		StringList aliases (
 			configFileSection . retrieveValue < StringList > ( buttonIndexTag.str().c_str() ) ) ;
 		for ( StringList::iterator alias ( aliases . begin ( ) ) ; alias != aliases . end ( ) ; ++alias ) {
@@ -156,9 +155,8 @@ void ToolBoxFactory::initialize ( Vrui::ToolManager & toolManager )
 	mainButton = buttonForAlias ( "main" ) ;
 
 	// Initialize tool layout:
-	layout . setNumDevices ( 1 ) ;
-	layout . setNumButtons ( 0 , numberOfButtons ) ;
-	
+	layout . setNumButtons ( numberOfButtons ) ;
+
 	// Set tool class' factory pointer:
 	mInstance = this ;
 }
@@ -191,10 +189,10 @@ extern "C" Vrui::ToolFactory* createToolBoxFactory ( Plugins::FactoryManager < V
 {
 	// Get pointer to tool manager:
 	Vrui::ToolManager* toolManager = static_cast < Vrui::ToolManager* > ( & manager ) ;
-	
+
 	// Create factory object and insert it into class hierarchy:
 	ToolBoxFactory* toolBoxFactory = ToolBoxFactory::createIfNeeded ( * toolManager ) ;
-	
+
 	// Return factory object:
 	return toolBoxFactory;
 }
@@ -242,10 +240,10 @@ const Vrui::ToolFactory* ToolBox::getFactory ( ) const
 	return ToolBoxFactory::instance ( ) ;
 }
 
-void ToolBox::buttonCallback ( int deviceIndex, int buttonIndex, Vrui::InputDevice::ButtonCallbackData* cbData )
+void ToolBox::buttonCallback ( int buttonIndex, Vrui::InputDevice::ButtonCallbackData* cbData )
 {
 	updateDeviceTransformations ( ) ;
-
+	int deviceIndex = 0;
 	ButtonId button ( deviceIndex, buttonIndex ) ;
 	if ( cbData -> newButtonState )
 	{
@@ -282,7 +280,7 @@ void ToolBox::frame ( )
 	updateDeviceTransformations ( ) ;
 
 	MotionEvent motionEvent ( this, currentTool ( ) ) ;
-	
+
 	tellExtensions ( & Extension::moved, motionEvent ) ;
 
 	// In case an extension modified ToolBox state:
@@ -338,13 +336,13 @@ const Vrui::TrackerState& ToolBox::deviceTransformation ( ) const
 
 Vrui::Vector ToolBox::deviceDirection ( ) const
 {
-	return input . getDevice ( 0 ) -> getRayDirection ( ) ;
+	return input . getSlotDevice ( 0 ) -> getRayDirection ( ) ;
 }
 
 Vrui::Ray ToolBox::deviceRay ( ) const
 {
 	return Vrui::Ray ( deviceTransformation ( ) . getOrigin ( ),
-	                   input . getDevice ( 0 ) -> getRayDirection ( ) ) ;
+	                   input . getSlotDevice ( 0 ) -> getRayDirection ( ) ) ;
 }
 
 const Vrui::NavTrackerState& ToolBox::deviceTransformationInModel ( ) const
@@ -439,31 +437,31 @@ void ToolBox::updateDeviceTransformations ( )
 	if ( mProjectToScreen )
 	{
 		// Get pointer to input device:
-		Vrui::InputDevice* device ( input . getDevice ( 0 ) ) ;
-		
+		Vrui::InputDevice* device ( input . getSlotDevice ( 0 ) ) ;
+
 		// Calculate ray equation:
 		Vrui::Ray deviceRay ( device -> getPosition ( ), device -> getRayDirection ( ) ) ;
-		
+
 		// Find the closest intersection with any screen:
 		std::pair < Vrui::VRScreen*, Vrui::Scalar > screenIntersection ( Vrui::findScreen ( deviceRay ) ) ;
-		
+
 		// Set the current transformation to the input device:
-		mDeviceTransformation = input . getDevice ( 0 ) -> getTransformation ( ) ;
+		mDeviceTransformation = input . getSlotDevice ( 0 ) -> getTransformation ( ) ;
 		if ( screenIntersection . first != 0 )
 		{
 			// Translate the input device's transformation to have its origin on the screen:
 			mDeviceTransformation . leftMultiply (
 				Vrui::TrackerState::translate ( deviceRay . getDirection ( ) * screenIntersection . second ) ) ;
 		}
-		
+
 		// Convert current transformation to navigation coordinates:
 		mDeviceTransformationInModel = mDeviceTransformation ;
 		mDeviceTransformationInModel . leftMultiply ( Vrui::getInverseNavigationTransformation ( ) ) ;
 	}
 	else
 	{
-		mDeviceTransformation = input . getDevice ( 0 ) -> getTransformation ( ) ; 
-		mDeviceTransformationInModel = Vrui::getDeviceTransformation ( input . getDevice ( 0 ) ) ;
+		mDeviceTransformation = input . getSlotDevice ( 0 ) -> getTransformation ( ) ;
+		mDeviceTransformationInModel = Vrui::getDeviceTransformation ( input . getSlotDevice ( 0 ) ) ;
 	}
 }
 
@@ -482,7 +480,7 @@ void ToolBox::tellExtensions ( void ( Extension::*callback ) ( const EventType &
 
 #include <GL/GLContextData.h>
 #include <GL/GLMaterial.h>
-#include <GL/GLModels.h> 
+#include <GL/GLModels.h>
 #include <GL/GLGeometryWrappers.h>
 
 namespace ToolBox {

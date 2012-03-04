@@ -37,7 +37,7 @@
 #include "DTSTools"
 #include "Dynamics/BaseModel.h"
 #include "DataItem.h"
-#include "Vrui/Tools/TransformTool.h"
+#include "Vrui/TransformTool.h"
 #include "PositionDialog.h"
 #include "FrameRateDialog.h"
 
