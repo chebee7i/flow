@@ -6,7 +6,7 @@
 #
 # The Dynamics Toolset is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by the Free 
-# Software Foundation, either version 3 of the License, or (at your option) any 
+# Software Foundation, either version3 3 of the License, or (at your option) any 
 # later version.
 # 
 # The Dynamics Toolset is distributed in the hope that it will be useful, but 
@@ -21,7 +21,7 @@
 # Set the Vrui installation directory
 #
 #VRUIDIR = /usr/local/Vrui-1.0
-VRUIDIR = $(HOME)/usr/share/Vrui-1.0-066
+VRUIDIR = $(HOME)/usr/share/Vrui-2.2-003
 
 
 # Program name
@@ -102,7 +102,7 @@ else
   LIBEXT = lib
 endif
 
-include $(VRUIDIR)/etc/Vrui.makeinclude
+include $(VRUIDIR)/share/Vrui.makeinclude
 
 
 ifndef VERBOSE 
