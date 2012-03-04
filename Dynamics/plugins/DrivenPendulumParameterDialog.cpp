@@ -25,7 +25,7 @@ GLMotif::PopupWindow* DrivenPendulumParameterDialog::createDialog()
   factory.createLabel("GParameterLabel", "g");
 
   currentGValue=factory.createTextField("CurrentGValue", 10);
-  currentGValue->setLabel(".3");
+  currentGValue->setString(".3");
 
   gParameterSlider=factory.createSlider("GParameterSlider", 15.0);
   gParameterSlider->setValueRange(0.0, 2.0, .01);
@@ -35,7 +35,7 @@ GLMotif::PopupWindow* DrivenPendulumParameterDialog::createDialog()
   factory.createLabel("AParameterLabel", "a");
 
   currentAValue=factory.createTextField("CurrentAValue", 10);
-  currentAValue->setLabel("4.0");
+  currentAValue->setString("4.0");
 
   aParameterSlider=factory.createSlider("AParameterSlider", 15.0);
   aParameterSlider->setValueRange(0, 8, .01);
@@ -45,7 +45,7 @@ GLMotif::PopupWindow* DrivenPendulumParameterDialog::createDialog()
   factory.createLabel("FParameterLabel", "F");
 
   currentFValue=factory.createTextField("CurrentFValue", 10);
-  currentFValue->setLabel("4.0");
+  currentFValue->setString("4.0");
 
   FParameterSlider=factory.createSlider("FParameterSlider", 15.0);
   FParameterSlider->setValueRange(0, 8, .01);
@@ -55,7 +55,7 @@ GLMotif::PopupWindow* DrivenPendulumParameterDialog::createDialog()
   factory.createLabel("WParameterLabel", "w");
 
   currentWValue=factory.createTextField("CurrentWValue", 10);
-  currentWValue->setLabel(".6");
+  currentWValue->setString(".6");
 
   wParameterSlider=factory.createSlider("WParameterSlider", 15.0);
   wParameterSlider->setValueRange(0, 6.2831853071795862, .01);
@@ -66,8 +66,8 @@ GLMotif::PopupWindow* DrivenPendulumParameterDialog::createDialog()
   factory.createLabel("StepSizeLabel", "step size");
   stepSizeValue=factory.createTextField("StepSizeValue", 10);
   double step_size = IntegrationStepSize::instance()->getSavedValue("Driven Pendulum");
-  if (step_size > 0.0) stepSizeValue->setLabel(toString(step_size).c_str());
-  else stepSizeValue->setLabel("0.01");
+  if (step_size > 0.0) stepSizeValue->setString(toString(step_size).c_str());
+  else stepSizeValue->setString("0.01");
   stepSizeSlider=factory.createSlider("StepSizeSlider", 15.0);
   stepSizeSlider->setValueRange(0.0001, 0.05, 0.0001);
   if (step_size > 0.0) stepSizeSlider->setValue(step_size);
@@ -84,7 +84,7 @@ GLMotif::PopupWindow* DrivenPendulumParameterDialog::createDialog()
 
   factory.createLabel("xSpacingLabel", "x-Grid Spacing");
   currentXValue=factory.createTextField("xTextField", 12);
-  currentXValue->setLabel("1.0");
+  currentXValue->setString("1.0");
   currentXValue->setCharWidth(5);
   currentXValue->setPrecision(5);
   xSpacingSlider=factory.createSlider("XSpacingSlider", 15.0);
@@ -94,7 +94,7 @@ GLMotif::PopupWindow* DrivenPendulumParameterDialog::createDialog()
 
   factory.createLabel("ySpacingLabel", "y-Grid Spacing");
   currentYValue=factory.createTextField("yTextField", 12);
-  currentYValue->setLabel("1.0");
+  currentYValue->setString("1.0");
   currentYValue->setCharWidth(5);
   currentYValue->setPrecision(5);  ySpacingSlider=factory.createSlider("YSpacingSlider", 15.0);
   ySpacingSlider->setValueRange(.001, 2.0, 0.001);
@@ -103,7 +103,7 @@ GLMotif::PopupWindow* DrivenPendulumParameterDialog::createDialog()
 
   factory.createLabel("zSpacingLabel", "z-Grid Spacing");
   currentZValue=factory.createTextField("zTextField", 12);
-  currentZValue->setLabel("1.0");
+  currentZValue->setString("1.0");
   currentZValue->setCharWidth(5);
   currentZValue->setPrecision(5);
   zSpacingSlider=factory.createSlider("ZSpacingSlider", 15.0);
@@ -128,28 +128,28 @@ void DrivenPendulumParameterDialog::sliderCallback(GLMotif::Slider::ValueChanged
 
   if (strcmp(cbData->slider->getName(), "GParameterSlider")==0)
     {
-      currentGValue->setLabel(buff);
+      currentGValue->setString(buff);
       model->setValue("g", value);
     }
   else if (strcmp(cbData->slider->getName(), "AParameterSlider")==0)
     {
-      currentAValue->setLabel(buff);
+      currentAValue->setString(buff);
       model->setValue("a", value);
     }
   else if (strcmp(cbData->slider->getName(), "FParameterSlider")==0)
     {
-      currentFValue->setLabel(buff);
+      currentFValue->setString(buff);
       model->setValue("F", value);
     }
   else if (strcmp(cbData->slider->getName(), "WParameterSlider")==0)
     {
-      currentWValue->setLabel(buff);
+      currentWValue->setString(buff);
       model->setValue("w", value);
     }
   else if (strcmp(cbData->slider->getName(), "StepSizeSlider")==0)
   {
     snprintf(buff, sizeof(buff), "%6.4f", value);
-    stepSizeValue->setLabel(buff);
+    stepSizeValue->setString(buff);
     IntegrationStepSize::instance()->setValue(value);
     IntegrationStepSize::instance()->saveValue("Driven Pendulum", value);
   }
@@ -157,19 +157,19 @@ void DrivenPendulumParameterDialog::sliderCallback(GLMotif::Slider::ValueChanged
   else if (strcmp(cbData->slider->getName(), "XSpacingSlider")==0)
     {
       snprintf(buff, sizeof(buff), "%3.3f", value);
-      currentXValue->setLabel(buff);
+      currentXValue->setString(buff);
       model->setSpacing(0, value);
     }
   else if (strcmp(cbData->slider->getName(), "YSpacingSlider")==0)
     {
       snprintf(buff, sizeof(buff), "%3.3f", value);
-      currentYValue->setLabel(buff);
+      currentYValue->setString(buff);
       model->setSpacing(1, value);
     }
   else if (strcmp(cbData->slider->getName(), "ZSpacingSlider")==0)
     {
       snprintf(buff, sizeof(buff), "%3.3f", value);
-      currentZValue->setLabel(buff);
+      currentZValue->setString(buff);
       model->setSpacing(2, value);
     }
 }

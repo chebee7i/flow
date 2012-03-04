@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <iostream>
 #include <string>
+
+#include <IO/OpenFile.h>
  
 #include "RungeKutta4.h"
 #include "boost/multi_array.hpp"
@@ -27,9 +29,9 @@ GLMotif::PopupWindow* CartesianGrid3DParameterDialog::createDialog()
   char cwd[512];
   getcwd(cwd, 512);
   std::string dataDirectory(cwd);
-  //dataDirectory.append("/data");
+  IO::DirectoryPtr dirptr = IO::openDirectory(dataDirectory.c_str());
 
-  fileDialog = new GLMotif::FileSelectionDialog(Vrui::getWidgetManager(), "Open file...", dataDirectory.c_str(), ".grid"); 
+  fileDialog = new GLMotif::FileSelectionDialog(Vrui::getWidgetManager(), "Open file...", dirptr, ".grid");
   // Need to modify FileSelectionDialog to accept filterDescriptions. For ex: "Simple Grid (.grid)"
   //  fileDialog->addFileNameFilters("Numpy Array (.npy)");
   fileDialog->getOKCallbacks().add(this, &CartesianGrid3DParameterDialog::fileOpenAction);
@@ -51,8 +53,8 @@ GLMotif::PopupWindow* CartesianGrid3DParameterDialog::createDialog()
   factory.createLabel("StepSizeLabel", "step size");
   stepSizeValue=factory.createTextField("StepSizeValue", 10);
   double step_size = IntegrationStepSize::instance()->getSavedValue("CartesianGrid3D");
-  if (step_size > 0.0) stepSizeValue->setLabel(toString(step_size).c_str());
-  else stepSizeValue->setLabel("0.01");
+  if (step_size > 0.0) stepSizeValue->setString(toString(step_size).c_str());
+  else stepSizeValue->setString("0.01");
   stepSizeSlider=factory.createSlider("StepSizeSlider", 15.0);
   stepSizeSlider->setValueRange(0.0001, 0.05, 0.0001);
   if (step_size > 0.0) stepSizeSlider->setValue(step_size);
@@ -73,7 +75,7 @@ void CartesianGrid3DParameterDialog::sliderCallback(GLMotif::Slider::ValueChange
   if (strcmp(cbData->slider->getName(), "StepSizeSlider")==0)
   {
     snprintf(buff, sizeof(buff), "%6.4f", value);
-    stepSizeValue->setLabel(buff);
+    stepSizeValue->setString(buff);
     IntegrationStepSize::instance()->setValue(value);
     IntegrationStepSize::instance()->saveValue("CartesianGrid3D", value);
   }
@@ -93,11 +95,11 @@ void CartesianGrid3DParameterDialog::fileOpenAction(GLMotif::FileSelectionDialog
 
     // status information
     std::string message("Loading...");
-    openFileStatusA->setLabel(message.c_str());
+    openFileStatusA->setString(message.c_str());
 
     // When exiting Vrui, was getting an error. So we make an explicit copy.
     filename = std::string(cbData->selectedFileName);
-    openFileStatusB->setLabel(filename.c_str());
+    openFileStatusB->setString(filename.c_str());
 
     openFile();
 }
@@ -119,13 +121,13 @@ void CartesianGrid3DParameterDialog::openFile()
     if (ext == "grid")
     {
         SimpleGridReader(filename, this->model);
-        shapeLabel->setLabel("Shape:");
+        shapeLabel->setString("Shape:");
         std::ostringstream os;
         os << "(" << model->dynamics->getSpacing(0) << ", " 
                   << model->dynamics->getSpacing(1) << ", "
                   << model->dynamics->getSpacing(2) << ")";
         std::string s(os.str());
-        shapeValue->setLabel(s.c_str());
+        shapeValue->setString(s.c_str());
     }
     else
     {
@@ -134,7 +136,7 @@ void CartesianGrid3DParameterDialog::openFile()
 
     // status update
     std::string message("File:");
-    openFileStatusA->setLabel(message.c_str());
+    openFileStatusA->setString(message.c_str());
 }
 
 SimpleGridReader::SimpleGridReader(std::string filename, CartesianGrid3DIntegrator* m) 

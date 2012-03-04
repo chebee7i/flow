@@ -25,7 +25,7 @@ GLMotif::PopupWindow* STVFlowParameterDialog::createDialog()
   factory.createLabel("AlphaParameterLabel", "alpha");
 
   currentAlphaValue=factory.createTextField("CurrentAlphaValue", 10);
-  currentAlphaValue->setLabel("0.5");
+  currentAlphaValue->setString("0.5");
 
   alphaParameterSlider=factory.createSlider("AlphaParameterSlider", 15.0);
   alphaParameterSlider->setValueRange(-3.0, 3.0, 0.01);
@@ -35,7 +35,7 @@ GLMotif::PopupWindow* STVFlowParameterDialog::createDialog()
   factory.createLabel("BetaParameterLabel", "beta");
 
   currentBetaValue=factory.createTextField("CurrentBetaValue", 10);
-  currentBetaValue->setLabel("0.5");
+  currentBetaValue->setString("0.5");
 
   betaParameterSlider=factory.createSlider("BetaParameterSlider", 15.0);
   betaParameterSlider->setValueRange(-3.0, 3.0, 0.01);
@@ -46,8 +46,8 @@ GLMotif::PopupWindow* STVFlowParameterDialog::createDialog()
   factory.createLabel("StepSizeLabel", "step size");
   stepSizeValue=factory.createTextField("StepSizeValue", 10);
   double step_size = IntegrationStepSize::instance()->getSavedValue("STVFlow");
-  if (step_size > 0.0) stepSizeValue->setLabel(toString(step_size).c_str());
-  else stepSizeValue->setLabel("0.01");
+  if (step_size > 0.0) stepSizeValue->setString(toString(step_size).c_str());
+  else stepSizeValue->setString("0.01");
   stepSizeSlider=factory.createSlider("StepSizeSlider", 15.0);
   stepSizeSlider->setValueRange(0.0001, 0.05, 0.0001);
   if (step_size > 0.0) stepSizeSlider->setValue(step_size);
@@ -64,7 +64,7 @@ GLMotif::PopupWindow* STVFlowParameterDialog::createDialog()
 
   factory.createLabel("xSpacingLabel", "x-Grid Spacing");
   currentXValue=factory.createTextField("xTextField", 12);
-  currentXValue->setLabel("1.0");
+  currentXValue->setString("1.0");
   currentXValue->setCharWidth(5);
   currentXValue->setPrecision(5);
   xSpacingSlider=factory.createSlider("XSpacingSlider", 15.0);
@@ -74,7 +74,7 @@ GLMotif::PopupWindow* STVFlowParameterDialog::createDialog()
 
   factory.createLabel("ySpacingLabel", "y-Grid Spacing");
   currentYValue=factory.createTextField("yTextField", 12);
-  currentYValue->setLabel("1.0");
+  currentYValue->setString("1.0");
   currentYValue->setCharWidth(5);
   currentYValue->setPrecision(5);  ySpacingSlider=factory.createSlider("YSpacingSlider", 15.0);
   ySpacingSlider->setValueRange(.001, 2.0, 0.001);
@@ -83,7 +83,7 @@ GLMotif::PopupWindow* STVFlowParameterDialog::createDialog()
 
   factory.createLabel("zSpacingLabel", "z-Grid Spacing");
   currentZValue=factory.createTextField("zTextField", 12);
-  currentZValue->setLabel("1.0");
+  currentZValue->setString("1.0");
   currentZValue->setCharWidth(5);
   currentZValue->setPrecision(5);
   zSpacingSlider=factory.createSlider("ZSpacingSlider", 15.0);
@@ -108,18 +108,18 @@ void STVFlowParameterDialog::sliderCallback(GLMotif::Slider::ValueChangedCallbac
 
   if (strcmp(cbData->slider->getName(), "AlphaParameterSlider")==0)
     {
-      currentAlphaValue->setLabel(buff);
+      currentAlphaValue->setString(buff);
       model->setValue("alpha", value);
     }
   else if (strcmp(cbData->slider->getName(), "BetaParameterSlider")==0)
     {
-      currentBetaValue->setLabel(buff);
+      currentBetaValue->setString(buff);
       model->setValue("beta", value);
     }
   else if (strcmp(cbData->slider->getName(), "StepSizeSlider")==0)
   {
     snprintf(buff, sizeof(buff), "%6.4f", value);
-    stepSizeValue->setLabel(buff);
+    stepSizeValue->setString(buff);
     IntegrationStepSize::instance()->setValue(value);
     IntegrationStepSize::instance()->saveValue("STVFlow", value);
   }
@@ -127,19 +127,19 @@ void STVFlowParameterDialog::sliderCallback(GLMotif::Slider::ValueChangedCallbac
   else if (strcmp(cbData->slider->getName(), "XSpacingSlider")==0)
     {
       snprintf(buff, sizeof(buff), "%3.3f", value);
-      currentXValue->setLabel(buff);
+      currentXValue->setString(buff);
       model->setSpacing(0, value);
     }
   else if (strcmp(cbData->slider->getName(), "YSpacingSlider")==0)
     {
       snprintf(buff, sizeof(buff), "%3.3f", value);
-      currentYValue->setLabel(buff);
+      currentYValue->setString(buff);
       model->setSpacing(1, value);
     }
   else if (strcmp(cbData->slider->getName(), "ZSpacingSlider")==0)
     {
       snprintf(buff, sizeof(buff), "%3.3f", value);
-      currentZValue->setLabel(buff);
+      currentZValue->setString(buff);
       model->setSpacing(2, value);
     }
 }

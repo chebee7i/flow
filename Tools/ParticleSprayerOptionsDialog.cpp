@@ -42,7 +42,7 @@ GLMotif::PopupWindow* ParticleSprayerOptionsDialog::createDialog()
 
    // create text field
    lifetimeValue=factory.createTextField("LifetimeTextField", 10);
-   lifetimeValue->setLabel("750");
+   lifetimeValue->setString("750");
 
    // create and initialize slider object
    lifetimeSlider=factory.createSlider("LifetimeSlider", 15.0);
@@ -56,7 +56,7 @@ GLMotif::PopupWindow* ParticleSprayerOptionsDialog::createDialog()
 
    // create text field
    emitterSpreadValue=factory.createTextField("EmitterSpreadTextField", 10);
-   emitterSpreadValue->setLabel("0.5");
+   emitterSpreadValue->setString("0.5");
 
    // create and initialize slider object
    emitterSpreadSlider=factory.createSlider("EmitterSpreadSlider", 15.0);
@@ -69,7 +69,7 @@ GLMotif::PopupWindow* ParticleSprayerOptionsDialog::createDialog()
    factory.createLabel("ParticleSizeLabel", "Particle Size");
 
    pointSizeValue=factory.createTextField("PointSizeTextField", 10);
-   pointSizeValue->setLabel("0.05");
+   pointSizeValue->setString("0.05");
 
    pointSizeSlider=factory.createSlider("PointSizeSlider", 15.0);
    pointSizeSlider->setValueRange(0.01, 0.25, 0.01);
@@ -133,7 +133,7 @@ void ParticleSprayerOptionsDialog::sliderCallback(GLMotif::Slider::ValueChangedC
    {
       // update text field
       snprintf(buff, sizeof(buff), "%i", (unsigned int) value);
-      lifetimeValue->setLabel(buff);
+      lifetimeValue->setString(buff);
 
       // update particle sprayer
       pTool->setLifetime((unsigned int) value);
@@ -142,7 +142,7 @@ void ParticleSprayerOptionsDialog::sliderCallback(GLMotif::Slider::ValueChangedC
    {
       // update text field
       snprintf(buff, sizeof(buff), "%.2f", value);
-      emitterSpreadValue->setLabel(buff);
+      emitterSpreadValue->setString(buff);
 
       // update particle sprayer
       pTool->setEmitterSpread(value);
@@ -152,7 +152,7 @@ void ParticleSprayerOptionsDialog::sliderCallback(GLMotif::Slider::ValueChangedC
       pTool->setPointSize(value);
 
       snprintf(buff, sizeof(buff), "%.2f", value);
-      pointSizeValue->setLabel(buff);
+      pointSizeValue->setString(buff);
    }
    else
    {

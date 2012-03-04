@@ -99,7 +99,7 @@ GLMotif::PopupWindow* DynamicSolverOptionsDialog::createDialog()
    factory.createLabel("ReleaseSizeLabel", "Number of Particles");
 
    releaseSizeValue=factory.createTextField("ReleaseSizeTextField", 10);
-   releaseSizeValue->setLabel("1");
+   releaseSizeValue->setString("1");
 
    releaseSizeSlider=factory.createSlider("ReleaseSizeSlider", 15.0);
    releaseSizeSlider->setValueRange(1, 250, 1);
@@ -110,7 +110,7 @@ GLMotif::PopupWindow* DynamicSolverOptionsDialog::createDialog()
    factory.createLabel("ParticleSizeLabel", "Particle Size");
 
    pointSizeValue=factory.createTextField("PointSizeTextField", 10);
-   pointSizeValue->setLabel("0.25");
+   pointSizeValue->setString("0.25");
 
    pointSizeSlider=factory.createSlider("PointSizeSlider", 15.0);
    pointSizeSlider->setValueRange(0.01, 0.25, 0.01);
@@ -258,13 +258,13 @@ void DynamicSolverOptionsDialog::sliderCallback(GLMotif::Slider::ValueChangedCal
    {
       pTool->setPointSize(value);
       snprintf(buff, sizeof(buff), "%.2f", value);
-      pointSizeValue->setLabel(buff);
+      pointSizeValue->setString(buff);
    }
    else if (name == "ReleaseSizeSlider")
    {
       pTool->setReleaseClusterSize((unsigned int) value);
       snprintf(buff, sizeof(buff), "%i", (unsigned int) value);
-      releaseSizeValue->setLabel(buff);
+      releaseSizeValue->setString(buff);
    }
    else
    {

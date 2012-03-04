@@ -18,12 +18,12 @@ GLMotif::PopupWindow* FrameRateDialog::createDialog()
 
   factory.createLabel("FrameRateLabel", "Vrui Frame Rate");
   currentFrameRate = factory.createTextField("CurrentFrameRate", 10);
-  currentFrameRate->setLabel("120.0");
+  currentFrameRate->setString("120.0");
   factory.createLabel("DummyLabel", "");
 
   factory.createLabel("ThrottledFrameRateLabel", "Maximum DTS Frame Rate");
   currentThrottledFrameRate = factory.createTextField("CurrentThrottledFrameRate", 10);
-  currentThrottledFrameRate->setLabel("60.0");
+  currentThrottledFrameRate->setString("60.0");
   throttledFrameRateSlider = factory.createSlider("ThrottledFrameRateSlider", 15.0);
   throttledFrameRateSlider->setValueRange(0.0, 500.0, 1.0);
   throttledFrameRateSlider->setValue(120.0);
@@ -42,7 +42,7 @@ void FrameRateDialog::sliderCallback(GLMotif::Slider::ValueChangedCallbackData* 
 
   if (strcmp(cbData->slider->getName(), "ThrottledFrameRateSlider")==0)
   {
-    currentThrottledFrameRate->setLabel(buff);
+    currentThrottledFrameRate->setString(buff);
   }
 }
 
@@ -51,7 +51,7 @@ void FrameRateDialog::setFrameRate(double frameRate)
   char buff[10];
   snprintf(buff, sizeof(buff), "%3.2f", frameRate);
 
-  currentFrameRate->setLabel(buff);
+  currentFrameRate->setString(buff);
 }
 
 double FrameRateDialog::getThrottledFrameRate()

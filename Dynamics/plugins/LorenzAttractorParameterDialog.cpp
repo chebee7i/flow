@@ -25,7 +25,7 @@ GLMotif::PopupWindow* LorenzAttractorParameterDialog::createDialog()
   factory.createLabel("SigmaParameterLabel", "sigma");
 
   currentSigmaValue=factory.createTextField("CurrentSigmaValue", 10);
-  currentSigmaValue->setLabel("10.0");
+  currentSigmaValue->setString("10.0");
 
   sigmaParameterSlider=factory.createSlider("SigmaParameterSlider", 15.0);
   sigmaParameterSlider->setValueRange(0.0, 40.0, 0.1);
@@ -35,7 +35,7 @@ GLMotif::PopupWindow* LorenzAttractorParameterDialog::createDialog()
   factory.createLabel("RParameterLabel", "r");
 
   currentRValue=factory.createTextField("CurrentRValue", 10);
-  currentRValue->setLabel("21.0");
+  currentRValue->setString("21.0");
 
   rParameterSlider=factory.createSlider("RParameterSlider", 15.0);
   rParameterSlider->setValueRange(0.0, 40.0, 0.1);
@@ -45,7 +45,7 @@ GLMotif::PopupWindow* LorenzAttractorParameterDialog::createDialog()
   factory.createLabel("BParameterLabel", "b");
 
   currentBValue=factory.createTextField("CurrentBValue", 10);
-  currentBValue->setLabel("2.6");
+  currentBValue->setString("2.6");
 
   bParameterSlider=factory.createSlider("BParameterSlider", 15.0);
   bParameterSlider->setValueRange(0.0, 20.0, 0.1);
@@ -56,8 +56,8 @@ GLMotif::PopupWindow* LorenzAttractorParameterDialog::createDialog()
   factory.createLabel("StepSizeLabel", "step size");
   stepSizeValue=factory.createTextField("StepSizeValue", 10);
   double step_size = IntegrationStepSize::instance()->getSavedValue("Lorenz Attractor");
-  if (step_size > 0.0) stepSizeValue->setLabel(toString(step_size).c_str());
-  else stepSizeValue->setLabel("0.01");
+  if (step_size > 0.0) stepSizeValue->setString(toString(step_size).c_str());
+  else stepSizeValue->setString("0.01");
   stepSizeSlider=factory.createSlider("StepSizeSlider", 15.0);
   stepSizeSlider->setValueRange(0.0001, 0.05, 0.0001);
   if (step_size > 0.0) stepSizeSlider->setValue(step_size);
@@ -74,7 +74,7 @@ GLMotif::PopupWindow* LorenzAttractorParameterDialog::createDialog()
 
   factory.createLabel("xSpacingLabel", "x-Grid Spacing");
   currentXValue=factory.createTextField("xTextField", 12);
-  currentXValue->setLabel("1.0");
+  currentXValue->setString("1.0");
   currentXValue->setCharWidth(5);
   currentXValue->setPrecision(5);
   xSpacingSlider=factory.createSlider("XSpacingSlider", 15.0);
@@ -84,7 +84,7 @@ GLMotif::PopupWindow* LorenzAttractorParameterDialog::createDialog()
 
   factory.createLabel("ySpacingLabel", "y-Grid Spacing");
   currentYValue=factory.createTextField("yTextField", 12);
-  currentYValue->setLabel("1.0");
+  currentYValue->setString("1.0");
   currentYValue->setCharWidth(5);
   currentYValue->setPrecision(5);  ySpacingSlider=factory.createSlider("YSpacingSlider", 15.0);
   ySpacingSlider->setValueRange(.001, 2.0, 0.001);
@@ -93,7 +93,7 @@ GLMotif::PopupWindow* LorenzAttractorParameterDialog::createDialog()
 
   factory.createLabel("zSpacingLabel", "z-Grid Spacing");
   currentZValue=factory.createTextField("zTextField", 12);
-  currentZValue->setLabel("1.0");
+  currentZValue->setString("1.0");
   currentZValue->setCharWidth(5);
   currentZValue->setPrecision(5);
   zSpacingSlider=factory.createSlider("ZSpacingSlider", 15.0);
@@ -118,23 +118,23 @@ void LorenzAttractorParameterDialog::sliderCallback(GLMotif::Slider::ValueChange
 
   if (strcmp(cbData->slider->getName(), "SigmaParameterSlider")==0)
     {
-      currentSigmaValue->setLabel(buff);
+      currentSigmaValue->setString(buff);
       model->setValue("sigma", value);
     }
   else if (strcmp(cbData->slider->getName(), "RParameterSlider")==0)
     {
-      currentRValue->setLabel(buff);
+      currentRValue->setString(buff);
       model->setValue("r", value);
     }
   else if (strcmp(cbData->slider->getName(), "BParameterSlider")==0)
     {
-      currentBValue->setLabel(buff);
+      currentBValue->setString(buff);
       model->setValue("b", value);
     }
   else if (strcmp(cbData->slider->getName(), "StepSizeSlider")==0)
   {
     snprintf(buff, sizeof(buff), "%6.4f", value);
-    stepSizeValue->setLabel(buff);
+    stepSizeValue->setString(buff);
     IntegrationStepSize::instance()->setValue(value);
     IntegrationStepSize::instance()->saveValue("Lorenz Attractor", value);
   }
@@ -142,19 +142,19 @@ void LorenzAttractorParameterDialog::sliderCallback(GLMotif::Slider::ValueChange
   else if (strcmp(cbData->slider->getName(), "XSpacingSlider")==0)
     {
       snprintf(buff, sizeof(buff), "%3.3f", value);
-      currentXValue->setLabel(buff);
+      currentXValue->setString(buff);
       model->setSpacing(0, value);
     }
   else if (strcmp(cbData->slider->getName(), "YSpacingSlider")==0)
     {
       snprintf(buff, sizeof(buff), "%3.3f", value);
-      currentYValue->setLabel(buff);
+      currentYValue->setString(buff);
       model->setSpacing(1, value);
     }
   else if (strcmp(cbData->slider->getName(), "ZSpacingSlider")==0)
     {
       snprintf(buff, sizeof(buff), "%3.3f", value);
-      currentZValue->setLabel(buff);
+      currentZValue->setString(buff);
       model->setSpacing(2, value);
     }
 }

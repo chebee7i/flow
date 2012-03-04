@@ -25,7 +25,7 @@ GLMotif::PopupWindow* CyclesParameterDialog::createDialog()
   factory.createLabel("SParameterLabel", "s");
 
   currentSValue=factory.createTextField("CurrentSValue", 10);
-  currentSValue->setLabel(".12");
+  currentSValue->setString(".12");
 
   sParameterSlider=factory.createSlider("SParameterSlider", 15.0);
   sParameterSlider->setValueRange(-3, 3, 0.1);
@@ -35,7 +35,7 @@ GLMotif::PopupWindow* CyclesParameterDialog::createDialog()
   factory.createLabel("Dk_yParameterLabel", "dk_Y");
 
   currentDk_yValue=factory.createTextField("CurrentDk_yValue", 10);
-  currentDk_yValue->setLabel("-3");
+  currentDk_yValue->setString("-3");
 
   dk_YParameterSlider=factory.createSlider("Dk_yParameterSlider", 15.0);
   dk_YParameterSlider->setValueRange(-10, 10, 0.1);
@@ -45,7 +45,7 @@ GLMotif::PopupWindow* CyclesParameterDialog::createDialog()
   factory.createLabel("Dk_xzParameterLabel", "dk_XZ");
 
   currentDk_xzValue=factory.createTextField("CurrentDk_xzValue", 10);
-  currentDk_xzValue->setLabel("0");
+  currentDk_xzValue->setString("0");
 
   dk_XZParameterSlider=factory.createSlider("Dk_xzParameterSlider", 15.0);
   dk_XZParameterSlider->setValueRange(-.1, .05, 0.001);
@@ -56,8 +56,8 @@ GLMotif::PopupWindow* CyclesParameterDialog::createDialog()
   factory.createLabel("StepSizeLabel", "step size");
   stepSizeValue=factory.createTextField("StepSizeValue", 10);
   double step_size = IntegrationStepSize::instance()->getSavedValue("Cycles");
-  if (step_size > 0.0) stepSizeValue->setLabel(toString(step_size).c_str());
-  else stepSizeValue->setLabel("0.01");
+  if (step_size > 0.0) stepSizeValue->setString(toString(step_size).c_str());
+  else stepSizeValue->setString("0.01");
   stepSizeSlider=factory.createSlider("StepSizeSlider", 15.0);
   stepSizeSlider->setValueRange(0.0001, 0.05, 0.0001);
   if (step_size > 0.0) stepSizeSlider->setValue(step_size);
@@ -74,7 +74,7 @@ GLMotif::PopupWindow* CyclesParameterDialog::createDialog()
 
   factory.createLabel("xSpacingLabel", "x-Grid Spacing");
   currentXValue=factory.createTextField("xTextField", 12);
-  currentXValue->setLabel("1.0");
+  currentXValue->setString("1.0");
   currentXValue->setCharWidth(5);
   currentXValue->setPrecision(5);
   xSpacingSlider=factory.createSlider("XSpacingSlider", 15.0);
@@ -84,7 +84,7 @@ GLMotif::PopupWindow* CyclesParameterDialog::createDialog()
 
   factory.createLabel("ySpacingLabel", "y-Grid Spacing");
   currentYValue=factory.createTextField("yTextField", 12);
-  currentYValue->setLabel("1.0");
+  currentYValue->setString("1.0");
   currentYValue->setCharWidth(5);
   currentYValue->setPrecision(5);  ySpacingSlider=factory.createSlider("YSpacingSlider", 15.0);
   ySpacingSlider->setValueRange(.001, 2.0, 0.001);
@@ -93,7 +93,7 @@ GLMotif::PopupWindow* CyclesParameterDialog::createDialog()
 
   factory.createLabel("zSpacingLabel", "z-Grid Spacing");
   currentZValue=factory.createTextField("zTextField", 12);
-  currentZValue->setLabel("1.0");
+  currentZValue->setString("1.0");
   currentZValue->setCharWidth(5);
   currentZValue->setPrecision(5);
   zSpacingSlider=factory.createSlider("ZSpacingSlider", 15.0);
@@ -118,23 +118,23 @@ void CyclesParameterDialog::sliderCallback(GLMotif::Slider::ValueChangedCallback
 
   if (strcmp(cbData->slider->getName(), "SParameterSlider")==0)
     {
-      currentSValue->setLabel(buff);
+      currentSValue->setString(buff);
       model->setValue("s", value);
     }
   else if (strcmp(cbData->slider->getName(), "Dk_yParameterSlider")==0)
     {
-      currentDk_yValue->setLabel(buff);
+      currentDk_yValue->setString(buff);
       model->setValue("dk_Y", value);
     }
   else if (strcmp(cbData->slider->getName(), "Dk_xzParameterSlider")==0)
     {
-      currentDk_xzValue->setLabel(buff);
+      currentDk_xzValue->setString(buff);
       model->setValue("dk_XZ", value);
     }
   else if (strcmp(cbData->slider->getName(), "StepSizeSlider")==0)
   {
     snprintf(buff, sizeof(buff), "%6.4f", value);
-    stepSizeValue->setLabel(buff);
+    stepSizeValue->setString(buff);
     IntegrationStepSize::instance()->setValue(value);
     IntegrationStepSize::instance()->saveValue("Cycles", value);
   }
@@ -142,19 +142,19 @@ void CyclesParameterDialog::sliderCallback(GLMotif::Slider::ValueChangedCallback
   else if (strcmp(cbData->slider->getName(), "XSpacingSlider")==0)
     {
       snprintf(buff, sizeof(buff), "%3.3f", value);
-      currentXValue->setLabel(buff);
+      currentXValue->setString(buff);
       model->setSpacing(0, value);
     }
   else if (strcmp(cbData->slider->getName(), "YSpacingSlider")==0)
     {
       snprintf(buff, sizeof(buff), "%3.3f", value);
-      currentYValue->setLabel(buff);
+      currentYValue->setString(buff);
       model->setSpacing(1, value);
     }
   else if (strcmp(cbData->slider->getName(), "ZSpacingSlider")==0)
     {
       snprintf(buff, sizeof(buff), "%3.3f", value);
-      currentZValue->setLabel(buff);
+      currentZValue->setString(buff);
       model->setSpacing(2, value);
     }
 }

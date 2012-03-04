@@ -42,7 +42,7 @@ GLMotif::PopupWindow* StaticSolverOptionsDialog::createDialog()
 
    // create text field
    numberOfPointsValue=factory.createTextField("NumberOfPointsTextField", 10);
-   numberOfPointsValue->setLabel("5000");
+   numberOfPointsValue->setString("5000");
 
    // create and initialize slider
    numberOfPointsSlider=factory.createSlider("NumberOfPointsSlider", 15.0);
@@ -113,7 +113,7 @@ void StaticSolverOptionsDialog::sliderCallback(GLMotif::Slider::ValueChangedCall
    char buff[10];
    snprintf(buff, sizeof(buff), "%i", value);
 
-   numberOfPointsValue->setLabel(buff);
+   numberOfPointsValue->setString(buff);
 
    // update static solver
    StaticSolverTool* pTool=static_cast<StaticSolverTool*> (tool);

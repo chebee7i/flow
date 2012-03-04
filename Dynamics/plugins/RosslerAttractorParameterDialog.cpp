@@ -25,7 +25,7 @@ GLMotif::PopupWindow* RosslerAttractorParameterDialog::createDialog()
   factory.createLabel("AParameterLabel", "a");
 
   currentAValue=factory.createTextField("CurrentAValue", 10);
-  currentAValue->setLabel("0.2");
+  currentAValue->setString("0.2");
 
   aParameterSlider=factory.createSlider("AParameterSlider", 15.0);
   aParameterSlider->setValueRange(0.0, 10.0, 0.01);
@@ -35,7 +35,7 @@ GLMotif::PopupWindow* RosslerAttractorParameterDialog::createDialog()
   factory.createLabel("BParameterLabel", "b");
 
   currentBValue=factory.createTextField("CurrentBValue", 10);
-  currentBValue->setLabel("0.2");
+  currentBValue->setString("0.2");
 
   bParameterSlider=factory.createSlider("BParameterSlider", 15.0);
   bParameterSlider->setValueRange(0.0, 10.0, 0.01);
@@ -45,7 +45,7 @@ GLMotif::PopupWindow* RosslerAttractorParameterDialog::createDialog()
   factory.createLabel("CParameterLabel", "c");
 
   currentCValue=factory.createTextField("CurrentCValue", 10);
-  currentCValue->setLabel("5.0");
+  currentCValue->setString("5.0");
 
   cParameterSlider=factory.createSlider("CParameterSlider", 15.0);
   cParameterSlider->setValueRange(0.0, 10.0, 0.01);
@@ -56,8 +56,8 @@ GLMotif::PopupWindow* RosslerAttractorParameterDialog::createDialog()
   factory.createLabel("StepSizeLabel", "step size");
   stepSizeValue=factory.createTextField("StepSizeValue", 10);
   double step_size = IntegrationStepSize::instance()->getSavedValue("Rossler Attractor");
-  if (step_size > 0.0) stepSizeValue->setLabel(toString(step_size).c_str());
-  else stepSizeValue->setLabel("0.01");
+  if (step_size > 0.0) stepSizeValue->setString(toString(step_size).c_str());
+  else stepSizeValue->setString("0.01");
   stepSizeSlider=factory.createSlider("StepSizeSlider", 15.0);
   stepSizeSlider->setValueRange(0.0001, 0.05, 0.0001);
   if (step_size > 0.0) stepSizeSlider->setValue(step_size);
@@ -74,7 +74,7 @@ GLMotif::PopupWindow* RosslerAttractorParameterDialog::createDialog()
 
   factory.createLabel("xSpacingLabel", "x-Grid Spacing");
   currentXValue=factory.createTextField("xTextField", 12);
-  currentXValue->setLabel("1.0");
+  currentXValue->setString("1.0");
   currentXValue->setCharWidth(5);
   currentXValue->setPrecision(5);
   xSpacingSlider=factory.createSlider("XSpacingSlider", 15.0);
@@ -84,7 +84,7 @@ GLMotif::PopupWindow* RosslerAttractorParameterDialog::createDialog()
 
   factory.createLabel("ySpacingLabel", "y-Grid Spacing");
   currentYValue=factory.createTextField("yTextField", 12);
-  currentYValue->setLabel("1.0");
+  currentYValue->setString("1.0");
   currentYValue->setCharWidth(5);
   currentYValue->setPrecision(5);  ySpacingSlider=factory.createSlider("YSpacingSlider", 15.0);
   ySpacingSlider->setValueRange(.001, 2.0, 0.001);
@@ -93,7 +93,7 @@ GLMotif::PopupWindow* RosslerAttractorParameterDialog::createDialog()
 
   factory.createLabel("zSpacingLabel", "z-Grid Spacing");
   currentZValue=factory.createTextField("zTextField", 12);
-  currentZValue->setLabel("1.0");
+  currentZValue->setString("1.0");
   currentZValue->setCharWidth(5);
   currentZValue->setPrecision(5);
   zSpacingSlider=factory.createSlider("ZSpacingSlider", 15.0);
@@ -118,23 +118,23 @@ void RosslerAttractorParameterDialog::sliderCallback(GLMotif::Slider::ValueChang
 
   if (strcmp(cbData->slider->getName(), "AParameterSlider")==0)
     {
-      currentAValue->setLabel(buff);
+      currentAValue->setString(buff);
       model->setValue("a", value);
     }
   else if (strcmp(cbData->slider->getName(), "BParameterSlider")==0)
     {
-      currentBValue->setLabel(buff);
+      currentBValue->setString(buff);
       model->setValue("b", value);
     }
   else if (strcmp(cbData->slider->getName(), "CParameterSlider")==0)
     {
-      currentCValue->setLabel(buff);
+      currentCValue->setString(buff);
       model->setValue("c", value);
     }
   else if (strcmp(cbData->slider->getName(), "StepSizeSlider")==0)
   {
     snprintf(buff, sizeof(buff), "%6.4f", value);
-    stepSizeValue->setLabel(buff);
+    stepSizeValue->setString(buff);
     IntegrationStepSize::instance()->setValue(value);
     IntegrationStepSize::instance()->saveValue("Rossler Attractor", value);
   }
@@ -142,19 +142,19 @@ void RosslerAttractorParameterDialog::sliderCallback(GLMotif::Slider::ValueChang
   else if (strcmp(cbData->slider->getName(), "XSpacingSlider")==0)
     {
       snprintf(buff, sizeof(buff), "%3.3f", value);
-      currentXValue->setLabel(buff);
+      currentXValue->setString(buff);
       model->setSpacing(0, value);
     }
   else if (strcmp(cbData->slider->getName(), "YSpacingSlider")==0)
     {
       snprintf(buff, sizeof(buff), "%3.3f", value);
-      currentYValue->setLabel(buff);
+      currentYValue->setString(buff);
       model->setSpacing(1, value);
     }
   else if (strcmp(cbData->slider->getName(), "ZSpacingSlider")==0)
     {
       snprintf(buff, sizeof(buff), "%3.3f", value);
-      currentZValue->setLabel(buff);
+      currentZValue->setString(buff);
       model->setSpacing(2, value);
     }
 }

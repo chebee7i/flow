@@ -6,14 +6,14 @@
 #
 # This file is part of the Dynamics Toolset.
 #
-# The Dynamics Toolset is free software: you can redistribute it and/or modify 
-# it under the terms of the GNU General Public License as published by the Free 
-# Software Foundation, either version 3 of the License, or (at your option) any 
+# The Dynamics Toolset is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by the Free
+# Software Foundation, either version 3 of the License, or (at your option) any
 # later version.
 #
-# The Dynamics Toolset is distributed in the hope that it will be useful, but 
-# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-# FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more 
+# The Dynamics Toolset is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+# FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
 # details.
 #
 # You should have received a copy of the GNU General Public License
@@ -22,7 +22,7 @@
 
 
 def TAB(count):
-    fill = ""    
+    fill = ""
     for i in range(count):
         fill += "  "
     return fill
@@ -35,7 +35,7 @@ def SplitCamelCase(word):
     return re.sub('([a-z])([A-Z])', '\\1 \\2', word)
 
 def ToCamelCase(word):
-    
+
     return re.sub('([a-z]) ([A-Z])', '\\1\\2', word)
 
 
@@ -71,23 +71,23 @@ class DynamicalSystem:
  *
  * TO MODIFY THE PARAMETER VALUES OR DYNAMICAL
  * EQUATIONS EDIT THE XML FILE (dynamics.xml).
- * 
+ *
  */
- 
+
 """
 
     def generate_dynamics_header(self, out):
-        
+
         self.generate_dynamic_model_code(out)
 
         self.generate_integrator_code(out)
 
-        
+
 
     def generate_parameter_header(self, out):
-        
+
         self.generate_parameter_dialog_header(out)
-       
+
 
     def generate_dynamic_model_code(self, out):
 
@@ -116,7 +116,7 @@ class DynamicalSystem:
             args += "Scalar " + param.name.capitalize() + ", "
         args  = args[:-2]
         args += ")"
-        
+
         out.write( TAB(1) + "%s" % self.name + args + "\n")
 
         # initializer list
@@ -140,11 +140,11 @@ class DynamicalSystem:
 
         fields = re.sub('x', 'p[0]', fields)
         fields = re.sub('y', 'p[1]', fields)
-        fields = re.sub('z', 'p[2]', fields)                       
+        fields = re.sub('z', 'p[2]', fields)
 
         out.write( fields )
         out.write( ");\n" )
-        
+
         out.write( TAB(2) + "}\n" )
 
         out.write( "\n" )
@@ -162,7 +162,7 @@ class DynamicalSystem:
                 out.write( TAB(3) + "else if (name == \"%s\") %s = value;\n" % (param.name, param.name) )
             count += 1
         out.write( TAB(2) + "}\n" )
-        
+
         out.write( "};\n" )
 
         out.write( "\n" )
@@ -181,10 +181,10 @@ class DynamicalSystem:
 
         args = "("
         for param in self.parameters:
-            args += param.default + ", "            
+            args += param.default + ", "
         args = args[:-2];
         args += ")"
-        
+
         out.write( TAB(3) + "dynamics = new %s" % self.name + args + ";\n" )
         #
         #
@@ -202,19 +202,19 @@ class DynamicalSystem:
         out.write( TAB(3) + "delete dynamics;\n" )
         out.write( TAB(3) + "delete integrator;\n" )
         out.write( TAB(2) + "}\n" )
-        out.write( "\n" )       
+        out.write( "\n" )
         out.write( TAB(1) + "inline Vector step(const Point& p)\n" )
-        out.write( TAB(2) + "{\n" )        
-        out.write( TAB(3) + "return integrator->step(p);\n" )        
+        out.write( TAB(2) + "{\n" )
+        out.write( TAB(3) + "return integrator->step(p);\n" )
         out.write( TAB(2) + "}\n" )
         out.write( "\n" )
         out.write( TAB(1) + "virtual unsigned int getModelVersion()\n" )
         out.write( TAB(2) + "{\n" )
         out.write( TAB(3) + "return dynamics->getModelVersion();\n" )
         out.write( TAB(2) + "}\n" )
-        out.write( "\n" )      
+        out.write( "\n" )
         out.write( TAB(1) + "virtual CaveDialog* createParameterDialog(GLMotif::PopupMenu *parent)\n" )
-        out.write( TAB(2) + "{\n" ) 
+        out.write( TAB(2) + "{\n" )
         out.write( TAB(3) + "return new %sParameterDialog(parent, dynamics);\n" % self.name )
         out.write( TAB(2) + "}\n" )
         out.write( "\n" )
@@ -225,10 +225,10 @@ class DynamicalSystem:
                                                                    self.center['z']) )
         out.write( TAB(2) + "}\n")
 
-        
+
         out.write( "};\n" )
         out.write( "\n" )
-        out.write( "#endif\n" ) 
+        out.write( "#endif\n" )
 
     def generate_dyamics_source(self, out):
 
@@ -256,10 +256,10 @@ class DynamicalSystem:
         out.write( TAB(1) + "};\n" )
         out.write( "\n" )
         out.write( TAB(1) + "%sProxy p;\n" % self.name)
-        #out.write( "}\n" )                   
-                   
+        #out.write( "}\n" )
 
-        
+
+
     def generate_parameter_dialog_header(self, out):
 
         out.write( self.warning )
@@ -312,10 +312,10 @@ class DynamicalSystem:
         out.write( "\n" )
         out.write( TAB(1) + "virtual ~%sParameterDialog() { }\n" % self.name )
         out.write( "};\n" )
-        out.write( "\n" )       
+        out.write( "\n" )
         out.write( "#endif\n" )
 
-        
+
     def generate_parameter_source(self, out):
 
         out.write( self.warning )
@@ -323,7 +323,7 @@ class DynamicalSystem:
         out.write( "#include \"GLMotif/WidgetFactory.h\"\n" )
         out.write( "#include \"IntegrationStepSize.h\"\n" )
         out.write( "#include \"VruiStreamManip.h\"\n" )
-        
+
         out.write( "\n" )
         out.write( "GLMotif::PopupWindow* %sParameterDialog::createDialog()\n" % self.name )
         out.write( "{\n" )
@@ -339,7 +339,7 @@ class DynamicalSystem:
             out.write( TAB(1) + "factory.createLabel(\"%sParameterLabel\", \"%s\");\n" % (param.name.capitalize(), param.name) )
             out.write( "\n" )
             out.write( TAB(1) + "current%sValue=factory.createTextField(\"Current%sValue\", 10);\n" % (param.name.capitalize(), param.name.capitalize()) )
-            out.write( TAB(1) + "current%sValue->setLabel(\"%s\");\n" % (param.name.capitalize(), param.default) )
+            out.write( TAB(1) + "current%sValue->setString(\"%s\");\n" % (param.name.capitalize(), param.default) )
             out.write( "\n" )
             out.write( TAB(1) + "%sParameterSlider=factory.createSlider(\"%sParameterSlider\", 15.0);\n" % (param.name, param.name.capitalize()) )
             out.write( TAB(1) + "%sParameterSlider->setValueRange(%s, %s, %s);\n" % (param.name, param.min, param.max, param.step_size) )
@@ -353,9 +353,9 @@ class DynamicalSystem:
         out.write( TAB(1) + "stepSizeValue=factory.createTextField(\"StepSizeValue\", 10);\n" )
 
         out.write( TAB(1) + "double step_size = IntegrationStepSize::instance()->getSavedValue(\"%s\");\n" % SplitCamelCase(self.name) )
-        out.write( TAB(1) + "if (step_size > 0.0) stepSizeValue->setLabel(toString(step_size).c_str());\n" )
-        out.write( TAB(1) + "else stepSizeValue->setLabel(\"0.01\");\n" )
-                           
+        out.write( TAB(1) + "if (step_size > 0.0) stepSizeValue->setString(toString(step_size).c_str());\n" )
+        out.write( TAB(1) + "else stepSizeValue->setString(\"0.01\");\n" )
+
         out.write( TAB(1) + "stepSizeSlider=factory.createSlider(\"StepSizeSlider\", 15.0);\n" )
         out.write( TAB(1) + "stepSizeSlider->setValueRange(0.0001, 0.05, 0.0001);\n" )
 
@@ -374,7 +374,7 @@ class DynamicalSystem:
 
   factory.createLabel("xSpacingLabel", "x-Grid Spacing");
   currentXValue=factory.createTextField("xTextField", 12);
-  currentXValue->setLabel("1.0");
+  currentXValue->setString("1.0");
   currentXValue->setCharWidth(5);
   currentXValue->setPrecision(5);
   xSpacingSlider=factory.createSlider("XSpacingSlider", 15.0);
@@ -384,7 +384,7 @@ class DynamicalSystem:
 
   factory.createLabel("ySpacingLabel", "y-Grid Spacing");
   currentYValue=factory.createTextField("yTextField", 12);
-  currentYValue->setLabel("1.0");
+  currentYValue->setString("1.0");
   currentYValue->setCharWidth(5);
   currentYValue->setPrecision(5);  ySpacingSlider=factory.createSlider("YSpacingSlider", 15.0);
   ySpacingSlider->setValueRange(.001, 2.0, 0.001);
@@ -393,7 +393,7 @@ class DynamicalSystem:
 
   factory.createLabel("zSpacingLabel", "z-Grid Spacing");
   currentZValue=factory.createTextField("zTextField", 12);
-  currentZValue->setLabel("1.0");
+  currentZValue->setString("1.0");
   currentZValue->setCharWidth(5);
   currentZValue->setPrecision(5);
   zSpacingSlider=factory.createSlider("ZSpacingSlider", 15.0);
@@ -424,9 +424,9 @@ class DynamicalSystem:
                 out.write( TAB(1) + "if (strcmp(cbData->slider->getName(), \"%sParameterSlider\")==0)\n" % param.name.capitalize() )
             else:
                 out.write( TAB(1) + "else if (strcmp(cbData->slider->getName(), \"%sParameterSlider\")==0)\n" % param.name.capitalize() )
-                
+
             out.write( TAB(2) + "{\n" )
-            out.write( TAB(3) + "current%sValue->setLabel(buff);\n" % param.name.capitalize() )
+            out.write( TAB(3) + "current%sValue->setString(buff);\n" % param.name.capitalize() )
             out.write( TAB(3) + "model->setValue(\"%s\", value);\n" % param.name )
             out.write( TAB(2) + "}\n" )
 
@@ -435,7 +435,7 @@ class DynamicalSystem:
         out.write ( TAB(1) + "else if (strcmp(cbData->slider->getName(), \"StepSizeSlider\")==0)\n" )
         out.write ( TAB(1) + "{\n" )
         out.write ( TAB(2) + "snprintf(buff, sizeof(buff), \"%6.4f\", value);\n" )
-        out.write ( TAB(2) + "stepSizeValue->setLabel(buff);\n" )
+        out.write ( TAB(2) + "stepSizeValue->setString(buff);\n" )
         out.write ( TAB(2) + "IntegrationStepSize::instance()->setValue(value);\n" )
         out.write ( TAB(2) + "IntegrationStepSize::instance()->saveValue(\"%s\", value);\n" % SplitCamelCase(self.name) )
         out.write ( TAB(1) + "}\n" )
@@ -443,19 +443,19 @@ class DynamicalSystem:
   else if (strcmp(cbData->slider->getName(), "XSpacingSlider")==0)
     {
       snprintf(buff, sizeof(buff), "%3.3f", value);
-      currentXValue->setLabel(buff);
+      currentXValue->setString(buff);
       model->setSpacing(0, value);
     }
   else if (strcmp(cbData->slider->getName(), "YSpacingSlider")==0)
     {
       snprintf(buff, sizeof(buff), "%3.3f", value);
-      currentYValue->setLabel(buff);
+      currentYValue->setString(buff);
       model->setSpacing(1, value);
     }
   else if (strcmp(cbData->slider->getName(), "ZSpacingSlider")==0)
     {
       snprintf(buff, sizeof(buff), "%3.3f", value);
-      currentZValue->setLabel(buff);
+      currentZValue->setString(buff);
       model->setSpacing(2, value);
     }
 """)
@@ -485,7 +485,7 @@ void %sParameterDialog::evalTogglesCallback(GLMotif::ToggleButton::ValueChangedC
 }
 """ % self.name)
         out.write( "\n" )
-           
+
 
 from xml.dom import minidom
 import os
@@ -494,9 +494,9 @@ class CodeGenerator:
     """ Parses xml file containing description of dynamical systems and
     generates plugin code (C++).
     """
-    
+
     def __init__(self):
-        
+
         self.systems = []  # list of all dynamical systems
 
         self.plugin_dir = "./Dynamics/plugins/"
@@ -507,7 +507,7 @@ class CodeGenerator:
             os.mkdir(self.plugin_dir)
 
         for sys in self.systems:
-            
+
             dynamics_h    = self.plugin_dir + sys.name + ".h"
             dynamics_cpp  = self.plugin_dir + sys.name + ".cpp"
             parameter_h   = self.plugin_dir + sys.name + "ParameterDialog.h"
@@ -529,11 +529,11 @@ class CodeGenerator:
         self.generate_makefile_fragment()
 
     def generate_makefile_fragment(self):
-        
+
         fragment = open('etc/plugin.mk', 'w')
-        
+
         for sys in self.systems:
-            
+
             fragment.write( "plugins/lib%s.so: obj/Dynamics/plugins/%s.o obj/Dynamics/plugins/%sParameterDialog.o\n" % (sys.name, sys.name, sys.name) )
             fragment.write( "obj/Dynamics/plugins/%s.o: Dynamics/plugins/%s.cpp\n" % (sys.name, sys.name) )
             fragment.write( "obj/Dynamics/plugins/%sParameterDialog.o: Dynamics/plugins/%sParameterDialog.cpp\n" % (sys.name, sys.name) )
@@ -554,11 +554,11 @@ class CodeGenerator:
                                                     param.default)
 
             print
-            
+
             for (label, eqn) in sys.equations.items():
 
                 print "\t%s: %s" % (label, eqn)
-    
+
 
     def parse(self, filename):
         """ Parse the XML document and initialize the systems list.
@@ -596,14 +596,14 @@ class CodeGenerator:
             system.center['x'] = ctr.getAttribute('x')
             system.center['y'] = ctr.getAttribute('y')
             system.center['z'] = ctr.getAttribute('z')
-            
-            
+
+
             # add current system to systems list
             self.systems.append(system)
-        
+
 
 import sys
-            
+
 if __name__ == '__main__':
 
     if len(sys.argv) != 2:
@@ -621,4 +621,4 @@ if __name__ == '__main__':
 
     generator.generate_code()
 
-   
+
