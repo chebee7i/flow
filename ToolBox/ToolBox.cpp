@@ -133,17 +133,19 @@ const AliasSet& ToolBoxFactory::aliasesForButton ( const ButtonId & button ) con
 
 void ToolBoxFactory::initialize ( Vrui::ToolManager & toolManager )
 {
+
 	// Load class settings:
 	Misc::ConfigurationFileSection configFileSection ( toolManager . getToolClassSection ( getClassName ( ) ) ) ;
 	mProjectToScreenDefault = configFileSection . retrieveValue < bool > ( "./projectToScreen", false ) ;
 	int numberOfButtons ( configFileSection . retrieveValue < int > ( "./numberOfButtons", 3 ) ) ;
-
+	
 	typedef std::list < std::string > StringList ;
 	mButtonToAliases . push_back ( AliasSetVector ( ) ) ;
 	for ( int buttonIndex ( 0 ); buttonIndex < numberOfButtons; ++buttonIndex )
 	{
 		mButtonToAliases [ 0 ] . push_back ( AliasSet ( ) ) ;
 		std::stringstream buttonIndexTag;
+		buttonIndexTag << "./buttonIndex" << buttonIndex;
 		StringList aliases (
 			configFileSection . retrieveValue < StringList > ( buttonIndexTag.str().c_str() ) ) ;
 		for ( StringList::iterator alias ( aliases . begin ( ) ) ; alias != aliases . end ( ) ; ++alias ) {
@@ -153,6 +155,7 @@ void ToolBoxFactory::initialize ( Vrui::ToolManager & toolManager )
 	}
 
 	mainButton = buttonForAlias ( "main" ) ;
+	
 
 	// Initialize tool layout:
 	layout . setNumButtons ( numberOfButtons ) ;
