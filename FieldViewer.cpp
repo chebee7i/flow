@@ -66,7 +66,9 @@ Viewer::Viewer(int &argc, char** argv, char** appDefaults) :
    std::sort(model_names.begin(), model_names.end());
 
    // initialize the model dynamics (first one alphabetically)
-   model=Factory[model_names[0]]();
+   //model=Factory[model_names[0]]();
+   // load lorenz
+   model = Factory["Lorenz Attractor"]();
 
    // create and set the main menu
    mainMenu=createMainMenu();
