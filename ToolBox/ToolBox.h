@@ -64,7 +64,8 @@ class ToolBoxFactory : public Vrui::ToolFactory
 
 	/* Methods from ToolFactory */
 	public:
-    const char* getName(void) const ;
+        const char* getName(void) const ;
+        const char* getButtonFunction(int buttonSlotIndex) const ;
 	Vrui::Tool* createTool ( const Vrui::ToolInputAssignment& inputAssignment ) const ;
 	void destroyTool ( Vrui::Tool* tool ) const ;
 
@@ -81,10 +82,13 @@ class ToolBoxFactory : public Vrui::ToolFactory
 	private:
 	typedef std::vector < AliasSet > AliasSetVector ;
 	typedef std::vector < AliasSetVector > ButtonToAliasesVector ;
+        typedef std::map < int, std::string > IntToStrMap ;
 	typedef std::map < std::string, ButtonId > AliasToButtonMap ;
 	typedef std::list < ToolBox* > ToolBoxList ;
+
 	private:
 	ButtonToAliasesVector mButtonToAliases ;
+        IntToStrMap mButtonSlotIndexToDescription;
 	AliasToButtonMap mAliasToButton ;
 	ButtonId mainButton ;
 	bool mProjectToScreenDefault ;

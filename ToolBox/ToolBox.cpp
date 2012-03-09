@@ -106,6 +106,13 @@ void ToolBoxFactory::destroyTool ( Vrui::Tool* tool ) const
 	delete tool ;
 }
 
+const char* ToolBoxFactory::getButtonFunction(int buttonSlotIndex) const
+{
+	// cannot use [] operator since that is not declared const
+	std::string desc = mButtonSlotIndexToDescription.find(buttonSlotIndex)->second ;
+	return desc.c_str();
+}
+
 /*
  * Accessors
  */
@@ -120,9 +127,9 @@ ButtonId ToolBoxFactory::buttonForAlias ( const std::string & alias ) const
 
 const AliasSet& ToolBoxFactory::aliasesForButton ( const ButtonId & button ) const
 {
-	if ( (int) mButtonToAliases . size ( ) >= button . first )
-		throw std::runtime_error ( "ToolBox::ToolBoxFactory::aliasesForButton : button not found" ) ;
-	if ( (int) mButtonToAliases [ button . first ] . size ( ) >= button . second )
+	if ( (int) mButtonToAliases . size ( ) <= button . first )
+		throw std::runtime_error ( "ToolBox::ToolBoxFactory::aliasesForButton : device not found" ) ;
+	if ( (int) mButtonToAliases [ button . first ] . size ( ) <= button . second )
 		throw std::runtime_error ( "ToolBox::ToolBoxFactory::aliasesForButton : button not found" ) ;
 	return mButtonToAliases [ button . first ] [ button . second ] ;
 }
@@ -144,16 +151,22 @@ void ToolBoxFactory::initialize ( Vrui::ToolManager & toolManager )
 	for ( int buttonIndex ( 0 ); buttonIndex < numberOfButtons; ++buttonIndex )
 	{
 		mButtonToAliases [ 0 ] . push_back ( AliasSet ( ) ) ;
+
 		std::stringstream buttonIndexTag;
 		buttonIndexTag << "./buttonIndex" << buttonIndex;
 		StringList aliases (
 			configFileSection . retrieveValue < StringList > ( buttonIndexTag.str().c_str() ) ) ;
+
+		std::stringstream buttonDescriptionTag;
+		buttonDescriptionTag << "./buttonDescription" << buttonIndex;
+		std::string desc = configFileSection . retrieveValue < std::string > ( buttonDescriptionTag.str().c_str() ) ;
+		mButtonSlotIndexToDescription.insert( std::make_pair( buttonIndex, desc ) ) ;
+
 		for ( StringList::iterator alias ( aliases . begin ( ) ) ; alias != aliases . end ( ) ; ++alias ) {
 			mButtonToAliases [ 0 ] [ buttonIndex ] . insert ( *alias ) ;
 			mAliasToButton . insert ( std::make_pair ( *alias, ButtonId ( 0, buttonIndex ) ) ) ;
 		}
 	}
-
 	mainButton = buttonForAlias ( "main" ) ;
 	
 
