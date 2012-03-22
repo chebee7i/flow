@@ -26,12 +26,17 @@ VRUI_MAKEDIR = $(HOME)/usr/share/Vrui-2.2-003/share
 #
 INSTALLDIR = /usr/local
 
-ifeq ($(INSTALLDIR),/)
+ifeq ($(INSTALLDIR), /)
 	BININSTALLDIR = /usr/bin
 	SHAREINSTALLDIR = /usr/share/DTS
-else
-	BININSTALLDIR  = $(INSTALLDIR)/bin
-	SHAREINSTALLDIR =  $(INSTALLDIR)/share/DTS
+else 
+	ifeq ($(INSTALLDIR), .)
+		BININSTALLDIR = $(INSTALLDIR)
+		SHAREINSTALLDIR = $(INSTALLDIR)
+	else
+		BININSTALLDIR  = $(INSTALLDIR)/bin
+		SHAREINSTALLDIR =  $(INSTALLDIR)/share/DTS
+	endif
 endif
 
 
