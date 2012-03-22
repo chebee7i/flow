@@ -117,7 +117,9 @@ std::vector<std::string> Viewer::loadPlugins() throw(std::runtime_error)
    nodeout() << "Loading plugins..." << std::endl;
 
    // create Directory object and parse plugin directory
-   std::string directory="./plugins";
+   std::string directory(RESOURCEDIR);
+   directory += "/plugins";
+   
    Directory dir;
    dir.addExtensionFilter("so");
    dir.read(directory);
@@ -165,7 +167,8 @@ void Viewer::initContext(GLContextData& contextData) const
    contextData.addDataItem(this, dataItem);
 
    // get point sprite image
-   Images::RGBImage spriteTexture=Images::readImageFile("particle.png");
+   std::string directory(RESOURCEDIR);
+   Images::RGBImage spriteTexture=Images::readImageFile((directory+"/particle.png").c_str());
 
    // initialize texture parameters
    glBindTexture(GL_TEXTURE_2D, dataItem->spriteTextureObjectId);
