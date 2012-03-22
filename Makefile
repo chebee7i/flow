@@ -20,8 +20,19 @@
 
 # Set the Vrui installation directory
 #
-#VRUIDIR = /usr/local/Vrui-1.0
-VRUIDIR = $(HOME)/usr/share/Vrui-2.2-003
+VRUI_MAKEDIR = $(HOME)/usr/share/Vrui-2.2-003/share
+
+# Set the installation root directory
+#
+INSTALLDIR = /usr/local
+
+ifeq ($(INSTALLDIR),/)
+	BININSTALLDIR = /usr/bin
+	SHAREINSTALLDIR = /usr/share/DTS
+else
+	BININSTALLDIR  = $(INSTALLDIR)/bin
+	SHAREINSTALLDIR =  $(INSTALLDIR)/share/DTS
+endif
 
 
 # Program name
@@ -95,15 +106,13 @@ DEPEND_DIR = dep
 
 
 # define Vrui include and link settings
-VRUIINC = -I$(VRUIDIR)/include
 ifeq ($(shell uname -m), x86_64)
   LIBEXT = lib64
 else
   LIBEXT = lib
 endif
 
-include $(VRUIDIR)/share/Vrui.makeinclude
-
+include $(VRUI_MAKEDIR)/Vrui.makeinclude
 
 ifndef VERBOSE 
 	QUIET = @
@@ -172,6 +181,7 @@ $(OBJECT_DIR)/%.o: %.cpp
 	$(QUIET)$(call make-depend,$<,$@,$(@:$(OBJECT_DIR)/%.o=$(DEPEND_DIR)/%.d))
 	$(QUIET)$(CC) -c -g -o $@ $(CFLAGS) $(LOCAL_INCLUDE) $(VRUI_CFLAGS) $(OPT) $<
 
+$(OBJECT_DIR)/FieldViewer.o: CFLAGS += -DRESOURCEDIR='"$(SHAREINSTALLDIR)"'
 
 ifeq "$(SYSTEM_NAME)" "Darwin"
 define plugin-compile
@@ -225,6 +235,16 @@ distclean: squeaky
 	@echo "removing documentation..."
 	$(QUIET)rm -rdf doc
 
+
+.PHONY: install
+install: all
+	@echo "installing program and libraries"
+	$(QUIET)mkdir -p $(BININSTALLDIR) 
+	$(QUIET)mkdir -p $(SHAREINSTALLDIR)
+	$(QUIET)cp $(PROGRAM) $(BININSTALLDIR)
+	$(QUIET)cp Vrui.cfg $(SHAREINSTALLDIR)
+	$(QUIET)cp particle.png $(SHAREINSTALLDIR)
+	$(QUIET)cp -r plugins $(SHAREINSTALLDIR)
 
 # Code documentation
 #
