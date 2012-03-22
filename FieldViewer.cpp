@@ -68,7 +68,8 @@ Viewer::Viewer(int &argc, char** argv, char** appDefaults) :
    // initialize the model dynamics (first one alphabetically)
    //model=Factory[model_names[0]]();
    // load lorenz
-   model = Factory["Lorenz Attractor"]();
+   std::string name = "Lorenz Attractor";
+   model = Factory[name]();
 
    // create and set the main menu
    mainMenu=createMainMenu();
@@ -80,6 +81,9 @@ Viewer::Viewer(int &argc, char** argv, char** appDefaults) :
 
    // create and assign associated parameter dialog
    parameterDialog=model->createParameterDialog(mainMenu);
+
+   // Make sure the correct system is toggled
+   setRadioToggles(dynamicsToggleButtons, name + "toggle");
 
    // center the display
    resetNavigationCallback(0);
@@ -104,21 +108,23 @@ Viewer::~Viewer()
 
 void Viewer::setRadioToggles(ToggleArray& toggles, const std::string& name)
 {
-   for (ToggleArray::iterator button=toggles.begin(); button != toggles.end(); ++button)
+   for (ToggleArray::iterator button=toggles.begin(); button != toggles.end(); ++button) {
       if (strcmp((*button)->getName(), name.c_str()) != 0
             and (*button)->getToggle())
          (*button)->setToggle(false);
       else if (strcmp((*button)->getName(), name.c_str()) == 0)
          (*button)->setToggle(true);
+   }
 }
 
 std::vector<std::string> Viewer::loadPlugins() throw(std::runtime_error)
 {
-   nodeout() << "Loading plugins..." << std::endl;
-
    // create Directory object and parse plugin directory
    std::string directory(RESOURCEDIR);
    directory += "/plugins";
+
+   masterout() << "Loading plugins from: " << directory << std::endl;
+
    
    Directory dir;
    dir.addExtensionFilter("so");
@@ -128,7 +134,7 @@ std::vector<std::string> Viewer::loadPlugins() throw(std::runtime_error)
    for (std::vector<std::string>::const_iterator lib=dir.contents().begin(); lib
          != dir.contents().end(); ++lib)
    {
-      nodeout() << "  opening " << *lib << "..." << std::endl;
+      masterout() << "\topening " << *lib << "..." << std::endl;
 
       // prepend directory name to library file name
       std::string file=directory + "/" + *lib;
