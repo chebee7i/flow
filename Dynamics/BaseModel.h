@@ -190,7 +190,11 @@ public:
 
 };
 
-typedef Integrator *maker_t();
+/** Note: maker_t is a typedef to a function that
+ *	returns a pointer to an object of type Integrator.
+ *	Then, maker_t* is a pointer to the function.
+ **/
+typedef Integrator *(maker_t)();
 
 typedef std::map<std::string, maker_t*, std::less<std::string> > DynamicsFactory;
 
