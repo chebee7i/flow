@@ -62,10 +62,9 @@ OPT += -ggdb
 LOCAL_INCLUDE += -Isrc -Isrc/External -Isrc/External/VruiSupport -Isrc/ToolBox
 LOCAL_LINK += -lGLU -lgle
 
-#TOOLBOX = lib/libToolBox.a
-#TOOLBOX_SOURCES = $(shell find ToolBox -name "*.cpp")
-TOOLBOX = 
-
+# Need to fix makedepend.  Changes in header files do not notify Fieldviewer
+TOOLBOX = lib/libToolBox.a
+TOOLBOX_SOURCES = $(shell find src/ToolBox -name "*.cpp")
 
 # Search plugin directory and generate list of plugin names
 #
@@ -102,7 +101,7 @@ $(PROGRAM): $(SOURCES:src/%.cpp=$(OBJECT_DIR)/%.o)
 
 # ToolBox library (static)
 #
-$(TOOLBOX): $(TOOLBOX_SOURCES:%.cpp=$(OBJECT_DIR)/%.o)
+$(TOOLBOX): $(TOOLBOX_SOURCES:src/%.cpp=$(OBJECT_DIR)/%.o)
 	@echo Creating  $@...
 	$(QUIET)mkdir -p lib
 	$(QUIET)$(AR) rcs $@ $^

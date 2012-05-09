@@ -1,0 +1,11 @@
+#ifndef TOOLBOX
+#define TOOLBOX
+
+#include <ToolBox/AliasSet.h>
+#include <ToolBox/Events.h>
+#include <ToolBox/Extension.h>
+#include <ToolBox/Icon.h>
+#include <ToolBox/Tool.h>
+#include <ToolBox/ToolBox.h>
+
+#endif

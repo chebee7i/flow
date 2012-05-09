@@ -24,6 +24,11 @@
 
 #include <IO/OpenFile.h>
 
+// ToolBox includes
+//
+#include "ToolBox/ToolBox"
+#include "ToolBox/Extensions/ToolRotator.h"
+
 #include "FieldViewer.h"
 #include "Directory.h"
 
@@ -53,10 +58,14 @@ std::string getResourceDir()
 Viewer::Viewer(int &argc, char** argv, char** appDefaults) :
    Vrui::Application(argc, argv, appDefaults)
 {
+
+    // load ToolBox
+    ToolBox::ToolBoxFactory::instance();
+
     // load dynamics plugins
     try 
     {
-        model_names=loadPlugins();
+        model_names = loadPlugins();
     }
     catch (std::runtime_error& e) 
     {
@@ -69,7 +78,6 @@ Viewer::Viewer(int &argc, char** argv, char** appDefaults) :
 
     // alphabetize the names list
     std::sort(model_names.begin(), model_names.end());
-
     /*
     // initialize the model dynamics (first one alphabetically)
     //model=Factory[model_names[0]]();
