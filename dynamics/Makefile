@@ -203,7 +203,7 @@ squeaky: clean
 .PHONY: distclean
 distclean: squeaky
 	@echo "Removing plugin code..."
-	$(QUIET)rm -rdf Dynamics/plugins
+	$(QUIET)rm -rdf src/Dynamics/plugins
 	$(QUIET)rm -f etc/plugin.mk
 	@echo "Removing documentation..."
 	$(QUIET)rm -rdf doc
@@ -213,10 +213,10 @@ distclean: squeaky
 install: all
 	@echo "installing program and libraries"
 	$(QUIET)mkdir -p $(BININSTALLDIR) 
-	$(QUIET)mkdir -p $(SHAREINSTALLDIR)
+	$(QUIET)mkdir -p $(SHAREINSTALLDIR)/images
 	$(QUIET)cp $(PROGRAM) $(BININSTALLDIR)
 	$(QUIET)cp Vrui.cfg $(SHAREINSTALLDIR)
-	$(QUIET)cp particle.png $(SHAREINSTALLDIR)
+	$(QUIET)cp images/particle.png $(SHAREINSTALLDIR)/images
 	$(QUIET)cp -r plugins $(SHAREINSTALLDIR)
 
 # Code documentation
@@ -233,10 +233,10 @@ doc:
 	@$(MAKEDOC)
 
 
-ARCHIVE_LIST = $(filter-out Dynamics/plugins/%,$(subst ./,,$(shell find . -name "*h" -o -name "*.cpp")))
-ARCHIVE_LIST += ToolBox/ToolBox DTSTools Makefile Doxyfile Vrui.cfg particle.png
+ARCHIVE_LIST = $(filter-out src/Dynamics/plugins/%,$(subst ./,,$(shell find . -name "*h" -o -name "*.cpp")))
+ARCHIVE_LIST += src/ToolBox/ToolBox src/DTSTools Makefile Doxyfile Vrui.cfg images/particle.png
 ARCHIVE_LIST += bin/generate_plugin_code.py etc/dynamics.xml
-ARCHIVE_LIST += External
+ARCHIVE_LIST += src/External
 
 # Code archival
 #
