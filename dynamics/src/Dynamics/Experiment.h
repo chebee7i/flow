@@ -112,7 +112,6 @@ public:
 
     bool hasChanged();
 
-protected:
     // We use pointers so we can more easily change these at runtime.
     // However, the dynamical model should be treated as a const pointer.
     // Changing where it points is bad since the integrator and transformer
@@ -120,6 +119,11 @@ protected:
     DynamicalModel<ScalarParam> * model;
     Integrator<ScalarParam> *integrator;
     Transformer<ScalarParam> *transformer;
+    // Tools need access to these...should we make them public? protected?
+    // Should tools be friends?
+
+protected:
+
 
     /*
          A map which holds the available integrators for this experiment.

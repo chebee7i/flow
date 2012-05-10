@@ -75,9 +75,9 @@ void ProjectionTransformer<ScalarParam>::invTransform(typename DynamicalModel<Sc
     int const& yIndex = this->intParamValues[1];
     int const& zIndex = this->intParamValues[2];    
     
-    if (xIndex > 0) out[xIndex] = v[0];
-    if (yIndex > 0) out[yIndex] = v[1];
-    if (zIndex > 0) out[zIndex] = v[2];
+    if (xIndex > -1) out[xIndex] = v[0];
+    if (yIndex > -1) out[yIndex] = v[1];
+    if (zIndex > -1) out[zIndex] = v[2];
 
     typename CoordinateClass<ScalarParam>::Coordinates coords = this->model.getCoords();
     for ( int i = 0; i < this->model.getDimension(); i++ )
@@ -88,8 +88,7 @@ void ProjectionTransformer<ScalarParam>::invTransform(typename DynamicalModel<Sc
         }
         
         // Set the value to the midpoint of the suggested min/max coordinate values
-        // If any value is inf, then set it to zero. This could cause problems
-        // if zero is not in the parameter range.  Whoops.
+        // If any value is inf, then set it to zero.
         if ( isinf(coords[i].minValue) || isinf(coords[i].maxValue) )
         {
             out[i] = 0;
