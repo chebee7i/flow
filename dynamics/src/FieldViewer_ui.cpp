@@ -36,7 +36,7 @@ GLMotif::PopupMenu* Viewer::createMainMenu()
    // add buttons and assign callbacks
 
    // create a cascade button for selecting the dynamical system
-   GLMotif::CascadeButton* dynamicsTogglesCascade=factory.createCascadeButton("DynamicsTogglesCascade", "Dynamics");
+   GLMotif::CascadeButton* dynamicsTogglesCascade=factory.createCascadeButton("DynamicsTogglesCascade", "Experiments");
    dynamicsTogglesCascade->setPopup(createDynamicsTogglesMenu());
 
    // create a cascade button for selecting the dynamical analysis tool
@@ -52,11 +52,11 @@ GLMotif::PopupMenu* Viewer::createMainMenu()
    showPositionDialog->getSelectCallbacks().add(this, &Viewer::mainMenuTogglesCallback);
 
    // create a toggle button for showing/hiding the dynamical parameter interface dialog
-   showParameterDialogToggle=factory.createToggleButton("ShowParameterDialogToggle", "Show Parameter Dialog");
+   showParameterDialogToggle=factory.createToggleButton("ShowParameterDialogToggle", "Show Experiment Options");
    showParameterDialogToggle->getSelectCallbacks().add(this, &Viewer::mainMenuTogglesCallback);
 
    // create a toggle for showing/hiding the tool option dialogs
-   GLMotif::ToggleButton* showOptionsDialogs=factory.createToggleButton("ShowOptionsDialogsToggle", "Show Options Dialogs");
+   GLMotif::ToggleButton* showOptionsDialogs=factory.createToggleButton("ShowOptionsDialogsToggle", "Show Tool Options");
 
    showOptionsDialogs->getSelectCallbacks().add(this, &Viewer::mainMenuTogglesCallback);
 

@@ -9,6 +9,7 @@
 #include <exception>
 #include <string>
 
+// This line causes problems when the file is included.
 typedef std::map< std::string, unsigned int > Index;
 
 //

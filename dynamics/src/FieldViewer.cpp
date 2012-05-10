@@ -67,7 +67,7 @@ Viewer::Viewer(int &argc, char** argv, char** appDefaults) :
    experiment(NULL),
    frameRateDialog(NULL),
    positionDialog(NULL),
-   parameterDialog(NULL),
+   experimentDialog(NULL),
    currentOptionsDialog(NULL),
    optionsDialogs(DialogArray()),
    elapsedTime(0.0),
@@ -107,7 +107,7 @@ Viewer::Viewer(int &argc, char** argv, char** appDefaults) :
     positionDialog = new PositionDialog(mainMenu);
 
     // create and assign associated parameter dialog
-    //parameterDialog=model->createParameterDialog(mainMenu);
+    experimentDialog = new ExperimentDialog(mainMenu, experiment);
 
     // Make sure the correct system is toggled
     setRadioToggles(dynamicsToggleButtons, name + "toggle");
@@ -119,7 +119,7 @@ Viewer::Viewer(int &argc, char** argv, char** appDefaults) :
 Viewer::~Viewer()
 {
     delete mainMenu;
-    //delete parameterDialog;
+    delete experimentDialog;
 
     delete experiment;
     
@@ -259,6 +259,9 @@ void Viewer::frame()
       elapsedTime = 0.0;
    }
 
+
+    bool updatedEnvironment = true;
+
    // iterate over all tools and do required processing
    for (ToolList::iterator tool=tools.begin(); tool != tools.end(); ++tool)
    {
@@ -268,7 +271,7 @@ void Viewer::frame()
         }
         else
         {
-            if (0)
+            if (updatedEnvironment)
             {
               (*tool)->updatedExperiment();
             }
@@ -453,6 +456,11 @@ void Viewer::toolDestructionCallback(Vrui::ToolManager::ToolDestructionCallbackD
       // need to fix this to handle multiple users each with their own toolbox
       tools.clear();
       toolmap.clear();
+      // this also does not remove the OptionsDialog from optionsDialogs.
+      // So it contains a list of null pointers.
+      optionsDialogs.clear();
+      // getTransformation() is causing a invalid read when you destroy the
+      // toolbox and then recreate it.
 }
 
 void Viewer::resetNavigationCallback(Misc::CallbackData* cbData)
@@ -471,12 +479,12 @@ void Viewer::mainMenuTogglesCallback(GLMotif::ToggleButton::ValueChangedCallback
       // if toggle is set show the parameter dialog
       if (cbData->toggle->getToggle())
       {
-         parameterDialog->show();
+         experimentDialog->show();
       }
       // otherwise hide the parameter dialog
       else
       {
-         parameterDialog->hide();
+         experimentDialog->hide();
       }
    }
    else if (name == "ShowOptionsDialogsToggle")
@@ -541,21 +549,21 @@ void Viewer::dynamicsMenuCallback(GLMotif::ToggleButton::ValueChangedCallbackDat
    GLMotif::WidgetManager::Transformation oldTrans;
 
    // delete current parameter dialog
-   if (parameterDialog != NULL)
+   if (experimentDialog != NULL)
    {
       // save the old transformation
-      oldTrans=parameterDialog->getTransformation();
+      oldTrans=experimentDialog->getTransformation();
 
       // if dialog is currently shown hide before deleting
-      if (parameterDialog->state() == CaveDialog::ACTIVE)
+      if (experimentDialog->state() == CaveDialog::ACTIVE)
       {
-         parameterDialog->hide();
+         experimentDialog->hide();
 
          // set flag to popup after creating new dialog
          popup=true;
       }
 
-      delete parameterDialog;
+      delete experimentDialog;
    }
 
    std::string name=cbData->toggle->getName();
@@ -569,21 +577,22 @@ void Viewer::dynamicsMenuCallback(GLMotif::ToggleButton::ValueChangedCallbackDat
    // create the dynamical model
    experiment = Factory[key]();
 
-/**
-   // create/assign parameter dialog
-   parameterDialog=model->createParameterDialog(mainMenu);
 
-   parameterDialog->setTransformation(oldTrans);
+   // create/assign parameter dialog
+   experimentDialog = new ExperimentDialog(mainMenu, experiment);
+
+   experimentDialog->setTransformation(oldTrans);
 
    // popup parameter dialog if previously shown or system requests it
    if (popup)
-      parameterDialog->show();
-   else if (model->autoShowParameterDialog())
+      experimentDialog->show();
+/**   else if (model->autoShowParameterDialog())
    {
       showParameterDialogToggle->setToggle(true);
-      parameterDialog->show();
+      experimentDialog->show();
    }
-**/
+   **/
+
 /**
    // update the integration step size
    double step_size=IntegrationStepSize::instance()->getSavedValue(key);

@@ -107,16 +107,9 @@ void Transformer<ScalarParam>::invTransform(Vector const& v, Vector & out)
     for ( int i = 3; i < model.getDimension(); i++ )
     {
         // Set the value to the midpoint of the suggested min/max coordinate values
-        // If any value is inf, then set it to zero.
-        if ( isinf(coords[i].minValue) || isinf(coords[i].maxValue) )
-        {
-            out[i] = 0;
-        }
-        else
-        {
-            out[i] = coords[i].minValue;
-            out[i] += (coords[i].maxValue - coords[i].minValue) / 2;
-        }
+        // Since we use minValue and maxValue for sliders, they must be finite.
+        out[i] = coords[i].minValue;
+        out[i] += (coords[i].maxValue - coords[i].minValue) / 2;
     }
 }
 

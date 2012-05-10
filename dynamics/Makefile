@@ -84,7 +84,17 @@ PLUGINS = $(addprefix plugins/lib,$(subst .cpp,.so,$(subst ./src/Dynamics/plugin
 SOURCES = 											\
 	src/FieldViewer.cpp								\
 	src/main.cpp									\
-	src/External/VruiSupport/VruiStreamManip.cpp
+	src/External/VruiSupport/VruiStreamManip.cpp	\
+	src/Tools/AbstractDynamicsTool.cpp              \
+	src/Tools/StaticSolverTool.cpp                  \
+	src/Tools/StaticSolverOptionsDialog.cpp   		\
+	src/DataItem.cpp								\
+	src/External/VruiSupport/VruiStreamManip.cpp        \
+	src/FrameRateDialog.cpp                             \
+	src/PositionDialog.cpp                              \
+	src/ExperimentDialog.cpp                            \
+	src/FieldViewer_ui.cpp                         
+	
 
 include $(VRUI_MAKEDIR)/Vrui.makeinclude
 

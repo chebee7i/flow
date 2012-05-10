@@ -38,6 +38,7 @@
 #include "Tools/AbstractDynamicsTool.h"
 #include "PositionDialog.h"
 #include "FrameRateDialog.h"
+#include "ExperimentDialog.h"
 
 // External includes
 //
@@ -93,7 +94,7 @@ class Viewer: public Vrui::Application, public GLObject
       
       FrameRateDialog* frameRateDialog; ///< Dialog for throttling the frame rate.
       PositionDialog* positionDialog; ///< Dialog for displaying cursor position.
-      CaveDialog* parameterDialog; ///< Parameter dialog associated with current dynamical system.
+      ExperimentDialog* experimentDialog; ///< Parameter dialog associated with current experiment
       CaveDialog* currentOptionsDialog; ///< Options dialog associated with the current tool.
       DialogArray optionsDialogs; ///< Array of all tool options dialogs.
 
