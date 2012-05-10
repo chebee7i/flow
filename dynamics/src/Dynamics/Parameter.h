@@ -2,18 +2,11 @@
 // Module for Parameters and related functionality.
 //
 
-/*
-    With the CoordinateClass (or ParameterClass), all coordinates
-    (or all parameters) must be of the same type.  This is just how it
-    was implemented and we can generalize this if need be.
-*/
-
 
 #ifndef PARAMETER_H
 #define PARAMETER_H
 
 #include <exception>
-#include <memory>
 #include <string>
 
 typedef std::map< std::string, unsigned int > Index;
@@ -46,7 +39,6 @@ template <typename ScalarParam>
 struct ParameterType
 {
     typedef ScalarParam Scalar;
-    typedef std::auto_ptr<ParameterType<ScalarParam> > Ptr;
 
     std::string name;
     Scalar value;
@@ -80,20 +72,36 @@ struct ParameterType
 // ParameterClass
 //
 
-template <typename ScalarParam>
+template <typename RealParam>
 class ParameterClass
 {
 
 public:
 
-    typedef ParameterType<ScalarParam> Parameter;
-    typedef std::vector<Parameter> Parameters;
+    typedef ParameterType<bool> BoolParameter;    
+    typedef ParameterType<int> IntParameter;
+    typedef ParameterType<RealParam> RealParameter;
 
-    std::vector<Parameter> const& getParams() const;
-    ScalarParam getParamValue(std::string const& name) const;
-    virtual void printParams() const;
+    typedef std::vector<BoolParameter> BoolParameters;
+    typedef std::vector<IntParameter> IntParameters;
+    typedef std::vector<RealParameter> RealParameters;
+    
+    std::vector<BoolParameter> const& getBoolParams() const;
+    std::vector<IntParameter> const& getIntParams() const;   
+    std::vector<RealParameter> const& getRealParams() const;
 
-    void setParamValue(std::string const& name, ScalarParam const value);
+    bool getBoolParamValue(std::string const& name) const;    
+    int getIntParamValue(std::string const& name) const;
+    RealParam getRealParamValue(std::string const& name) const;
+    
+    virtual void printBoolParams() const;
+    virtual void printIntParams() const;
+    virtual void printRealParams() const;
+
+    // We could just overload setParamValue() but then the API is strange.
+    void setBoolParamValue(std::string const& name, bool const value);
+    void setIntParamValue(std::string const& name, int const value);    
+    void setRealParamValue(std::string const& name, RealParam const value);
 
 protected:
 
@@ -107,13 +115,18 @@ protected:
         frequently, and they require access to the current parameter values.
         Thus, we provide optimized access to the parameter values.
     */
-    std::vector<ScalarParam> paramValues;
+    std::vector<bool> boolParamValues;    
+    std::vector<int> intParamValues;    
+    std::vector<RealParam> realParamValues;
 
     /*
         Use this during construction. It will make sure the various private
         members relating to parameters are consistent.
     */
-    void addParameter(Parameter p);
+    // We could just overload addParameter() but then the API is strange.    
+    void addBoolParameter(BoolParameter p);    
+    void addIntParameter(IntParameter p);    
+    void addRealParameter(RealParameter p);
 
     /*
         This is pure rather than implemented now since we want derived classes
@@ -131,12 +144,18 @@ protected:
 
 private:
 
-    Parameters params;
+    BoolParameters boolParams;
+    IntParameters intParams;
+    RealParameters realParams;
 
-    // mapping from parameter names to its index in 'params'.
-    Index paramIndex;
+    // mapping from parameter names to its index in boolParams, etc
+    Index boolParamIndex;
+    Index intParamIndex;
+    Index realParamIndex;
 
-    void _setParamValue(std::string const& name, ScalarParam value);
+    void _setBoolParamValue(std::string const& name, bool const value);
+    void _setIntParamValue(std::string const& name, int const value);
+    void _setRealParamValue(std::string const& name, RealParam const value);        
 };
 
 
@@ -206,72 +225,223 @@ void ParameterType<ScalarParam>::validate(Scalar v)
 // ParameterClass
 //
 
-template <typename ScalarParam>
+template <typename RealParam>
 inline
-std::vector<ParameterType<ScalarParam> > const& ParameterClass<ScalarParam>::getParams() const
+std::vector<ParameterType<bool> > const& ParameterClass<RealParam>::getBoolParams() const
 {
-    return params;
+    return boolParams;
 }
 
-template <typename ScalarParam>
-ScalarParam ParameterClass<ScalarParam>::getParamValue(std::string const& name) const
+template <typename RealParam>
+inline
+std::vector<ParameterType<int> > const& ParameterClass<RealParam>::getIntParams() const
+{
+    return intParams;
+}
+
+template <typename RealParam>
+inline
+std::vector<ParameterType<RealParam> > const& ParameterClass<RealParam>::getRealParams() const
+{
+    return realParams;
+}
+
+
+
+template <typename RealParam>
+bool ParameterClass<RealParam>::getBoolParamValue(std::string const& name) const
 {
     // TODO: throw a ParameterException if the parameter is unknown.
     Index::const_iterator it;
-    it = paramIndex.find( name );
+    it = boolParamIndex.find( name );
     unsigned int index = it->second;
-    return paramValues[index];
+    return boolParamValues[index];
 }
 
-template <typename ScalarParam>
-void ParameterClass<ScalarParam>::printParams() const
+template <typename RealParam>
+int ParameterClass<RealParam>::getIntParamValue(std::string const& name) const
+{
+    // TODO: throw a ParameterException if the parameter is unknown.
+    Index::const_iterator it;
+    it = intParamIndex.find( name );
+    unsigned int index = it->second;
+    return intParamValues[index];
+}
+
+template <typename RealParam>
+RealParam ParameterClass<RealParam>::getRealParamValue(std::string const& name) const
+{
+    // TODO: throw a ParameterException if the parameter is unknown.
+    Index::const_iterator it;
+    it = realParamIndex.find( name );
+    unsigned int index = it->second;
+    return realParamValues[index];
+}
+
+
+
+template <typename RealParam>
+void ParameterClass<RealParam>::printBoolParams() const
 {
     std::cout << "{" << std::endl;
-    typename Parameters::const_iterator it;
-    for (it = params.begin(); it != params.end(); it++)
+    typename BoolParameters::const_iterator it;
+    for (it = boolParams.begin(); it != boolParams.end(); it++)
     {
         std::cout << "\t" << it->name << ": " << it->value << std::endl;
     }
     std::cout << "}" << std::endl;
 }
 
-template <typename ScalarParam>
-void ParameterClass<ScalarParam>::addParameter( ParameterType<ScalarParam> p)
+template <typename RealParam>
+void ParameterClass<RealParam>::printIntParams() const
+{
+    std::cout << "{" << std::endl;
+    typename IntParameters::const_iterator it;
+    for (it = intParams.begin(); it != intParams.end(); it++)
+    {
+        std::cout << "\t" << it->name << ": " << it->value << std::endl;
+    }
+    std::cout << "}" << std::endl;
+}
+
+template <typename RealParam>
+void ParameterClass<RealParam>::printRealParams() const
+{
+    std::cout << "{" << std::endl;
+    typename RealParameters::const_iterator it;
+    for (it = realParams.begin(); it != realParams.end(); it++)
+    {
+        std::cout << "\t" << it->name << ": " << it->value << std::endl;
+    }
+    std::cout << "}" << std::endl;
+}
+
+
+
+
+template <typename RealParam>
+void ParameterClass<RealParam>::addBoolParameter( BoolParameter p)
 {
     typename Index::iterator it;
-    it = paramIndex.find(p.name);
-    if (it == paramIndex.end())
+    it = boolParamIndex.find(p.name);
+    if (it == boolParamIndex.end())
     {
         // Add new parameter
-        paramIndex[p.name] = params.size();
-        params.push_back(p);
-        paramValues.push_back(p.value);
+        boolParamIndex[p.name] = boolParams.size();
+        boolParams.push_back(p);
+        boolParamValues.push_back(p.value);
     }
     else
     {
         // Replace existing parameter
-        params[it->second] = p;
-        paramValues[it->second] = p.value;
+        boolParams[it->second] = p;
+        boolParamValues[it->second] = p.value;
     }
 }
 
-template <typename ScalarParam>
-void ParameterClass<ScalarParam>::_setParamValue(std::string const& name, ScalarParam value)
+template <typename RealParam>
+void ParameterClass<RealParam>::addIntParameter( IntParameter p)
 {
     typename Index::iterator it;
-    it = paramIndex.find(name);
-    if (it != paramIndex.end())
+    it = intParamIndex.find(p.name);
+    if (it == intParamIndex.end())
     {
-        params[it->second].value = value;
-        paramValues[it->second] = value;
+        // Add new parameter
+        intParamIndex[p.name] = intParams.size();
+        intParams.push_back(p);
+        intParamValues.push_back(p.value);
+    }
+    else
+    {
+        // Replace existing parameter
+        intParams[it->second] = p;
+        intParamValues[it->second] = p.value;
     }
 }
 
-template <typename ScalarParam>
-inline
-void ParameterClass<ScalarParam>::setParamValue(std::string const& name, ScalarParam const value)
+template <typename RealParam>
+void ParameterClass<RealParam>::addRealParameter( RealParameter p)
 {
-    _setParamValue(name, value);
+    typename Index::iterator it;
+    it = realParamIndex.find(p.name);
+    if (it == realParamIndex.end())
+    {
+        // Add new parameter
+        realParamIndex[p.name] = realParams.size();
+        realParams.push_back(p);
+        realParamValues.push_back(p.value);
+    }
+    else
+    {
+        // Replace existing parameter
+        realParams[it->second] = p;
+        realParamValues[it->second] = p.value;
+    }
+}
+
+
+
+
+template <typename RealParam>
+void ParameterClass<RealParam>::_setBoolParamValue(std::string const& name, bool const value)
+{
+    typename Index::iterator it;
+    it = boolParamIndex.find(name);
+    if (it != boolParamIndex.end())
+    {
+        boolParams[it->second].value = value;
+        boolParamValues[it->second] = value;
+    }
+}
+
+template <typename RealParam>
+void ParameterClass<RealParam>::_setIntParamValue(std::string const& name, int const value)
+{
+    typename Index::iterator it;
+    it = intParamIndex.find(name);
+    if (it != intParamIndex.end())
+    {
+        intParams[it->second].value = value;
+        intParamValues[it->second] = value;
+    }
+}
+
+template <typename RealParam>
+void ParameterClass<RealParam>::_setRealParamValue(std::string const& name, RealParam const value)
+{
+    typename Index::iterator it;
+    it = realParamIndex.find(name);
+    if (it != realParamIndex.end())
+    {
+        realParams[it->second].value = value;
+        realParamValues[it->second] = value;
+    }
+}
+
+
+
+
+template <typename RealParam>
+inline
+void ParameterClass<RealParam>::setBoolParamValue(std::string const& name, bool const value)
+{
+    _setBoolParamValue(name, value);
+    updateVersion();
+}
+
+template <typename RealParam>
+inline
+void ParameterClass<RealParam>::setIntParamValue(std::string const& name, int const value)
+{
+    _setIntParamValue(name, value);
+    updateVersion();
+}
+
+template <typename RealParam>
+inline
+void ParameterClass<RealParam>::setRealParamValue(std::string const& name, RealParam const value)
+{
+    _setRealParamValue(name, value);
     updateVersion();
 }
 

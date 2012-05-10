@@ -59,8 +59,13 @@ OPT    = #-mfpmath=sse -msse2 -mmmx -g0 -DNDEBUG -O3
 
 OPT += -ggdb
 
-LOCAL_INCLUDE += -Isrc -Isrc/External -Isrc/External/VruiSupport -Isrc/ToolBox
+LOCAL_INCLUDE += -Isrc -Isrc/Dynamics -Isrc/External -Isrc/External/VruiSupport -Isrc/ToolBox
 LOCAL_LINK += -lGLU -lgle
+
+# Object and dependency file locations
+#
+OBJECT_DIR = obj
+DEPEND_DIR = dep
 
 # Need to fix makedepend.  Changes in header files do not notify Fieldviewer
 TOOLBOX = lib/libToolBox.a
@@ -68,18 +73,18 @@ TOOLBOX_SOURCES = $(shell find src/ToolBox -name "*.cpp")
 
 # Search plugin directory and generate list of plugin names
 #
-PLUGINS = lib/libLorenzExperiment.so
+# For now, we only support Experiment plugins. This should be changed to support
+# other types of plugins: Transformers, DynamicalModels, Integrators, etc.
+#
+PLUGINS_OBJECTS = $(addprefix $(OBJECT_DIR),$(subst .cpp,.o,$(subst ./src,,$(shell find ./src/Dynamics/plugins -name *Experiment.cpp))))
+PLUGINS = $(addprefix plugins/lib,$(subst .cpp,.so,$(subst ./src/Dynamics/plugins/,,$(shell find ./src/Dynamics/plugins -name *Experiment.cpp))))
 
 # Project source files
 #
 SOURCES = 											\
 	src/FieldViewer.cpp								\
-	src/main.cpp
-
-# Object and dependency file locations
-#
-OBJECT_DIR = obj
-DEPEND_DIR = dep
+	src/main.cpp									\
+	src/External/VruiSupport/VruiStreamManip.cpp
 
 include $(VRUI_MAKEDIR)/Vrui.makeinclude
 
@@ -88,8 +93,20 @@ ifndef VERBOSE
 endif
 
 
+## For plugins, we create the .o files from .so targets and the .o
+## files did not exist beforehand (in general).  Unless the .d files exist
+## (thus creating an explicit target for the .o files), then the .o
+## files are deemed "intermediate" and make will delete them when
+## finished.  Since we are now creating the .d files, this should only
+## be an issue the first compile time.  Or we make make this issue
+## go away altogether, by listing the .o files as explicit targets.
+## Then they are built before the .so files and are considered by the
+## rule for creating the .so files NOT to be intermediate anymore.
+## This is done below.
+
 .PHONY: all
-all: $(TOOLBOX) $(PROGRAM) $(PLUGINS)
+all: $(TOOLBOX) $(PROGRAM) $(PLUGINS_OBJECTS) $(PLUGINS)
+
 
 
 # Main program
@@ -116,8 +133,8 @@ $(TOOLBOX): $(TOOLBOX_SOURCES:src/%.cpp=$(OBJECT_DIR)/%.o)
 #obj/Dynamics/plugins/CartesianGrid3D.o: Dynamics/plugins/CartesianGrid3D.cpp
 #obj/Dynamics/plugins/CartesianGrid3DParameterDialog.o: Dynamics/plugins/CartesianGrid3DParameterDialog.cpp
 
-plugin/libLorenzExperiment.so: obj/Dynamics/plugins/LorenzExperiment.o
-obj/Dynamics/plugins/LorenzExperiment.o: src/Dynamics/plugins/LorenzExperiment.cpp
+#plugins/libLorenzExperiment.so: obj/Dynamics/plugins/LorenzExperiment.o
+#obj/Dynamics/plugins/LorenzExperiment.o: src/Dynamics/plugins/LorenzExperiment.cpp
 
 
 #
@@ -125,8 +142,9 @@ obj/Dynamics/plugins/LorenzExperiment.o: src/Dynamics/plugins/LorenzExperiment.c
 #
 
 ifneq "$(MAKECMDGOALS)" "clean"
-  -include $(SOURCES:%.cpp=$(DEPEND_DIR)/%.d)
-  -include $(TOOLBOX_SOURCES:%.cpp=$(DEPEND_DIR)/%.d)
+ -include $(SOURCES:src/%.cpp=./$(DEPEND_DIR)/%.d)
+ -include $(TOOLBOX_SOURCES:src/%.cpp=$(DEPEND_DIR)/%.d)
+ -include $(PLUGINS:plugins/lib%.so=$(DEPEND_DIR)/Dynamics/plugins/%.d)
 endif
 
 # $(call make-depend,source-file,object-file,depend-file)
@@ -137,11 +155,12 @@ endef
 
 # Plugin object files
 #
-$(OBJECT_DIR)/Dynamics/plugins/%.o:
+$(OBJECT_DIR)/Dynamics/plugins/%.o: src/Dynamics/plugins/%.cpp
 	$(QUIET)mkdir -p $(OBJECT_DIR)/Dynamics/plugins/
+	$(QUIET)mkdir -p $(DEPEND_DIR)/Dynamics/plugins/
 	@echo [plugin] Compiling $<...
-	$(QUIET)$(CC) $(CFLAGS) $(LOCAL_INCLUDE) $(VRUI_CFLAGS) -I./src/Dynamics -fPIC -c -g -o $@ $<
-
+	$(QUIET)$(call make-depend,$<,$@,$(@:$(OBJECT_DIR)/%.o=$(DEPEND_DIR)/%.d))
+	$(QUIET)$(CC) $(CFLAGS) $(LOCAL_INCLUDE) $(VRUI_CFLAGS) -fPIC -c -g -o $@ $<
 
 # Regular object files
 #
@@ -167,7 +186,7 @@ endif
 
 # Dynamic libraries (plugins)
 #
-plugins/%.so:
+plugins/lib%.so: $(OBJECT_DIR)/Dynamics/plugins/%.o
 	$(QUIET)mkdir -p plugins
 	@echo "[plugin] Creating $@..."
 	$(QUIET)$(call plugin-compile,$(subst plugins/,,$@),$@,$^)

@@ -22,6 +22,7 @@
 #include <iostream>
 #include <string>
 
+#include <Vrui/Vrui.h>
 #include <IO/OpenFile.h>
 
 // ToolBox includes
@@ -32,7 +33,7 @@
 #include "FieldViewer.h"
 #include "Directory.h"
 
-//DynamicsFactory Factory;
+ExperimentFactory Factory;
 
 /** Returns the base directory for resource files.
  *
@@ -65,7 +66,7 @@ Viewer::Viewer(int &argc, char** argv, char** appDefaults) :
     // load dynamics plugins
     try 
     {
-        model_names = loadPlugins();
+        experiment_names = loadPlugins();
     }
     catch (std::runtime_error& e) 
     {
@@ -77,21 +78,20 @@ Viewer::Viewer(int &argc, char** argv, char** appDefaults) :
     }
 
     // alphabetize the names list
-    std::sort(model_names.begin(), model_names.end());
-    /*
-    // initialize the model dynamics (first one alphabetically)
-    //model=Factory[model_names[0]]();
-    // load lorenz
-    std::string name = "Lorenz Attractor";
-    model = Factory[name]();
-    */
+    std::sort(experiment_names.begin(), experiment_names.end());
+
+    // default to Lorenz
+    std::string name = "Lorenz";
+    experiment = Factory[name]();
 
     // center the display
-    //resetNavigationCallback(0);
+    resetNavigationCallback(0);
 }
 
 Viewer::~Viewer()
 {
+    delete experiment;
+    
     // close all dynamic libs (plugins)
     for (DLList::iterator lib=dl_list.begin(); lib != dl_list.end(); ++lib)
     {
@@ -119,7 +119,7 @@ std::vector<std::string> Viewer::loadPlugins() throw(std::runtime_error)
     std::vector<std::string>::const_iterator lib;
     for (lib=dir.contents().begin(); lib != dir.contents().end(); ++lib)
     {
-        std::cout << "\topening " << *lib << "..." << std::endl;
+        std::cout << "\tOpening " << *lib << "..." << std::endl;
 
         // prepend directory name to library file name
         std::string file=directory + "/" + *lib;
@@ -138,15 +138,16 @@ std::vector<std::string> Viewer::loadPlugins() throw(std::runtime_error)
     }
 
     // create an array of model names
-    std::vector<std::string> model_names;
-    /*
-    for (DynamicsFactory::iterator itr=Factory.begin(); itr != Factory.end(); ++itr)
+    std::vector<std::string> experiment_names;
+    ExperimentFactory::iterator itr;
+    
+    for (itr = Factory.begin(); itr != Factory.end(); ++itr)
     {
-        model_names.insert(model_names.end(), itr->first);
+        experiment_names.insert(experiment_names.end(), itr->first);
     }
-    */
+    
     // return the name array
-    return model_names;
+    return experiment_names;
 }
 
 
@@ -164,6 +165,18 @@ void Viewer::display(GLContextData& contextData) const
 
 void Viewer::frame()
 {
+    Vrui::scheduleUpdate(Vrui::getApplicationTime()+0.02);
 }
 
+
+//
+// Callbacks
+//
+
+void Viewer::resetNavigationCallback(Misc::CallbackData* cbData)
+{
+    // if experiment defines default view, go there.
+    // otherwise, go to center.
+   Vrui::setNavigationTransformation(Vrui::Point(0,0,0), 40.0);
+}
 

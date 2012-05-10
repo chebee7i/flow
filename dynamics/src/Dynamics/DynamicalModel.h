@@ -29,8 +29,15 @@ public:
     typedef DTS::Vector<ScalarParam> Vector;
 
     typedef typename CoordinateClass<ScalarParam>::Coordinate Coordinate;
-    typedef typename ParameterClass<ScalarParam>::Parameter Parameter;
+    typedef typename ParameterClass<ScalarParam>::RealParameter Parameter;
 
+    /**
+        After the constructor, the model is assumed fixed in the number of
+        parameters.  Deriving from ParameterClass provides automatic version
+        updating whenever a parameter value changes, but note, we do not track
+        changes to the parameter names, default values, or min/max values.  
+        In principle, these should be fixed after the constructor.
+    **/
     DynamicalModel();
     virtual ~DynamicalModel();
 

@@ -15,10 +15,15 @@
 // generic Integrator objects without needing to perform a dynamic_cast.
 // They can simply query the integrator for its parameters.
 
+template <typename ScalarParam>
+class Experiment;
 
 template <typename ScalarParam>
 class Integrator : public ParameterClass<ScalarParam>
 {
+
+friend class Experiment<ScalarParam>;
+
 public:
     typedef DynamicalModel<ScalarParam> Model;
     typedef typename Model::Parameter Parameter;
@@ -35,11 +40,12 @@ public:
     void setName(std::string const& name);
 
     unsigned int const& getVersion() const;
-    unsigned int updateVersion();
 
 protected:
-    std::string name;
     Model const& model;
+    std::string name;
+
+    unsigned int updateVersion();
 
 private:
     unsigned int version;
@@ -49,7 +55,8 @@ private:
 template <typename ScalarParam>
 Integrator<ScalarParam>::Integrator(Model const& model)
 : model(model),
-  name("integrator")
+  name("integrator"),
+  version(0)
 {
 }
 

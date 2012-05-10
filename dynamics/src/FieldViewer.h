@@ -32,6 +32,8 @@
 #include <vector>
 #include <string>
 
+#include "Experiment.h"
+#include "Factory.h"
 
 //extern DynamicsFactory factory;
 
@@ -49,12 +51,17 @@ class Viewer: public Vrui::Application, public GLObject
       void initContext(GLContextData& contextData) const;
       virtual void display(GLContextData& contextData) const;
       virtual void frame();
+      
+      /* Callbacks */
+      void resetNavigationCallback(Misc::CallbackData* cbData);
 
    private:
+      Experiment<Scalar> *experiment;
+      
       
       typedef std::list<void*> DLList;
       DLList dl_list; ///< Dynamic library (plugin) list.
-      std::vector<std::string> model_names; ///< Names of all models (obtained from plugins).
+      std::vector<std::string> experiment_names; ///< Names of all experiments (obtained from plugins).
 
       /** Internal method for loading plugins (dlls).
        *

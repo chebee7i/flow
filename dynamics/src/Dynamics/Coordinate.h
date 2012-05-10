@@ -6,7 +6,6 @@
 #define COORDINATE_H
 
 #include <exception>
-#include <memory>
 #include <string>
 
 typedef std::map< std::string, unsigned int > Index;
@@ -19,7 +18,6 @@ template <typename ScalarParam>
 struct CoordinateType
 {
     typedef ScalarParam Scalar;
-    typedef std::auto_ptr<CoordinateType<ScalarParam> > Ptr;
 
     std::string name;
 

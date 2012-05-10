@@ -28,7 +28,7 @@ public:
     {
         name = "rk4";
 
-        addParameter( Parameter("stepSize", stepSize, .001, .1, .01, .001) );
+        addRealParameter( RealParameter("stepSize", stepSize, .001, .1, .01, .001) );
     }
 
     virtual ~RungeKutta4()
@@ -40,7 +40,7 @@ public:
     // Computes one Runge-Kutta integration step vector
     void step(Vector const& v, Vector &out)
     {
-        Scalar stepSize = paramValues[0];
+        Scalar stepSize = realParamValues[0];
 
         /* Calculate first half-step vector: */
         model(v, v0);
