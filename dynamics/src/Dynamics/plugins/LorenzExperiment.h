@@ -18,8 +18,7 @@ public:
         setIntegrator("rk4");
         
         addTransformer( new ProjectionTransformer<double>(*model) );
-        setTransformer("projection");        
-        
+        setTransformer("projection");      
     }
 };
 

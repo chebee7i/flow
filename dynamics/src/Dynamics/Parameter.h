@@ -389,6 +389,7 @@ void ParameterClass<RealParam>::_setBoolParamValue(std::string const& name, bool
     it = boolParamIndex.find(name);
     if (it != boolParamIndex.end())
     {
+        boolParams[it->second].validate(value);
         boolParams[it->second].value = value;
         boolParamValues[it->second] = value;
     }
@@ -401,6 +402,7 @@ void ParameterClass<RealParam>::_setIntParamValue(std::string const& name, int c
     it = intParamIndex.find(name);
     if (it != intParamIndex.end())
     {
+        intParams[it->second].validate(value);    
         intParams[it->second].value = value;
         intParamValues[it->second] = value;
     }
@@ -413,6 +415,7 @@ void ParameterClass<RealParam>::_setRealParamValue(std::string const& name, Real
     it = realParamIndex.find(name);
     if (it != realParamIndex.end())
     {
+        realParams[it->second].validate(value);    
         realParams[it->second].value = value;
         realParamValues[it->second] = value;
     }

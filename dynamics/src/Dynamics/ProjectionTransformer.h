@@ -15,6 +15,10 @@ public:
 
     virtual void transform(typename DynamicalModel<ScalarParam>::Vector const& v, 
                            typename DynamicalModel<ScalarParam>::Vector & out);
+                           
+    virtual void invTransform(typename DynamicalModel<ScalarParam>::Vector const& v, 
+                              typename DynamicalModel<ScalarParam>::Vector & out);
+                           
 };
 
 
@@ -62,5 +66,40 @@ void ProjectionTransformer<ScalarParam>::transform(typename DynamicalModel<Scala
     out[2] = ( zIndex == -1 ? 0 : v[ zIndex ] );
 }
 
+template <typename ScalarParam>
+void ProjectionTransformer<ScalarParam>::invTransform(typename DynamicalModel<ScalarParam>::Vector const& v, 
+                                                      typename DynamicalModel<ScalarParam>::Vector & out)
+{
+    // A value of -1 means it will be mapped to the value 0.
+    int const& xIndex = this->intParamValues[0];
+    int const& yIndex = this->intParamValues[1];
+    int const& zIndex = this->intParamValues[2];    
+    
+    if (xIndex > 0) out[xIndex] = v[0];
+    if (yIndex > 0) out[yIndex] = v[1];
+    if (zIndex > 0) out[zIndex] = v[2];
+
+    typename CoordinateClass<ScalarParam>::Coordinates coords = this->model.getCoords();
+    for ( int i = 0; i < this->model.getDimension(); i++ )
+    {
+        if (i == xIndex || i == yIndex || i == zIndex)
+        {
+            continue;
+        }
+        
+        // Set the value to the midpoint of the suggested min/max coordinate values
+        // If any value is inf, then set it to zero. This could cause problems
+        // if zero is not in the parameter range.  Whoops.
+        if ( isinf(coords[i].minValue) || isinf(coords[i].maxValue) )
+        {
+            out[i] = 0;
+        }
+        else
+        {
+            out[i] = coords[i].minValue;
+            out[i] += (coords[i].maxValue - coords[i].minValue) / 2;
+        }
+    }
+}
 
 #endif

@@ -1,6 +1,8 @@
 #ifndef TRANSFORMER_H
 #define TRANSFORMER_H
 
+#include <cmath>
+
 #include "Parameter.h"
 
 template <typename ScalarParam>
@@ -27,6 +29,9 @@ public:
     */
     Vector transform(Vector const& v);
     virtual void transform(Vector const& v, Vector & out);
+
+    Vector invTransform(Vector const& v);
+    virtual void invTransform(Vector const& v, Vector & out);
 
     std::string const& getName() const;
     void setName(std::string const& name);
@@ -79,6 +84,40 @@ void Transformer<ScalarParam>::transform(Vector const& v, Vector & out)
     out[0] = v[0];
     out[1] = v[1];
     out[2] = v[2];
+}
+
+template <typename ScalarParam>
+typename DynamicalModel<ScalarParam>::Vector Transformer<ScalarParam>::invTransform(Vector const& v)
+{
+    Vector out(model.getDimension());
+    invTransform(v, out);
+    return out;
+}
+
+template <typename ScalarParam>
+void Transformer<ScalarParam>::invTransform(Vector const& v, Vector & out)
+{
+    // Take the first three components
+
+    out[0] = v[0];
+    out[1] = v[1];
+    out[2] = v[2];
+    
+    typename CoordinateClass<ScalarParam>::Coordinates coords = model.getCoords();
+    for ( int i = 3; i < model.getDimension(); i++ )
+    {
+        // Set the value to the midpoint of the suggested min/max coordinate values
+        // If any value is inf, then set it to zero.
+        if ( isinf(coords[i].minValue) || isinf(coords[i].maxValue) )
+        {
+            out[i] = 0;
+        }
+        else
+        {
+            out[i] = coords[i].minValue;
+            out[i] += (coords[i].maxValue - coords[i].minValue) / 2;
+        }
+    }
 }
 
 template <typename ScalarParam>
