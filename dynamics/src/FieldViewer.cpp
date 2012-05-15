@@ -36,6 +36,7 @@
 
 #include "FieldViewer.h"
 #include "Tools/StaticSolverTool.h"
+#include "Tools/DynamicSolverTool.h"
 #include "Directory.h"
 
 ExperimentFactory Factory;
@@ -54,7 +55,7 @@ std::string getResourceDir()
     }
     catch (IO::Directory::OpenError e)
     {
-        // This means you must run mycelia must exist in the CWD.
+        // This means FieldViewer must exist in the CWD.
         dir = ".";
     }
     return dir;
@@ -306,9 +307,12 @@ void Viewer::updateToolToggles()
    {
       // get toggle button name
       std::string toggle_name=(*button)->getName();
-
+        
       // erase "toggle" from name
       toggle_name.erase(toggle_name.size() - 6, toggle_name.size());
+
+      if (toggle_name == "ParticleSprayer" || toggle_name == "DotSpreader")
+        continue;
 
       toggle_name+="Tool";
 
@@ -316,9 +320,11 @@ void Viewer::updateToolToggles()
       AbstractDynamicsTool* tool=toolmap[toggle_name];
 
       // set the toggle button state based on tool state
-      bool state=tool->isDisabled();
-
-      (*button)->setToggle(!state);
+      if (tool != 0)
+      {
+          bool state=tool->isDisabled();
+          (*button)->setToggle(!state);
+      }
    }
 }
 
@@ -402,6 +408,7 @@ void Viewer::toolCreationCallback(Vrui::ToolManager::ToolCreationCallbackData* c
       std::cout << "\tAdding Static Solver..." << std::endl;
 
       tool=new StaticSolverTool(toolBox, this);
+
       // set dynamical integrator and add tool to array
       tool->setExperiment(experiment);
       tools.push_back(tool);
@@ -431,18 +438,18 @@ void Viewer::toolCreationCallback(Vrui::ToolManager::ToolCreationCallbackData* c
       optionsDialogs.push_back(tool->createOptionsDialog(mainMenu));
 
       toolmap["ParticleSprayerTool"]=tool;
-
+*/
       masterout() << "\tAdding Dynamic Solver..." << std::endl;
 
       tool=new DynamicSolverTool(toolBox, this);
       // set dynamical integrator and add tool to array
-      tool->setIntegrator(model);
+      tool->setExperiment(experiment);
       tools.push_back(tool);
       // create associated options dialog and add to dialog array
       optionsDialogs.push_back(tool->createOptionsDialog(mainMenu));
 
       toolmap["DynamicSolverTool"]=tool;
-*/
+
       // automatically load the first tool and set options dialog
       AbstractDynamicsTool* currentTool = static_cast<AbstractDynamicsTool*>(tools.front());
       currentTool->grab();
@@ -459,7 +466,7 @@ void Viewer::toolDestructionCallback(Vrui::ToolManager::ToolDestructionCallbackD
       // this also does not remove the OptionsDialog from optionsDialogs.
       // So it contains a list of null pointers.
       optionsDialogs.clear();
-      // getTransformation() is causing a invalid read when you destroy the
+      // getTransformation() is causing an invalid read when you destroy the
       // toolbox and then recreate it.
 }
 
@@ -613,7 +620,7 @@ void Viewer::dynamicsMenuCallback(GLMotif::ToggleButton::ValueChangedCallbackDat
    IntegrationStepSize::instance()->setValue(step_size);
 **/
 
-   // iterate through tools and sets dynamical integrator
+   // iterate through tools and sets experiment
    for (ToolList::iterator tool=tools.begin(); tool != tools.end(); ++tool)
    {
       (*tool)->setExperiment(experiment);

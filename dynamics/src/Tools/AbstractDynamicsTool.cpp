@@ -24,6 +24,6 @@
 void AbstractDynamicsTool::grabbed(const ToolBox::ToolGrabEvent & toolGrabEvent)
 {
    setDisabled(false);
-   //application->updateToolToggles();
-   //application->updateCurrentOptionsDialog();
+   application->updateToolToggles();
+   application->updateCurrentOptionsDialog();
 }

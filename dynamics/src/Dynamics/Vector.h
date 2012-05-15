@@ -16,6 +16,7 @@ class Vector
     typedef ScalarParam Scalar;
 
     protected:
+    // This prevents us from having a default constructor.
     int const dimension;
     std::vector<ScalarParam> components;
 

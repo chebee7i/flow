@@ -215,7 +215,7 @@ void StaticSolverTool::drawBasicLine(StaticSolverData* d) const
 
    if (datasets[0]->colorStyle == StaticSolverData::SOLID)
    {
-      glColor3f(0.0f, 0.5f, 1.0f);
+      glColor3f(1.0f, 0.5f, 0.0f);
 
       glBegin(GL_LINE_STRIP);
       for (unsigned int i=0; i < datasets[0]->numberOfPoints; i++)
