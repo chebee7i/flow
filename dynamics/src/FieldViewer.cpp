@@ -263,8 +263,12 @@ void Viewer::frame()
       elapsedTime = 0.0;
    }
 
-
-    bool updatedEnvironment = true;
+   bool updatedExperiment = false;
+   if ( experiment->isOutdated() )
+   {
+       updatedExperiment = true;
+       experiment->updateVersion();
+   }
 
    // iterate over all tools and do required processing
    for (ToolList::iterator tool=tools.begin(); tool != tools.end(); ++tool)
@@ -275,7 +279,7 @@ void Viewer::frame()
         }
         else
         {
-            if (updatedEnvironment)
+            if (updatedExperiment)
             {
               (*tool)->updatedExperiment();
             }

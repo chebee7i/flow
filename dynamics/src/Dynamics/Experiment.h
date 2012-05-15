@@ -110,13 +110,15 @@ public:
     void addIntegrator(Integrator<ScalarParam>*);
     void addTransformer(Transformer<ScalarParam>*);    
 
-    bool hasChanged();
+    bool isOutdated();
+    unsigned int updateVersion();
+    unsigned int const & getVersion() const;
 
     // We use pointers so we can more easily change these at runtime.
     // However, the dynamical model should be treated as a const pointer.
     // Changing where it points is bad since the integrator and transformer
     // store a reference to the model.
-    DynamicalModel<ScalarParam> * model;
+    DynamicalModel<ScalarParam> *model;
     Integrator<ScalarParam> *integrator;
     Transformer<ScalarParam> *transformer;
     // Tools need access to these...should we make them public? protected?
@@ -132,14 +134,23 @@ protected:
          the map.
      */
     IntegratorMap integrators;
-    TransformerMap transformers;    
+    TransformerMap transformers;  
+      
+    unsigned int version;
+    unsigned int modelVersion;
+    unsigned int integratorVersion;    
+    unsigned int transformerVersion;    
 };
 
 template <typename ScalarParam>
 Experiment<ScalarParam>::Experiment()
  : model(0),
    integrator(0),
-   transformer(0)
+   transformer(0),
+   version(0),
+   modelVersion(0),
+   integratorVersion(0),
+   transformerVersion(0)
 {
 }
 
@@ -297,10 +308,31 @@ void Experiment<ScalarParam>::addTransformer(Transformer<ScalarParam> *transform
 
 
 template <typename ScalarParam>
-bool Experiment<ScalarParam>::hasChanged()
+bool Experiment<ScalarParam>::isOutdated()
 {
-    return true;
+    if ( modelVersion != model->getVersion() ) return true;
+    if ( integratorVersion != integrator->getVersion() ) return true;
+    if ( transformerVersion != transformer->getVersion() ) return true;
+    return false;
 }
+
+template <typename ScalarParam>
+inline
+unsigned int Experiment<ScalarParam>::updateVersion()
+{
+    modelVersion = model->getVersion();
+    integratorVersion = integrator->getVersion();
+    transformerVersion = transformer->getVersion();
+    return ++version;
+}
+
+template <typename ScalarParam>
+inline
+unsigned int const& Experiment<ScalarParam>::getVersion() const
+{
+    return version;
+}
+
 
 
 #endif
