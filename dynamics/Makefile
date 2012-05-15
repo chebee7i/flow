@@ -18,20 +18,27 @@
 # along with the Dynamics Toolset. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+override VRUI_MAKEDIR=$(HOME)/usr/share/Vrui-2.3-001/share
+
 # Set the Vrui installation directory
 #
-VRUI_MAKEDIR = $(HOME)/usr/share/Vrui-2.3-001/share
+VRUI_MAKEDIR = /usr/share/Vrui
 
 # Set the installation root directory
 #
 INSTALLDIR = /usr/local
 
-BININSTALLDIR = $(INSTALLDIR)/bin
-SHAREINSTALLDIR = $(INSTALLDIR)/share/DTS
+ifeq ($(INSTALLDIR), /)
+	BININSTALLDIR = /usr/bin
+	SHAREINSTALLDIR = /usr/share/flow
+else
+	BININSTALLDIR = $(INSTALLDIR)/bin
+	SHAREINSTALLDIR = $(INSTALLDIR)/share/flow
+endif
 
 # Program name
 #
-PROGRAM=FieldViewer
+PROGRAM=flow
 VERSION=1.0
 
 ifeq ($(shell uname -s),Darwin)
@@ -86,6 +93,8 @@ SOURCES = 											\
 	src/main.cpp									\
 	src/External/VruiSupport/VruiStreamManip.cpp	\
 	src/Tools/AbstractDynamicsTool.cpp              \
+	src/Tools/DynamicSolverTool.cpp                  \
+	src/Tools/DynamicSolverOptionsDialog.cpp   		\
 	src/Tools/StaticSolverTool.cpp                  \
 	src/Tools/StaticSolverOptionsDialog.cpp   		\
 	src/DataItem.cpp								\
@@ -245,7 +254,7 @@ install: all
 	$(QUIET)cp $(PROGRAM) $(BININSTALLDIR)
 	$(QUIET)cp Vrui.cfg $(SHAREINSTALLDIR)
 	$(QUIET)cp images/particle.png $(SHAREINSTALLDIR)/images
-	$(QUIET)cp -r plugins $(SHAREINSTALLDIR)
+	$(QUIET)cp -r plugins $(SHAREINSTALLDIR)/
 
 # Code documentation
 #
