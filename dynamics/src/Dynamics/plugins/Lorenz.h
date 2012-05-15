@@ -15,13 +15,14 @@ public:
     {
         name = "Lorenz";
 
-        // double inf = std::numeric_limits<Scalar>::infinity();
-        addCoordinate( Coordinate("x", -25, 25) );
-        addCoordinate( Coordinate("y", -10, 10) );
-        addCoordinate( Coordinate("z", -1, 40) );
+        double inf = std::numeric_limits<Scalar>::infinity();
+        addCoordinate( Coordinate("x", 1, -30, 30) );
+        addCoordinate( Coordinate("y", 1, -30, 30) );
+        addCoordinate( Coordinate("z", 1, 0, 50) );
+        addCoordinate( Coordinate("t", 0, 0, inf) );        
 
         addRealParameter( RealParameter("sigma", sigma, 0, 20,  10,    0.1) );
-        addRealParameter( RealParameter("rho",   rho,   0, 100, 28,    1.0) );
+        addRealParameter( RealParameter("rho",   rho,   0, 100, 28,    0.1) );
         addRealParameter( RealParameter("beta",  beta,  0, 10,  8/3.0, 0.1) );
     }
 
@@ -32,6 +33,7 @@ public:
         out[0] = realParamValues[0] * (p[1] - p[0]);
         out[1] = realParamValues[1] * p[0] - p[1] - p[0] * p[2];
         out[2] = p[0] * p[1] - realParamValues[2] * p[2];
+        out[3] = 1;
     }
 };
 

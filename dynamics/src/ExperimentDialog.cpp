@@ -4,6 +4,7 @@
 #include "ExperimentDialog.h"
 #include "GLMotif/WidgetFactory.h"
 #include "VruiStreamManip.h"
+#include "Dynamics/Coordinate.h"
 
 GLMotif::PopupWindow* ExperimentDialog::createDialog()
 {
@@ -96,15 +97,26 @@ GLMotif::PopupWindow* ExperimentDialog::createDialog()
     transformer.append( experiment->transformer->getName() );
     factory.createLabel("Transformer1", transformer.c_str());
     factory.createLabel("Transformer2", "");
-    factory.createLabel("Transformer3", "");    
+
+    CoordinateClass<double>::Coordinates coords = experiment->model->getCoords();
+    std::string coordStr = "Coordinates: ( 0 , ";
+    CoordinateClass<double>::Coordinates::iterator it;
+    for (it = coords.begin(); it != coords.end(); ++it)
+    {
+        coordStr.append( (*it).name);
+        if (it != coords.end() - 1) coordStr.append(" , ");
+    }
+    coordStr.append(" )");    
+    factory.createLabel("Transformer3", coordStr.c_str() );    
 
     intParams = experiment->transformer->getIntParams();
     for (intItr = intParams.begin(); intItr != intParams.end(); ++intItr)
     {
         factory.createLabel("", intItr->name.c_str());
-        
+
+        std::string displayParamName = intItr->name;
         textField = factory.createTextField(intItr->name.c_str(), 10);
-        textField->setString(toString(intItr->value).c_str());
+        textField->setString( experiment->transformer->getParameterDisplay(displayParamName).c_str() );
         textFields.push_back( textField );
         
         slider = factory.createSlider( intItr->name.c_str(), 15);
@@ -162,7 +174,7 @@ void ExperimentDialog::sliderIntegratorCallback(GLMotif::Slider::ValueChangedCal
 void ExperimentDialog::sliderTransformerCallback(GLMotif::Slider::ValueChangedCallbackData* cbData)
 {
     int value = static_cast<int>(cbData->value);
-
+    
     char buff[10];
     snprintf(buff, sizeof(buff), "%1i", value);
   
@@ -170,9 +182,10 @@ void ExperimentDialog::sliderTransformerCallback(GLMotif::Slider::ValueChangedCa
     for (itr = textFields.begin(); itr != textFields.end(); ++itr )
     {
         if ( strcmp( cbData->slider->getName(), (*itr)->getName() ) == 0 )
-        {
-            (*itr)->setString(buff);
-            experiment->transformer->setIntParamValue(cbData->slider->getName(), value);
+        {   
+            std::string displayParamName = cbData->slider->getName();
+            experiment->transformer->setIntParamValue(displayParamName, value);
+            (*itr)->setString( experiment->transformer->getParameterDisplay(displayParamName).c_str() );
             break;
         }
     }

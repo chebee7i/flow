@@ -51,6 +51,9 @@ public:
     Vector operator()(Vector const& x) const;
     virtual void operator()(Vector const& x, Vector & out) const = 0;
 
+    Vector getDefaultPoint() const;
+    //Vector getCenterPoint() const;
+
     int getDimension(void) const;
     std::string const& getName() const;
     unsigned int const& getVersion() const;
@@ -59,6 +62,7 @@ protected:
 
     // Subclasses can specify a name in their constructor.
     std::string name;
+    //Vector center;
 
     // inherited from ParameterClass
     unsigned int updateVersion();
@@ -93,6 +97,27 @@ DTS::Vector<ScalarParam> DynamicalModel<ScalarParam>::operator()(Vector const& p
     this->operator()(p, out);
     return out;
 }
+
+template <typename ScalarParam>
+DTS::Vector<ScalarParam> DynamicalModel<ScalarParam>::getDefaultPoint() const
+{
+    Vector out(getDimension());
+    std::vector<Coordinate> coords = this->getCoords();
+    for (unsigned i=0; i < coords.size(); i++)
+    {
+        out[i] = coords[i].defaultValue;
+    }
+    return out;
+}
+
+/*
+template <typename ScalarParam>
+DTS::Vector<ScalarParam> DynamicalModel<ScalarParam>::getCenterPoint() const
+{
+    return center;
+}
+*/
+
 
 template <typename ScalarParam>
 inline

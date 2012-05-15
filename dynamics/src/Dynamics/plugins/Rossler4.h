@@ -15,28 +15,28 @@ public:
     {
         name = "Rossler4";
 
-        // double inf = std::numeric_limits<Scalar>::infinity();
-        addCoordinate( Coordinate("x", -130, 30) );
-        addCoordinate( Coordinate("y", -80, 80) );
-        addCoordinate( Coordinate("z", 0, 300) );
-        addCoordinate( Coordinate("w", 0, 70) );        
+        double inf = std::numeric_limits<Scalar>::infinity();
+        addCoordinate( Coordinate("x", -20, -130, 30) );
+        addCoordinate( Coordinate("y", 0, -80, 80) );
+        addCoordinate( Coordinate("z", 0, 0, 300) );
+        addCoordinate( Coordinate("w", 15, 0, 70) );        
+        addCoordinate( Coordinate("t", 0, 0, inf) );                
 
         addRealParameter( RealParameter("a", a, 0,    2.0,  0.25, 0.01) );
         addRealParameter( RealParameter("b", b, -2,   2.0, -0.50, 0.01) );
         addRealParameter( RealParameter("c", c, 0,    5.0,  2.20, 0.01) );
         addRealParameter( RealParameter("d", d, -0.5, 0.5,  0.05, 0.01) );        
-        
-        // -20, 0, 0, 15
     }
 
     virtual ~Rossler4() { }
 
     virtual void operator()(Vector const& p, Vector & out) const
     {
-        out[0] = -p[1] - p[0];
+        out[0] = -p[1] - p[2];
         out[1] = p[0] + realParamValues[0] * p[1] + p[3];
-        out[2] = realParamValues[1] + p[0] * p[2];
-        out[3] = -realParamValues[2] * p[2] + realParamValues[3] * p[3];
+        out[2] = realParamValues[2] + p[0] * p[2];
+        out[3] = realParamValues[1] * p[2] + realParamValues[3] * p[3];
+        out[4] = 1;
     }
 };
 

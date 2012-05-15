@@ -22,14 +22,16 @@ struct CoordinateType
     std::string name;
 
     // These are suggestions only, nothing is enforced.
+    Scalar defaultValue;
     Scalar minValue;
     Scalar maxValue;
+
 
     // Default constructor
     CoordinateType();
 
     // Standard constructor
-    CoordinateType(std::string name, Scalar minValue, Scalar maxValue);
+    CoordinateType(std::string name, Scalar defaultValue, Scalar minValue, Scalar maxValue);
 
     // Copy constructor
     template <typename SParam>
@@ -82,6 +84,7 @@ private:
 template <typename ScalarParam>
 CoordinateType<ScalarParam>::CoordinateType()
     : name(""),
+      defaultValue(Scalar()),
       minValue(Scalar()),
       maxValue(Scalar())
 {
@@ -89,9 +92,11 @@ CoordinateType<ScalarParam>::CoordinateType()
 
 template <typename ScalarParam>
 CoordinateType<ScalarParam>::CoordinateType(std::string name,
+                                            Scalar defaultValue,
                                             Scalar minValue,
                                             Scalar maxValue)
     : name(name),
+      defaultValue(defaultValue),
       minValue(minValue),
       maxValue(maxValue)
 {
@@ -101,6 +106,7 @@ template <typename ScalarParam>
 template <typename SParam>
 CoordinateType<ScalarParam>::CoordinateType(CoordinateType<SParam> const& coord)
     : name(coord.name),
+      defaultValue(coord.defaultValue),
       minValue(coord.minValue),
       maxValue(coord.maxValue)
 {

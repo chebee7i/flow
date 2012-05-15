@@ -1,5 +1,5 @@
-#ifndef DTS_LORENZEXPERIMENT
-#define DTS_LORENZEXPERIMENT
+#ifndef DTS_ROSSLER4EXPERIMENT
+#define DTS_ROSSLER4EXPERIMENT
 
 #include "Experiment.h"
 #include "Rossler4.h"
@@ -14,7 +14,7 @@ public:
     {
         model = new Rossler4();
 
-        addIntegrator( new RungeKutta4(*model, .01) );
+        addIntegrator( new RungeKutta4(*model, .02) );
         setIntegrator("rk4");
         
         ProjectionTransformer<double> *t;

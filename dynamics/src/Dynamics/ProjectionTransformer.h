@@ -1,6 +1,7 @@
 #ifndef DTS_PROJECTION_TRANSFORMER
 #define DTS_PROJECTION_TRANSFORMER
 
+#include "Coordinate.h"
 #include "Parameter.h"
 #include "Transformer.h"
 
@@ -18,7 +19,8 @@ public:
                            
     virtual void invTransform(typename DynamicalModel<ScalarParam>::Vector const& v, 
                               typename DynamicalModel<ScalarParam>::Vector & out);
-                           
+                              
+    virtual std::string getParameterDisplay(int parameter);                           
 };
 
 
@@ -40,9 +42,9 @@ ProjectionTransformer<ScalarParam>::ProjectionTransformer(DynamicalModel<ScalarP
 
     typedef typename ParameterClass<ScalarParam>::IntParameter IntParameter;
 
-    addIntParameter( IntParameter("xCoordinate", x, -1, d-1, x, 1) );
-    addIntParameter( IntParameter("yCoordinate", y, -1, d-1, y, 1) );
-    addIntParameter( IntParameter("zCoordinate", z, -1, d-1, z, 1) );        
+    addIntParameter( IntParameter("xDisplay", x, -1, d-1, x, 1) );
+    addIntParameter( IntParameter("yDisplay", y, -1, d-1, y, 1) );
+    addIntParameter( IntParameter("zDisplay", z, -1, d-1, z, 1) );        
 }
 
 template <typename ScalarParam>
@@ -85,20 +87,26 @@ void ProjectionTransformer<ScalarParam>::invTransform(typename DynamicalModel<Sc
         if (i == xIndex || i == yIndex || i == zIndex)
         {
             continue;
-        }
-        
-        // Set the value to the midpoint of the suggested min/max coordinate values
-        // If any value is inf, then set it to zero.
-        if ( isinf(coords[i].minValue) || isinf(coords[i].maxValue) )
-        {
-            out[i] = 0;
-        }
-        else
-        {
-            out[i] = coords[i].minValue;
-            out[i] += (coords[i].maxValue - coords[i].minValue) / 2;
-        }
+        }        
+        out[i] = coords[i].defaultValue;
     }
+}
+
+template <typename ScalarParam>
+std::string ProjectionTransformer<ScalarParam>::getParameterDisplay(int parameterIndex)
+{
+    std::string name;
+    typename CoordinateClass<ScalarParam>::Coordinates coords = this->model.getCoords();
+    int coordinateIndex = this->intParamValues[parameterIndex];
+    if (coordinateIndex == -1)
+    {
+        name = "0";   
+    }
+    else if (coordinateIndex >= 0 && coordinateIndex < (int)coords.size() )
+    {
+        name = coords[coordinateIndex].name;
+    }
+    return name;
 }
 
 #endif

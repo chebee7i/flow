@@ -95,6 +95,10 @@ public:
     int getIntParamValue(std::string const& name) const;
     RealParam getRealParamValue(std::string const& name) const;
     
+    int getBoolParamIndex(std::string const& name) const;    
+    int getIntParamIndex(std::string const& name) const;
+    int getRealParamIndex(std::string const& name) const;
+
     virtual void printBoolParams() const;
     virtual void printIntParams() const;
     virtual void printRealParams() const;
@@ -281,6 +285,58 @@ RealParam ParameterClass<RealParam>::getRealParamValue(std::string const& name) 
 
 
 
+
+
+
+template <typename RealParam>
+int ParameterClass<RealParam>::getBoolParamIndex(std::string const& name) const
+{
+    Index::const_iterator it;
+    it = boolParamIndex.find( name );
+    if (it == boolParamIndex.end())
+    {
+        return -1;
+    }
+    else
+    {
+        return it->second;
+    }
+}
+
+template <typename RealParam>
+int ParameterClass<RealParam>::getIntParamIndex(std::string const& name) const
+{
+    Index::const_iterator it;
+    it = intParamIndex.find( name );
+    if (it == intParamIndex.end())
+    {
+        return -1;
+    }
+    else
+    {
+        return it->second;
+    }
+}
+
+template <typename RealParam>
+int ParameterClass<RealParam>::getRealParamIndex(std::string const& name) const
+{
+    Index::const_iterator it;
+    it = realParamIndex.find( name );
+    if (it == realParamIndex.end())
+    {
+        return -1;
+    }
+    else
+    {
+        return it->second;
+    }
+}
+
+
+
+
+
 template <typename RealParam>
 void ParameterClass<RealParam>::printBoolParams() const
 {
@@ -390,7 +446,7 @@ void ParameterClass<RealParam>::_setBoolParamValue(std::string const& name, bool
     it = boolParamIndex.find(name);
     if (it != boolParamIndex.end())
     {
-        boolParams[it->second].validate(value);
+        //boolParams[it->second].validate(value);
         boolParams[it->second].value = value;
         boolParamValues[it->second] = value;
     }
@@ -403,7 +459,7 @@ void ParameterClass<RealParam>::_setIntParamValue(std::string const& name, int c
     it = intParamIndex.find(name);
     if (it != intParamIndex.end())
     {
-        intParams[it->second].validate(value);    
+        //intParams[it->second].validate(value);    
         intParams[it->second].value = value;
         intParamValues[it->second] = value;
     }
@@ -416,7 +472,7 @@ void ParameterClass<RealParam>::_setRealParamValue(std::string const& name, Real
     it = realParamIndex.find(name);
     if (it != realParamIndex.end())
     {
-        realParams[it->second].validate(value);    
+        //realParams[it->second].validate(value);    
         realParams[it->second].value = value;
         realParamValues[it->second] = value;
     }

@@ -37,6 +37,10 @@ public:
     void setName(std::string const& name);
 
     unsigned int const& getVersion() const;
+    
+    // These should be implemented in Parameter.h as virtual methods.
+    virtual std::string getParameterDisplay(int parameter);
+    virtual std::string getParameterDisplay(std::string parameterName);    
 
 protected:
     Model const& model;
@@ -106,10 +110,7 @@ void Transformer<ScalarParam>::invTransform(Vector const& v, Vector & out)
     typename CoordinateClass<ScalarParam>::Coordinates coords = model.getCoords();
     for ( int i = 3; i < model.getDimension(); i++ )
     {
-        // Set the value to the midpoint of the suggested min/max coordinate values
-        // Since we use minValue and maxValue for sliders, they must be finite.
-        out[i] = coords[i].minValue;
-        out[i] += (coords[i].maxValue - coords[i].minValue) / 2;
+        out[i] = coords[i].defaultValue;
     }
 }
 
@@ -139,6 +140,26 @@ inline
 unsigned int Transformer<ScalarParam>::updateVersion()
 {
     return ++version;
+}
+
+template <typename ScalarParam>
+std::string Transformer<ScalarParam>::getParameterDisplay(int parameterIndex)
+{
+    // Need to update this to work with all parameter types
+    return "";
+}
+
+template <typename ScalarParam>
+std::string Transformer<ScalarParam>::getParameterDisplay(std::string parameterName)
+{
+    typename ParameterClass<double>::IntParameters iparams = this->getIntParams();
+    int paramIndex = this->getIntParamIndex(parameterName);
+    std::string name;
+    if (paramIndex >= 0)
+    {
+        name = getParameterDisplay(paramIndex);
+    }
+    return name;
 }
 
 #endif
