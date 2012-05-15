@@ -93,8 +93,12 @@ SOURCES = 											\
 	src/main.cpp									\
 	src/External/VruiSupport/VruiStreamManip.cpp	\
 	src/Tools/AbstractDynamicsTool.cpp              \
+	src/Tools/DotSpreaderTool.cpp                  \
+	src/Tools/DotSpreaderOptionsDialog.cpp   		\
 	src/Tools/DynamicSolverTool.cpp                  \
 	src/Tools/DynamicSolverOptionsDialog.cpp   		\
+	src/Tools/ParticleSprayerTool.cpp                  \
+	src/Tools/ParticleSprayerOptionsDialog.cpp   		\
 	src/Tools/StaticSolverTool.cpp                  \
 	src/Tools/StaticSolverOptionsDialog.cpp   		\
 	src/DataItem.cpp								\

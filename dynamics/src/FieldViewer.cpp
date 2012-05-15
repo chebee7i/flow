@@ -35,8 +35,11 @@
 #include "ToolBox/Extensions/ToolRotator.h"
 
 #include "FieldViewer.h"
-#include "Tools/StaticSolverTool.h"
+#include "Tools/DotSpreaderTool.h"
 #include "Tools/DynamicSolverTool.h"
+#include "Tools/ParticleSprayerTool.h"
+#include "Tools/StaticSolverTool.h"
+
 #include "Directory.h"
 
 ExperimentFactory Factory;
@@ -384,7 +387,9 @@ void Viewer::updateCurrentOptionsDialog()
 
    // popup if necessary
    if (popup)
+   {
       currentOptionsDialog->show();
+   }
 }
 
 //
@@ -416,12 +421,12 @@ void Viewer::toolCreationCallback(Vrui::ToolManager::ToolCreationCallbackData* c
       optionsDialogs.push_back(tool->createOptionsDialog(mainMenu));
 
       toolmap["StaticSolverTool"]=tool;
-/*
+
       masterout() << "\tAdding Dot Spreader..." << std::endl;
 
       tool=new DotSpreaderTool(toolBox, this);
       // set dynamical integrator and add tool to array
-      tool->setIntegrator(model);
+      tool->setExperiment(experiment);
       tools.push_back(tool);
       // create associated options dialog and add to dialog array
       optionsDialogs.push_back(tool->createOptionsDialog(mainMenu));
@@ -432,13 +437,13 @@ void Viewer::toolCreationCallback(Vrui::ToolManager::ToolCreationCallbackData* c
 
       tool=new ParticleSprayerTool(toolBox, this);
       // set dynamical integrator and add tool to array
-      tool->setIntegrator(model);
+      tool->setExperiment(experiment);
       tools.push_back(tool);
       // create associated options dialog and add to dialog array
       optionsDialogs.push_back(tool->createOptionsDialog(mainMenu));
 
       toolmap["ParticleSprayerTool"]=tool;
-*/
+
       masterout() << "\tAdding Dynamic Solver..." << std::endl;
 
       tool=new DynamicSolverTool(toolBox, this);

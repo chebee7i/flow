@@ -94,7 +94,7 @@ class AbstractDynamicsTool: public ToolBox::Tool
          experiment = e;
       }
 
-      /* Whenever integrator is updated, this function is called. */
+      /* Whenever experiment is updated, this function is called. */
       virtual void updatedExperiment() 
       {
       }

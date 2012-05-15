@@ -2,6 +2,10 @@
  VruiStreamManip: Classes for restricting output by render node.
  Copyright (c) 2006-2008 Jordan Van Aalsburg
  *******************************************************************************/
+ 
+#ifndef VRUISTREAMMANIP_H
+#define VRUISTREAMMANIP_H
+ 
 #include <iostream>
 #include <string>
 #include <sstream>
@@ -118,3 +122,5 @@ class filter
       static bool _debug;
 };
 }
+
+#endif

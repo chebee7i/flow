@@ -44,6 +44,13 @@ struct PointParticle
          color[3]=255; // default alpha vaule = 1.0 (opaque)
       }
 
+      // Order is important to use VBO interleaved arrays.
+      // Also, its important that none of these members are dynamically
+      // allocated. This allows OpenGL to read it "contiguously"...it won't
+      // work otherwise:
+      //glBufferDataARB(GL_ARRAY_BUFFER_ARB, dataItem->numParticles * sizeof(PointParticle), &data.particles[0], GL_DYNAMIC_DRAW_ARB);
+      //glInterleavedArrays(GL_C4UB_V3F, sizeof(PointParticle), 0);
+      
       GLColor<GLubyte, 4> color; ///< The color (rgba) of the particle.
       Geometry::Point<float,3> pos; ///< The position of the particle.
 
