@@ -66,7 +66,7 @@ class DotSpreaderData
       };
 
       typedef std::vector<ColorPoint> ParticleArray;
-      typedef std::vector<DTS::Vector<double> > StateArray;      
+      typedef std::vector<DTS::Vector<double> > StateArray;
 
    private:
       ParticleArray particles;
@@ -80,8 +80,10 @@ class DotSpreaderData
 
       unsigned int currentVersion;
 
+      // numPoints(50000), point_radius(0.1),
+
       DotSpreaderData() :
-         running(false), numPoints(50000), point_radius(0.1),
+         running(false), numPoints(10000), point_radius(0.05),
                distribution(SURFACE), dimension(0), currentVersion(0)
       {
       }
@@ -99,13 +101,13 @@ class DotSpreaderData
          {
             for (int i=numPoints; i < num; i++)
             {
-               particles.push_back(*new ColorPoint);
+               particles.push_back(ColorPoint());
                states.push_back(DTS::Vector<double>(dimension));
             }
-            numPoints=num;
          }
+         numPoints=num;
       }
-      
+
       void init(int dimension)
       {
          this->dimension = dimension;
@@ -166,13 +168,13 @@ class DotSpreaderTool: public AbstractDynamicsTool, public GLObject
 
       DotSpreaderTool(ToolBox::ToolBox* toolBox, Viewer* app) :
          AbstractDynamicsTool(toolBox, app), dataInited(false),
-         active(false)
+         active(false), tempDisplay(3)
       {
          icon(new Icon(this));
-         
+
          // Set member from parent class
          _needsGLSL = false;
-         
+
 
       }
 
@@ -183,11 +185,15 @@ class DotSpreaderTool: public AbstractDynamicsTool, public GLObject
       virtual void setExperiment(DTSExperiment* e)
       {
          experiment = e;
+
          if (!dataInited)
          {
             data.init( experiment->model->getDimension() );
             dataInited = true;
          }
+
+         // Start with a clean slate
+         data.running = false;
       }
 
       void initContext(GLContextData& contextData) const;
@@ -215,7 +221,7 @@ class DotSpreaderTool: public AbstractDynamicsTool, public GLObject
 
       void clearParticles()
       {
-         data.particles.clear();
+         data.running = false;
          data.currentVersion++;
       }
 
@@ -237,11 +243,12 @@ class DotSpreaderTool: public AbstractDynamicsTool, public GLObject
    private:
       DotSpreaderData data;
       bool dataInited;
-      
+
       bool active;
 
       Vrui::Point pos;
       Vrui::Point org;
+      DTS::Vector<double> tempDisplay;
 };
 
 #endif 	    /* !DOTSPREADERTOOL_H_ */

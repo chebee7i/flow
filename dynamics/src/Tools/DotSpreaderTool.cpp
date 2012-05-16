@@ -259,8 +259,7 @@ void DotSpreaderTool::render(DTS::DataItem* dataItem) const
       // If data has been modified, send to graphics card
       if (dataItem->version != data.currentVersion)
       {
-         // When particles are cleared, size() changes, but data.numPoints does not.
-         dataItem->numParticles = data.particles.size();
+         dataItem->numParticles = data.numPoints;
          glBufferDataARB(GL_ARRAY_BUFFER_ARB, dataItem->numParticles
                * sizeof(ColorPoint), &data.particles[0], GL_DYNAMIC_DRAW_ARB);
 
@@ -297,14 +296,13 @@ void DotSpreaderTool::step()
    if (!data.running)
       return;
 
-   DTS::Vector<double> tempDisplay(3);
-   DTS::Vector<double> temp( experiment->model->getDimension() );
+   DTS::Vector<double> tempState( experiment->model->getDimension() );
 
    for (int i=0; i < data.numPoints; i++)
    {
-      experiment->integrator->step(data.states[i], temp);
-      data.states[i] += temp;
-      experiment->transformer->transform(data.states[i], tempDisplay);      
+      experiment->integrator->step(data.states[i], tempState);
+      data.states[i] += tempState;
+      experiment->transformer->transform(data.states[i], tempDisplay);
       data.particles[i].pos[0] = tempDisplay[0];
       data.particles[i].pos[1] = tempDisplay[1];
       data.particles[i].pos[2] = tempDisplay[2];
@@ -333,7 +331,7 @@ void DotSpreaderTool::mainButtonPressed(const ToolBox::ButtonPressEvent & motion
 
 void DotSpreaderTool::mainButtonReleased(const ToolBox::ButtonReleaseEvent & buttonReleaseEvent)
 {
-   master::filter(std::cout)() << "DotSpreader::releasing particles... "
+   master::filter(std::cout)() << "DotSpreader::releasing " << data.numPoints << " particles... "
          << std::endl;
 
    // get current locator position
@@ -356,12 +354,8 @@ void DotSpreaderTool::mainButtonReleased(const ToolBox::ButtonReleaseEvent & but
    double deltaY=yMax - yMin;
    double deltaZ=zMax - zMin;
 
-   // resize is necessary if we have cleared particles
-   data.particles.resize(data.numPoints);
+   DTS::Vector<double> tempState( experiment->model->getDimension() );
 
-   DTS::Vector<double> invPos( experiment->model->getDimension() );
-   DTS::Vector<double> temp(3);
-      
    if (data.distribution == DotSpreaderData::SURFACE)
    {
       // distribute particles on surface of sphere
@@ -383,11 +377,10 @@ void DotSpreaderTool::mainButtonReleased(const ToolBox::ButtonReleaseEvent & but
          data.particles[i].pos[1]=y;
          data.particles[i].pos[2]=z;
 
-         temp[0] = x;
-         temp[1] = y;
-         temp[2] = z;
-         experiment->transformer->invTransform(temp, invPos);      
-         data.states[i] = invPos;
+         tempDisplay[0] = x;
+         tempDisplay[1] = y;
+         tempDisplay[2] = z;
+         experiment->transformer->invTransform(tempDisplay, data.states[i]);
 
          data.particles[i].color[0]=(unsigned int) (((x - xMin) / deltaX)
                * 255.0);
@@ -419,11 +412,10 @@ void DotSpreaderTool::mainButtonReleased(const ToolBox::ButtonReleaseEvent & but
          data.particles[i].pos[1]=y;
          data.particles[i].pos[2]=z;
 
-         temp[0] = x;
-         temp[1] = y;
-         temp[2] = z;
-         experiment->transformer->invTransform(temp, invPos);      
-         data.states[i] = invPos;
+         tempDisplay[0] = x;
+         tempDisplay[1] = y;
+         tempDisplay[2] = z;
+         experiment->transformer->invTransform(tempDisplay, data.states[i]);
 
          data.particles[i].color[0]=(unsigned int) (((x - xMin) / deltaX)
                * 255.0);

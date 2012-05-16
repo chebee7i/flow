@@ -37,12 +37,12 @@ GLMotif::PopupWindow* DotSpreaderOptionsDialog::createDialog()
 
    // create text field
    numberOfParticlesValue=factory.createTextField("NumberOfParticlesTextField", 10);
-   numberOfParticlesValue->setString("50000");
+   numberOfParticlesValue->setString("10000");
 
    // create and initialize slider object
    numberOfParticlesSlider=factory.createSlider("NumberOfParticlesSlider", 15.0);
    numberOfParticlesSlider->setValueRange(1000.0, 250000.0, 1000.0);
-   numberOfParticlesSlider->setValue(50000.0);
+   numberOfParticlesSlider->setValue(10000.0);
 
    // set the slider callback
    numberOfParticlesSlider->getValueChangedCallbacks().add(this, &DotSpreaderOptionsDialog::sliderCallback);
@@ -50,11 +50,11 @@ GLMotif::PopupWindow* DotSpreaderOptionsDialog::createDialog()
    factory.createLabel("ParticleSizeLabel", "Particle Size");
 
    pointSizeValue=factory.createTextField("PointSizeTextField", 10);
-   pointSizeValue->setString("0.1");
+   pointSizeValue->setString("0.05");
 
    pointSizeSlider=factory.createSlider("PointSizeSlider", 15.0);
    pointSizeSlider->setValueRange(0.01, 1.0, 0.05);
-   pointSizeSlider->setValue(0.1);
+   pointSizeSlider->setValue(0.05);
 
    pointSizeSlider->getValueChangedCallbacks().add(this, &DotSpreaderOptionsDialog::sliderCallback);
 
