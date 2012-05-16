@@ -472,11 +472,9 @@ void Viewer::toolDestructionCallback(Vrui::ToolManager::ToolDestructionCallbackD
       // need to fix this to handle multiple users each with their own toolbox
       tools.clear();
       toolmap.clear();
-      // this also does not remove the OptionsDialog from optionsDialogs.
-      // So it contains a list of null pointers.
+
       optionsDialogs.clear();
-      // getTransformation() is causing an invalid read when you destroy the
-      // toolbox and then recreate it.
+      currentOptionsDialog = NULL;
 }
 
 void Viewer::resetNavigationCallback(Misc::CallbackData* cbData)
