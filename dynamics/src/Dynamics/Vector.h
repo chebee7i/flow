@@ -16,12 +16,20 @@ class Vector
     typedef ScalarParam Scalar;
 
     protected:
-    // This prevents us from having a default constructor.
-    int const dimension;
+    /**
+    * If the dimension is const, then we can't have a default constructor.
+    * This ends up being painful if we want to have tools which store a vector
+    * as a member since the dimensionality of that vector must change when
+    * the experiment changes. So we make this flexible and allow resizing of
+    * the dimension.  It will now be the developer's responsibility to make
+    * sure the Vector is properly initialized.
+    */
+    int dimension;
     std::vector<ScalarParam> components;
 
     /* Constructors and destructors */
     public:
+    Vector(void); // zero-dimensional vector
     Vector(int const dimension, ScalarParam const& value = ScalarParam());
     Vector(Vector<ScalarParam> const& v);
     Vector(std::vector<ScalarParam> const& v);
@@ -29,6 +37,7 @@ class Vector
 
     /* Generic Methods */
     int getDimension(void) const;
+    void setDimension(int dimension);
     std::vector<ScalarParam> const& getComponents(void) const;
     std::vector<ScalarParam>& getComponents(void);
     Scalar operator[](int index) const; // Returns component as rvalue
@@ -184,6 +193,13 @@ inline Vector<ScalarParam> operator/(const Vector<ScalarParam>& v, ScalarParam s
 /* Constructors and destructors */
 
 template <typename ScalarParam>
+Vector<ScalarParam>::Vector(void)
+: dimension(0)
+{
+	components.resize(dimension);
+}
+
+template <typename ScalarParam>
 Vector<ScalarParam>::Vector(int const dimension, ScalarParam const& value)
 : dimension(dimension)
 {
@@ -227,6 +243,12 @@ template <typename ScalarParam>
 int Vector<ScalarParam>::getDimension(void) const
 {
     return dimension;
+}
+
+template <typename ScalarParam>
+void Vector<ScalarParam>::setDimension(int dimension)
+{
+    components.resize(dimension);
 }
 
 template <typename ScalarParam>
