@@ -183,6 +183,7 @@ class StaticSolverTool: public AbstractDynamicsTool, public GLObject
 
       void setColorStyle(StaticSolverData::ColorStyle style)
       {
+         colorStyle = style;
          std::vector<StaticSolverData*>::iterator it;
          for (it = datasets.begin(); it != datasets.end(); it++)
          {
@@ -194,6 +195,7 @@ class StaticSolverTool: public AbstractDynamicsTool, public GLObject
 
       void setLineStyle(StaticSolverData::LineStyle style)
       {
+         lineStyle = style;
          std::vector<StaticSolverData*>::iterator it;
          for (it = datasets.begin(); it != datasets.end(); it++)
          {
@@ -241,6 +243,10 @@ class StaticSolverTool: public AbstractDynamicsTool, public GLObject
       std::vector<StaticSolverData*> datasets; ///< Container for pointers to dynamically allocated StaticSolverData instances.
       unsigned int dataDisplayListVersion;
       bool multipleStaticSolutions;
+      
+      // Store current values so we can reset to save values after clearing.
+      StaticSolverData::LineStyle lineStyle;
+      StaticSolverData::ColorStyle colorStyle;
 
       /* Internal methods */
       void computeStaticSolution(StaticSolverData* d);

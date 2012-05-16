@@ -56,7 +56,9 @@ void StaticSolverTool::Icon::display(GLContextData& contextData) const
 StaticSolverTool::StaticSolverTool(ToolBox::ToolBox* toolBox, Viewer* app) :
          AbstractDynamicsTool(toolBox, app),
          dataDisplayListVersion(1), // Start higher so displayList is compiled.
-         multipleStaticSolutions(false)
+         multipleStaticSolutions(false),
+         lineStyle(StaticSolverData::POLY_LINE),
+         colorStyle(StaticSolverData::SOLID)
       {
          icon(new Icon(this));
 
@@ -185,11 +187,8 @@ void StaticSolverTool::mainButtonReleased(const ToolBox::ButtonReleaseEvent & bu
    std::cout << std::endl; 
 
    computeStaticSolution(newData);
-   if (datasets.size())
-   {
-      newData->colorStyle = datasets[0]->colorStyle;
-      newData->lineStyle = datasets[0]->lineStyle;   
-   }
+   newData->colorStyle = colorStyle;
+   newData->lineStyle = lineStyle;   
    
    if (not multipleStaticSolutions)
    {
@@ -211,7 +210,7 @@ void StaticSolverTool::drawBasicLine(StaticSolverData* d) const
 
    glDisable(GL_LIGHTING);
 
-   DTS::Vector<double> tmp(experiment->model->getDimension());
+   DTS::Vector<double> tmp(3);
 
    if (datasets[0]->colorStyle == StaticSolverData::SOLID)
    {
@@ -270,7 +269,7 @@ void StaticSolverTool::drawPolyLine(StaticSolverData* d) const
       glEnable(GL_LIGHTING);
 
       GLMaterial
-            material(GLMaterial::Color(0.0, 0.5, 1.0, 1.0), GLMaterial::Color(1.0, 1.0, 1.0, 1.0), 80.0);
+            material(GLMaterial::Color(1.0, 0.5, 0.0, 1.0), GLMaterial::Color(1.0, 1.0, 1.0, 1.0), 80.0);
 
       glMaterial(GLMaterialEnums::FRONT_AND_BACK, material);
 

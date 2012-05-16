@@ -25,7 +25,9 @@
 
 GLMotif::PopupWindow* StaticSolverOptionsDialog::createDialog()
 {
-   WidgetFactory factory;
+   StaticSolverTool* pTool=static_cast<StaticSolverTool*> (tool);
+
+   WidgetFactory factory;   
 
    // create the popup shell
    GLMotif::PopupWindow* parameterDialogPopup=factory.createPopupWindow("ParameterDialogPopup", " Static Solver Options");
@@ -54,8 +56,8 @@ GLMotif::PopupWindow* StaticSolverOptionsDialog::createDialog()
 
    // create line style toggle buttons (check boxes)
    factory.createLabel("", "Line Type");
-   GLMotif::ToggleButton* basicLineToggle=factory.createCheckBox("BasicLineToggle", "2D", true);
-   GLMotif::ToggleButton* polyLineToggle=factory.createCheckBox("PolyLineToggle", "3D");
+   GLMotif::ToggleButton* basicLineToggle=factory.createCheckBox("BasicLineToggle", "2D");
+   GLMotif::ToggleButton* polyLineToggle=factory.createCheckBox("PolyLineToggle", "3D", true);
 
    // assign line style toggle callbacks
    basicLineToggle->getValueChangedCallbacks().add(this, &StaticSolverOptionsDialog::lineStyleTogglesCallback);
@@ -67,8 +69,8 @@ GLMotif::PopupWindow* StaticSolverOptionsDialog::createDialog()
 
    // create line color toggle buttons (check boxes)
    factory.createLabel("", "Line Color");
-   GLMotif::ToggleButton* solidColorToggle=factory.createCheckBox("SolidColorToggle", "Solid");
-   GLMotif::ToggleButton* gradientColorToggle=factory.createCheckBox("GradientColorToggle", "Gradient", true);
+   GLMotif::ToggleButton* solidColorToggle=factory.createCheckBox("SolidColorToggle", "Solid", true);
+   GLMotif::ToggleButton* gradientColorToggle=factory.createCheckBox("GradientColorToggle", "Gradient");
 
    // assign line color toggle button callbacks
    solidColorToggle->getValueChangedCallbacks().add(this, &StaticSolverOptionsDialog::colorStyleTogglesCallback);
@@ -80,7 +82,6 @@ GLMotif::PopupWindow* StaticSolverOptionsDialog::createDialog()
 
    // Multiple static solutions
    factory.createLabel("", "Behavior");
-   StaticSolverTool* pTool=static_cast<StaticSolverTool*> (tool);
    GLMotif::ToggleButton* multipleStaticSolutionsToggle=factory.createCheckBox("MultipleStaticSolutionsToggle", "Allow Multiple Static Solutions", pTool->multipleStaticSolutions);
    multipleStaticSolutionsToggle->getValueChangedCallbacks().add(this, &StaticSolverOptionsDialog::multipleStaticSolutionsToggleCallback);
    factory.createLabel("Spacer0", "");
