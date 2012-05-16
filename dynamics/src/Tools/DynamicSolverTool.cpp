@@ -116,11 +116,6 @@ void DynamicSolverTool::render(DTS::DataItem* dataItem) const
 
 void DynamicSolverTool::step()
 {
-   DTS::Vector<double> prev( experiment->model->getDimension() );
-
-   // We use a temporary with preallocated space.
-   DTS::Vector<double> temp( prev );
-
    // for each point array (line)
    for (Data::MultiPointArray::iterator pointSet=data.points.begin(); pointSet
          != data.points.end(); ++pointSet)
@@ -154,6 +149,8 @@ void DynamicSolverTool::setExperiment(DTSExperiment* e)
 {
    experiment = e;
    clearPoints();
+   prev.setDimension(e->model->getDimension());
+   temp.setDimension(e->model->getDimension());
 }
 
 void DynamicSolverTool::moved(const ToolBox::MotionEvent & motionEvent)
@@ -168,16 +165,14 @@ void DynamicSolverTool::mainButtonReleased(const ToolBox::ButtonReleaseEvent & b
 {
    // get current locator position
    pos=toolBox()->deviceTransformationInModel().getOrigin();
-   DTS::Vector<double> position(3);
-   position[0] = pos[0];
-   position[1] = pos[1];
-   position[2] = pos[2];
+   tempDisplay[0] = pos[0];
+   tempDisplay[1] = pos[1];
+   tempDisplay[2] = pos[2];
 
    // create a new static solution
-   std::cout << "Position: " << position << std::endl;
-   DTS::Vector<double> invPos( experiment->model->getDimension() );
-   experiment->transformer->invTransform(position, invPos);
-   std::cout << "invTransform: " << invPos << std::endl;
+   std::cout << "position: " << tempDisplay << std::endl;
+   experiment->transformer->invTransform(tempDisplay, temp);
+   std::cout << "invTransform: " << temp << std::endl;
    std::cout << std::endl;
 
    // create a new point array
@@ -187,7 +182,7 @@ void DynamicSolverTool::mainButtonReleased(const ToolBox::ButtonReleaseEvent & b
    for (unsigned int i=0; i < data.history_size; i++)
    {
       // makes a copy using copy constructor
-      array.push_back(invPos);
+      array.push_back(temp);
    }
 
    // add to point array vector
@@ -201,7 +196,7 @@ void DynamicSolverTool::mainButtonReleased(const ToolBox::ButtonReleaseEvent & b
 
          for (unsigned int j=0; j < data.history_size; j++)
          {
-            a.push_back(invPos);
+            a.push_back(temp);
             a[j][0] += (float) rand() / (float) RAND_MAX * 0.1 - 0.05;
             a[j][1] += (float) rand() / (float) RAND_MAX * 0.1 - 0.05;
             a[j][2] += (float) rand() / (float) RAND_MAX * 0.1 - 0.05;
@@ -223,7 +218,11 @@ void DynamicSolverTool::drawBasicLines() const
    glPushAttrib(GL_LIGHTING_BIT);
    glDisable(GL_LIGHTING);
 
-   DTS::Vector<double> tmp( 3 );
+   // since this is a const method, we must store the tempDisplay vector
+   // in the dataItem. Since the dynamic solver doesn't (currently) track
+   // versions between the tool and the dataItem, we'll just allocate a
+   // new temporary.
+   DTS::Vector<double> temp(3);
 
    if (data.colorStyle == DynamicSolverData::SOLID)
    {
@@ -236,10 +235,10 @@ void DynamicSolverTool::drawBasicLines() const
          // for all points in line
          for (unsigned int j=1; j < data.points[i].size(); j++)
          {
-            experiment->transformer->transform(data.points[i][j-1], tmp);
-            glVertex3f(tmp[0], tmp[1], tmp[2]);
-            experiment->transformer->transform(data.points[i][j], tmp);
-            glVertex3f(tmp[0], tmp[1], tmp[2]);
+            experiment->transformer->transform(data.points[i][j-1], temp);
+            glVertex3f(temp[0], temp[1], temp[2]);
+            experiment->transformer->transform(data.points[i][j], temp);
+            glVertex3f(temp[0], temp[1], temp[2]);
          }
          glEnd();
       }
@@ -259,10 +258,10 @@ void DynamicSolverTool::drawBasicLines() const
 
             glColor3fv(color);
 
-            experiment->transformer->transform(data.points[i][j-1], tmp);
-            glVertex3f(tmp[0], tmp[1], tmp[2]);
-            experiment->transformer->transform(data.points[i][j], tmp);
-            glVertex3f(tmp[0], tmp[1], tmp[2]);
+            experiment->transformer->transform(data.points[i][j-1], temp);
+            glVertex3f(temp[0], temp[1], temp[2]);
+            experiment->transformer->transform(data.points[i][j], temp);
+            glVertex3f(temp[0], temp[1], temp[2]);
 
          }
          glEnd();
@@ -278,6 +277,12 @@ void DynamicSolverTool::drawPolylines() const
    // allocate space for gle rendering
    gleDouble pts[data.history_size][3];
    float colors[data.history_size][3];
+
+   // since this is a const method, we must store the tempDisplay vector
+   // in the dataItem. Since the dynamic solve doesn't (currently) track
+   // versions between the tool and the dataItem, we'll just allocate a
+   // new temporary.
+   DTS::Vector<double> temp(3);
 
    // save the current attribute state
    glPushAttrib(GL_LIGHTING_BIT);
@@ -308,8 +313,6 @@ void DynamicSolverTool::drawPolylines() const
 
    }
 
-   DTS::Vector<double> tmp( 3 );
-
    // for all lines
    for (unsigned int i=0; i < data.points.size(); i++)
    {
@@ -317,11 +320,11 @@ void DynamicSolverTool::drawPolylines() const
       for (unsigned int j=0; j < data.history_size; j++)
       {
          // set up gle data
-         experiment->transformer->transform(data.points[i][j], tmp);
+         experiment->transformer->transform(data.points[i][j], temp);
 
-         pts[j][0]=tmp[0];
-         pts[j][1]=tmp[1];
-         pts[j][2]=tmp[2];
+         pts[j][0] = temp[0];
+         pts[j][1] = temp[1];
+         pts[j][2] = temp[2];
       }
 
       // render line as a generalized cylinder

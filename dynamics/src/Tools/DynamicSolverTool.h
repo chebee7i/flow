@@ -140,7 +140,7 @@ class DynamicSolverTool: public AbstractDynamicsTool, public GLObject
 
    public:
       DynamicSolverTool(ToolBox::ToolBox* toolBox, Viewer* app) :
-         AbstractDynamicsTool(toolBox, app)
+         AbstractDynamicsTool(toolBox, app), tempDisplay(3)
       {
          icon(new Icon(this));
 
@@ -213,6 +213,10 @@ class DynamicSolverTool: public AbstractDynamicsTool, public GLObject
    private:
       typedef DynamicSolverData Data;
       DynamicSolverData data;
+
+      DTS::Vector<double> temp;
+      DTS::Vector<double> prev;
+      DTS::Vector<double> tempDisplay;
 
       /* Internal methods */
       void drawBasicLines() const;
