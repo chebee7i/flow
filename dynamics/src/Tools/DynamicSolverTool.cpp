@@ -117,7 +117,7 @@ void DynamicSolverTool::render(DTS::DataItem* dataItem) const
 void DynamicSolverTool::step()
 {
    DTS::Vector<double> prev( experiment->model->getDimension() );
-   
+
    // We use a temporary with preallocated space.
    DTS::Vector<double> temp( prev );
 
@@ -135,7 +135,7 @@ void DynamicSolverTool::step()
             // save the position
             prev=(*point);
             // integrate and move point to next position
-            experiment->integrator->step(*point, temp);            
+            experiment->integrator->step(*point, temp);
             (*point) += temp;
          }
          // for all other points (tail) simply set to previous point
@@ -148,6 +148,12 @@ void DynamicSolverTool::step()
          }
       }
    }
+}
+
+void DynamicSolverTool::setExperiment(DTSExperiment* e)
+{
+   experiment = e;
+   clearPoints();
 }
 
 void DynamicSolverTool::moved(const ToolBox::MotionEvent & motionEvent)
@@ -172,7 +178,7 @@ void DynamicSolverTool::mainButtonReleased(const ToolBox::ButtonReleaseEvent & b
    DTS::Vector<double> invPos( experiment->model->getDimension() );
    experiment->transformer->invTransform(position, invPos);
    std::cout << "invTransform: " << invPos << std::endl;
-   std::cout << std::endl; 
+   std::cout << std::endl;
 
    // create a new point array
    DynamicSolverData::PointArray array;
@@ -183,7 +189,7 @@ void DynamicSolverTool::mainButtonReleased(const ToolBox::ButtonReleaseEvent & b
       // makes a copy using copy constructor
       array.push_back(invPos);
    }
-   
+
    // add to point array vector
    data.points.push_back(array);
 
@@ -230,9 +236,9 @@ void DynamicSolverTool::drawBasicLines() const
          // for all points in line
          for (unsigned int j=1; j < data.points[i].size(); j++)
          {
-            experiment->transformer->transform(data.points[i][j-1], tmp);         
+            experiment->transformer->transform(data.points[i][j-1], tmp);
             glVertex3f(tmp[0], tmp[1], tmp[2]);
-            experiment->transformer->transform(data.points[i][j], tmp);                     
+            experiment->transformer->transform(data.points[i][j], tmp);
             glVertex3f(tmp[0], tmp[1], tmp[2]);
          }
          glEnd();
@@ -253,9 +259,9 @@ void DynamicSolverTool::drawBasicLines() const
 
             glColor3fv(color);
 
-            experiment->transformer->transform(data.points[i][j-1], tmp);         
+            experiment->transformer->transform(data.points[i][j-1], tmp);
             glVertex3f(tmp[0], tmp[1], tmp[2]);
-            experiment->transformer->transform(data.points[i][j], tmp);                     
+            experiment->transformer->transform(data.points[i][j], tmp);
             glVertex3f(tmp[0], tmp[1], tmp[2]);
 
          }
@@ -311,8 +317,8 @@ void DynamicSolverTool::drawPolylines() const
       for (unsigned int j=0; j < data.history_size; j++)
       {
          // set up gle data
-         experiment->transformer->transform(data.points[i][j], tmp);         
-         
+         experiment->transformer->transform(data.points[i][j], tmp);
+
          pts[j][0]=tmp[0];
          pts[j][1]=tmp[1];
          pts[j][2]=tmp[2];
@@ -442,7 +448,7 @@ void DynamicSolverTool::drawSphereHeads() const
    for (unsigned int i=0; i < data.points.size(); i++)
    {
       glPushMatrix();
-      experiment->transformer->transform(data.points[i][0], tmp);      
+      experiment->transformer->transform(data.points[i][0], tmp);
       glTranslatef(tmp[0], tmp[1], tmp[2]);
       glDrawSphereIcosahedron(data.point_radius, 12);
       glPopMatrix();

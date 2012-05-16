@@ -157,6 +157,8 @@ class DynamicSolverTool: public AbstractDynamicsTool, public GLObject
       virtual void render(DTS::DataItem* dataItem) const;
       virtual void step();
 
+      virtual void setExperiment(DTSExperiment* e);
+
       virtual void moved(const ToolBox::MotionEvent & motionEvent);
       virtual void mainButtonPressed(const ToolBox::ButtonPressEvent & buttonPressEvent);
       virtual void mainButtonReleased(const ToolBox::ButtonReleaseEvent & buttonReleaseEvent);
@@ -178,6 +180,7 @@ class DynamicSolverTool: public AbstractDynamicsTool, public GLObject
       void clearPoints()
       {
          data.points.clear();
+         Vrui::requestUpdate();
       }
 
       void setLineStyle(DynamicSolverData::LineStyle style)
