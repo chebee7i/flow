@@ -16,9 +16,9 @@ public:
         name = "Owl";
 
         double inf = std::numeric_limits<Scalar>::infinity();
-        addCoordinate( Coordinate("x", .5, -10, 10) );
-        addCoordinate( Coordinate("y", .5, -10, 10) );
-        addCoordinate( Coordinate("z", .5, -10, 10) );
+        addCoordinate( Coordinate("x", .5, -15, 15) );
+        addCoordinate( Coordinate("y", .5, -15, 15) );
+        addCoordinate( Coordinate("z", .5, 0, 20) );
         addCoordinate( Coordinate("t", 0, 0, inf) );        
 
         addRealParameter( RealParameter("a", a, -20, 20,  10, .01) );

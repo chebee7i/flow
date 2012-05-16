@@ -16,9 +16,9 @@ public:
         name = "Rossler";
 
         double inf = std::numeric_limits<Scalar>::infinity();
-        addCoordinate( Coordinate("x", 5, -15, 15) );
-        addCoordinate( Coordinate("y", 5, -15, 15) );
-        addCoordinate( Coordinate("z", 5, -1, 30) );
+        addCoordinate( Coordinate("x", 5, -20, 20) );
+        addCoordinate( Coordinate("y", 5, -15, 10) );
+        addCoordinate( Coordinate("z", 5, 0, 20) );
         addCoordinate( Coordinate("t", 0, 0, inf) );   
 
         addRealParameter( RealParameter("a", a, -.5,    .5,  0.2, 0.01) );
@@ -28,7 +28,7 @@ public:
         centerPoint.setDimension(4);
         centerPoint[0] = 0;
         centerPoint[1] = 0;
-        centerPoint[2] = 15;
+        centerPoint[2] = 10;
         centerPoint[3] = 0;
         
     }

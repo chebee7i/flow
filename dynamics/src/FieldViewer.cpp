@@ -116,7 +116,7 @@ Viewer::Viewer(int &argc, char** argv, char** appDefaults) :
     // Make sure the correct system is toggled
     setRadioToggles(dynamicsToggleButtons, name + "toggle");
 
-    // center the display
+    // Center the model
     resetNavigationCallback(0);
 }
 
@@ -480,7 +480,15 @@ void Viewer::resetNavigationCallback(Misc::CallbackData* cbData)
 {
     // if experiment defines default view, go there.
     // otherwise, go to center.
-   Vrui::setNavigationTransformation(Vrui::Point(0,0,0), 40.0);
+    DTS::Vector<double> center = experiment->transformer->getCenterPoint();
+    Vrui::Point p;
+    p[0] = center[0];
+    p[1] = center[1];
+    p[2] = center[2];
+    double radius = experiment->transformer->getRadius();
+    Vrui::setNavigationTransformation(p, radius);
+    
+    //Vrui::setNavigationTransformation(Vrui::Point(0,0,0), 40.0);
 }
 
 void Viewer::mainMenuTogglesCallback(GLMotif::ToggleButton::ValueChangedCallbackData *cbData)
@@ -640,13 +648,7 @@ void Viewer::dynamicsMenuCallback(GLMotif::ToggleButton::ValueChangedCallbackDat
    }
 
    // Center the model
-   DTS::Vector<double> center = experiment->transformer->getCenterPoint();
-   Vrui::Point p;
-   p[0] = center[0];
-   p[1] = center[1];
-   p[2] = center[2];
-   double radius = experiment->transformer->getRadius();
-   Vrui::setNavigationTransformation(p, radius);
+   resetNavigationCallback(0);
 
    // fake radio-button behavior
    setRadioToggles(dynamicsToggleButtons, name);

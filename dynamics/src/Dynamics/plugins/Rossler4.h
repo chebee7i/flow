@@ -17,8 +17,8 @@ public:
 
         double inf = std::numeric_limits<Scalar>::infinity();
         addCoordinate( Coordinate("x", -20, -130, 30) );
-        addCoordinate( Coordinate("y", 0, -80, 80) );
-        addCoordinate( Coordinate("z", 0, 0, 300) );
+        addCoordinate( Coordinate("y", 0, -80, 10) );
+        addCoordinate( Coordinate("z", 0, 0, 30) );
         addCoordinate( Coordinate("w", 15, 0, 70) );        
         addCoordinate( Coordinate("t", 0, 0, inf) );                
 
@@ -29,8 +29,8 @@ public:
 
         centerPoint.setDimension(5);
         centerPoint[0] = -50;
-        centerPoint[1] = 0;
-        centerPoint[2] = 150;
+        centerPoint[1] = -35;
+        centerPoint[2] = 40;
         centerPoint[3] = 35;
         centerPoint[4] = 0;
           
