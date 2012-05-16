@@ -3,6 +3,10 @@
 
 #include <cmath>
 
+#include "Geometry/Vector.h"
+
+#include "DynamicalModel.h"
+#include "Vector.h"
 #include "Parameter.h"
 
 template <typename ScalarParam>
@@ -29,10 +33,21 @@ public:
     */
     Vector transform(Vector const& v);
     virtual void transform(Vector const& v, Vector & out);
-
+    
     Vector invTransform(Vector const& v);
     virtual void invTransform(Vector const& v, Vector & out);
 
+    /*
+        Interaction with Geometry::Vector
+    */
+    Geometry::Vector<ScalarParam,3> transform2(Vector const& v);
+    virtual void transform(Vector const& v, Geometry::Vector<ScalarParam, 3> & out);
+
+    Vector invTransform(Geometry::Vector<ScalarParam,3> const& v);
+    virtual void invTransform(Geometry::Vector<ScalarParam,3> const& v, Vector & out);
+
+
+    // generic methods
     std::string const& getName() const;
     void setName(std::string const& name);
 
@@ -100,6 +115,48 @@ typename DynamicalModel<ScalarParam>::Vector Transformer<ScalarParam>::invTransf
 
 template <typename ScalarParam>
 void Transformer<ScalarParam>::invTransform(Vector const& v, Vector & out)
+{
+    // Take the first three components
+
+    out[0] = v[0];
+    out[1] = v[1];
+    out[2] = v[2];
+    
+    typename CoordinateClass<ScalarParam>::Coordinates coords = model.getCoords();
+    for ( int i = 3; i < model.getDimension(); i++ )
+    {
+        out[i] = coords[i].defaultValue;
+    }
+}
+
+template <typename ScalarParam>
+Geometry::Vector<ScalarParam,3> Transformer<ScalarParam>::transform2(Vector const& v)
+{
+    Geometry::Vector<ScalarParam,3> out;
+    transform(v, out);
+    return out;
+}
+
+template <typename ScalarParam>
+void Transformer<ScalarParam>::transform(Vector const& v, Geometry::Vector<ScalarParam,3> & out)
+{
+    // Take the first three components
+
+    out[0] = v[0];
+    out[1] = v[1];
+    out[2] = v[2];
+}
+
+template <typename ScalarParam>
+typename DynamicalModel<ScalarParam>::Vector Transformer<ScalarParam>::invTransform(Geometry::Vector<ScalarParam,3> const& v)
+{
+    Vector out(model.getDimension());
+    invTransform(v, out);
+    return out;
+}
+
+template <typename ScalarParam>
+void Transformer<ScalarParam>::invTransform(Geometry::Vector<ScalarParam,3> const& v, Vector & out)
 {
     // Take the first three components
 

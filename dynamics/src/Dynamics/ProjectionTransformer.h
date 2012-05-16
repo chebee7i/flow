@@ -14,13 +14,19 @@ public:
     ProjectionTransformer(DynamicalModel<ScalarParam> const& model);
     virtual ~ProjectionTransformer();
 
-    virtual void transform(typename DynamicalModel<ScalarParam>::Vector const& v, 
+    virtual void transform(typename DynamicalModel<ScalarParam>::Vector const& v,
                            typename DynamicalModel<ScalarParam>::Vector & out);
-                           
-    virtual void invTransform(typename DynamicalModel<ScalarParam>::Vector const& v, 
+
+    virtual void invTransform(typename DynamicalModel<ScalarParam>::Vector const& v,
                               typename DynamicalModel<ScalarParam>::Vector & out);
-                              
-    virtual std::string getParameterDisplay(int parameter);                           
+
+    virtual void transform(typename DynamicalModel<ScalarParam>::Vector const& v,
+                           Geometry::Vector<ScalarParam, 3> & out);
+
+    virtual void invTransform(Geometry::Vector<ScalarParam,3> const& v,
+                              typename DynamicalModel<ScalarParam>::Vector & out);
+
+    virtual std::string getParameterDisplay(int parameter);
 };
 
 
@@ -33,7 +39,7 @@ ProjectionTransformer<ScalarParam>::ProjectionTransformer(DynamicalModel<ScalarP
 : Transformer<ScalarParam>(model)
 {
     this->setName("projection");
-    
+
     // Determine appropriate defaults
     int d = model.getDimension();
     int x = 0;
@@ -44,7 +50,7 @@ ProjectionTransformer<ScalarParam>::ProjectionTransformer(DynamicalModel<ScalarP
 
     addIntParameter( IntParameter("xDisplay", x, -1, d-1, x, 1) );
     addIntParameter( IntParameter("yDisplay", y, -1, d-1, y, 1) );
-    addIntParameter( IntParameter("zDisplay", z, -1, d-1, z, 1) );        
+    addIntParameter( IntParameter("zDisplay", z, -1, d-1, z, 1) );
 }
 
 template <typename ScalarParam>
@@ -55,28 +61,28 @@ ProjectionTransformer<ScalarParam>::~ProjectionTransformer()
 
 template <typename ScalarParam>
 inline
-void ProjectionTransformer<ScalarParam>::transform(typename DynamicalModel<ScalarParam>::Vector const& v, 
+void ProjectionTransformer<ScalarParam>::transform(typename DynamicalModel<ScalarParam>::Vector const& v,
                                                    typename DynamicalModel<ScalarParam>::Vector & out)
 {
     // A value of -1 means it will be mapped to the value 0.
     int const& xIndex = this->intParamValues[0];
     int const& yIndex = this->intParamValues[1];
-    int const& zIndex = this->intParamValues[2];    
-    
+    int const& zIndex = this->intParamValues[2];
+
     out[0] = ( xIndex == -1 ? 0 : v[ xIndex ] );
     out[1] = ( yIndex == -1 ? 0 : v[ yIndex ] );
     out[2] = ( zIndex == -1 ? 0 : v[ zIndex ] );
 }
 
 template <typename ScalarParam>
-void ProjectionTransformer<ScalarParam>::invTransform(typename DynamicalModel<ScalarParam>::Vector const& v, 
+void ProjectionTransformer<ScalarParam>::invTransform(typename DynamicalModel<ScalarParam>::Vector const& v,
                                                       typename DynamicalModel<ScalarParam>::Vector & out)
 {
     // A value of -1 means it will be mapped to the value 0.
     int const& xIndex = this->intParamValues[0];
     int const& yIndex = this->intParamValues[1];
-    int const& zIndex = this->intParamValues[2];    
-    
+    int const& zIndex = this->intParamValues[2];
+
     if (xIndex > -1) out[xIndex] = v[0];
     if (yIndex > -1) out[yIndex] = v[1];
     if (zIndex > -1) out[zIndex] = v[2];
@@ -87,7 +93,46 @@ void ProjectionTransformer<ScalarParam>::invTransform(typename DynamicalModel<Sc
         if (i == xIndex || i == yIndex || i == zIndex)
         {
             continue;
-        }        
+        }
+        out[i] = coords[i].defaultValue;
+    }
+}
+
+template <typename ScalarParam>
+inline
+void ProjectionTransformer<ScalarParam>::transform(typename DynamicalModel<ScalarParam>::Vector const& v,
+                                                   Geometry::Vector<ScalarParam, 3> & out)
+{
+    // A value of -1 means it will be mapped to the value 0.
+    int const& xIndex = this->intParamValues[0];
+    int const& yIndex = this->intParamValues[1];
+    int const& zIndex = this->intParamValues[2];
+
+    out[0] = ( xIndex == -1 ? 0 : v[ xIndex ] );
+    out[1] = ( yIndex == -1 ? 0 : v[ yIndex ] );
+    out[2] = ( zIndex == -1 ? 0 : v[ zIndex ] );
+}
+
+template <typename ScalarParam>
+void ProjectionTransformer<ScalarParam>::invTransform(Geometry::Vector<ScalarParam, 3> const& v,
+                                                      typename DynamicalModel<ScalarParam>::Vector & out)
+{
+    // A value of -1 means it will be mapped to the value 0.
+    int const& xIndex = this->intParamValues[0];
+    int const& yIndex = this->intParamValues[1];
+    int const& zIndex = this->intParamValues[2];
+
+    if (xIndex > -1) out[xIndex] = v[0];
+    if (yIndex > -1) out[yIndex] = v[1];
+    if (zIndex > -1) out[zIndex] = v[2];
+
+    typename CoordinateClass<ScalarParam>::Coordinates coords = this->model.getCoords();
+    for ( int i = 0; i < this->model.getDimension(); i++ )
+    {
+        if (i == xIndex || i == yIndex || i == zIndex)
+        {
+            continue;
+        }
         out[i] = coords[i].defaultValue;
     }
 }
@@ -100,7 +145,7 @@ std::string ProjectionTransformer<ScalarParam>::getParameterDisplay(int paramete
     int coordinateIndex = this->intParamValues[parameterIndex];
     if (coordinateIndex == -1)
     {
-        name = "0";   
+        name = "0";
     }
     else if (coordinateIndex >= 0 && coordinateIndex < (int)coords.size() )
     {
