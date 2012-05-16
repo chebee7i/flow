@@ -185,6 +185,7 @@ class DotSpreaderTool: public AbstractDynamicsTool, public GLObject
       virtual void setExperiment(DTSExperiment* e)
       {
          experiment = e;
+         tempState.setDimension( experiment->model->getDimension() );
 
          if (!dataInited)
          {
@@ -249,6 +250,7 @@ class DotSpreaderTool: public AbstractDynamicsTool, public GLObject
       Vrui::Point pos;
       Vrui::Point org;
       DTS::Vector<double> tempDisplay;
+      DTS::Vector<double> tempState;
 };
 
 #endif 	    /* !DOTSPREADERTOOL_H_ */

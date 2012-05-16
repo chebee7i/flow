@@ -296,8 +296,6 @@ void DotSpreaderTool::step()
    if (!data.running)
       return;
 
-   DTS::Vector<double> tempState( experiment->model->getDimension() );
-
    for (int i=0; i < data.numPoints; i++)
    {
       experiment->integrator->step(data.states[i], tempState);
@@ -353,8 +351,6 @@ void DotSpreaderTool::mainButtonReleased(const ToolBox::ButtonReleaseEvent & but
    double deltaX=xMax - xMin;
    double deltaY=yMax - yMin;
    double deltaZ=zMax - zMin;
-
-   DTS::Vector<double> tempState( experiment->model->getDimension() );
 
    if (data.distribution == DotSpreaderData::SURFACE)
    {
