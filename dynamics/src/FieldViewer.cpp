@@ -318,9 +318,6 @@ void Viewer::updateToolToggles()
       // erase "toggle" from name
       toggle_name.erase(toggle_name.size() - 6, toggle_name.size());
 
-      if (toggle_name == "ParticleSprayer" || toggle_name == "DotSpreader")
-        continue;
-
       toggle_name+="Tool";
 
       // use the toolmap (names:tools) to get the tool pointer
@@ -462,7 +459,9 @@ void Viewer::toolCreationCallback(Vrui::ToolManager::ToolCreationCallbackData* c
       // automatically load the first tool and set options dialog
       AbstractDynamicsTool* currentTool = static_cast<AbstractDynamicsTool*>(tools.front());
       currentTool->grab();
+      
       updateCurrentOptionsDialog();
+      updateToolToggles();
 
    }
 }
@@ -656,6 +655,12 @@ void Viewer::dynamicsMenuCallback(GLMotif::ToggleButton::ValueChangedCallbackDat
 void Viewer::toolsMenuCallback(GLMotif::ToggleButton::ValueChangedCallbackData *cbData)
 {
    AbstractDynamicsTool* tool;
+   
+   // make sure tools exist!
+   if (toolmap.size() == 0)
+   {
+      return;
+   }
 
    std::string name=cbData->toggle->getName();
    {
@@ -678,7 +683,7 @@ void Viewer::toolsMenuCallback(GLMotif::ToggleButton::ValueChangedCallbackData *
       }
       else if (name == "StaticSolverToggle")
       {
-         masterout() << "CurrentTool: Static Solver" << std::endl;
+         masterout() << "Current Tool: Static Solver" << std::endl;
 
          tool=toolmap["StaticSolverTool"];
          bool state=tool->isDisabled();
@@ -686,7 +691,7 @@ void Viewer::toolsMenuCallback(GLMotif::ToggleButton::ValueChangedCallbackData *
       }
       else if (name == "DynamicSolverToggle")
       {
-         masterout() << "CurrentTool: Dynamic Solver" << std::endl;
+         masterout() << "Current Tool: Dynamic Solver" << std::endl;
 
          tool=toolmap["DynamicSolverTool"];
          bool state=tool->isDisabled();
