@@ -250,6 +250,9 @@ class ParticleSprayerTool: public AbstractDynamicsTool, public GLObject
       ParticleSprayerData data;
 
       DTS::Vector<double> tempDisplay;
+      DTS::Vector<double> temp;
+      DTS::Vector<double> old; // prev position of particle
+
 
       /* Internal methods */
       void drawEmitters() const;

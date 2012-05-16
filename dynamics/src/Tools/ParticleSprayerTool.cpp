@@ -216,11 +216,13 @@ void ParticleSprayerTool::setExperiment(DTSExperiment* e)
    experiment = e;
    clearParticles();
    clearEmitters();
+   temp.setDimension( e->model->getDimension() );
+   old.setDimension( e->model->getDimension() );
 }
 
 void ParticleSprayerTool::step()
 {
-   DTS::Vector<double> temp( experiment->model->getDimension() );
+   int dimension = experiment->model->getDimension();
 
    // iterator over all emitters and add particles to the simulation
    for (Data::PointArray::iterator emit=data.emitters.begin(); emit
@@ -246,10 +248,6 @@ void ParticleSprayerTool::step()
 
       }
    }
-
-   // previous position of particle
-   DTS::Vector<double> old( experiment->model->getDimension() );
-   float speed;
 
    // calculate color based on ratio of velocity to max. velocity
    //const float max_vel = 0.6*0.6;
@@ -310,8 +308,8 @@ void ParticleSprayerTool::step()
       (*particle).pos[2] = tempDisplay[2];
 
       // compute the (squared) speed of the particle
-      speed = 0.0;
-      for (int j = 0; j < experiment->model->getDimension(); j++)
+      float speed = 0.0;
+      for (int j = 0; j < dimension; j++)
       {
          speed += (data.states[i][j] - old[j]) * (data.states[i][j] - old[j]);
       }
