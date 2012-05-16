@@ -210,11 +210,18 @@ void ParticleSprayerTool::render(DTS::DataItem* dataItem) const
    glPopAttrib();
 }
 
+
+void ParticleSprayerTool::setExperiment(DTSExperiment* e)
+{
+   experiment = e;
+   clearParticles();
+   clearEmitters();
+}
+
 void ParticleSprayerTool::step()
 {
-   DTS::Vector<double> tempDisplay(3);
    DTS::Vector<double> temp( experiment->model->getDimension() );
-   
+
    // iterator over all emitters and add particles to the simulation
    for (Data::PointArray::iterator emit=data.emitters.begin(); emit
          != data.emitters.end(); ++emit)
@@ -230,18 +237,18 @@ void ParticleSprayerTool::step()
 
          Geometry::Point<double,3> shift((*emit)[0] + dx, (*emit)[1] + dy, (*emit)[2] + dz);
          data.addParticle(PointParticle(shift, data.lifetime));
-         
+
          tempDisplay[0] = (*emit)[0] + dx;
          tempDisplay[1] = (*emit)[1] + dy;
          tempDisplay[2] = (*emit)[2] + dz;
          experiment->transformer->invTransform(tempDisplay, temp);
          data.states.push_back( temp );
-         
+
       }
    }
 
-   // previous position of particle   
-   DTS::Vector<double> old( experiment->model->getDimension() );   
+   // previous position of particle
+   DTS::Vector<double> old( experiment->model->getDimension() );
    float speed;
 
    // calculate color based on ratio of velocity to max. velocity
@@ -283,31 +290,32 @@ void ParticleSprayerTool::step()
          {
             (*particle)=*(data.particles.end() - 1);
             data.particles.pop_back();
-            
+
             data.states[i] = data.states[ data.states.size() - 1 ];
-            data.states.pop_back();         
+            data.states.pop_back();
          }
       }
-   
+
       // save previous position of particle
       old = data.states[i];
 
       // compute new position and update particle
       experiment->integrator->step(data.states[i], temp);
       data.states[i] += temp;
-      
+
       experiment->transformer->transform(data.states[i], tempDisplay);
+      // implicit cast from double to float
       (*particle).pos[0] = tempDisplay[0];
       (*particle).pos[1] = tempDisplay[1];
       (*particle).pos[2] = tempDisplay[2];
-      
+
       // compute the (squared) speed of the particle
       speed = 0.0;
       for (int j = 0; j < experiment->model->getDimension(); j++)
-      {         
+      {
          speed += (data.states[i][j] - old[j]) * (data.states[i][j] - old[j]);
       }
-      
+
       if (check_max)
       {
          next_max=(speed > next_max ? speed : next_max);
@@ -328,14 +336,14 @@ void ParticleSprayerTool::step()
       (*particle).color[2]=(unsigned char) (cv[2] * 255.0);
 
       // increment frame count
-      (*particle).frame++;   
-   
-   
+      (*particle).frame++;
+
+
       // Next loop
       ++particle;
-      ++i;    
+      ++i;
    }
-   
+
    if (check_max)
       max_vel=next_max;
 
@@ -354,9 +362,8 @@ void ParticleSprayerTool::moved(const ToolBox::MotionEvent & motionEvent)
       int cluster_size=data.cluster_size; // number of particles to emit
       float cluster_radius=data.cluster_radius; // amount of "spread"
 
-      DTS::Vector<double> temp(3);
       DTS::Vector<double> invPos( experiment->model->getDimension() );
-      
+
       // add particles to the simulation
       for (int i=0; i < cluster_size; i++)
       {
@@ -367,11 +374,11 @@ void ParticleSprayerTool::moved(const ToolBox::MotionEvent & motionEvent)
          Geometry::Point<double,3> shift(pos[0] + dx, pos[1] + dy, pos[2] + dz);
          data.addParticle(PointParticle(shift, data.lifetime));
 
-         temp[0] = pos[0] + dx;
-         temp[1] = pos[1] + dy;
-         temp[2] = pos[2] + dz;
+         tempDisplay[0] = pos[0] + dx;
+         tempDisplay[1] = pos[1] + dy;
+         tempDisplay[2] = pos[2] + dz;
 
-         experiment->transformer->invTransform(temp, invPos);
+         experiment->transformer->invTransform(tempDisplay, invPos);
          data.states.push_back( invPos );
       }
    }
@@ -411,7 +418,7 @@ void ParticleSprayerTool::moved(const ToolBox::MotionEvent & motionEvent)
 }
 
 void ParticleSprayerTool::mainButtonPressed(const ToolBox::ButtonPressEvent & motionEvent)
-{ 
+{
    // get current locator position
    pos=toolBox()->deviceTransformationInModel().getOrigin();
 

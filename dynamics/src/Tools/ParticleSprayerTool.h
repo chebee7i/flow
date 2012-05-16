@@ -73,7 +73,7 @@ class ParticleSprayerData
       ParticleArray particles; ///< Point particles.
       PointArray emitters; ///< Location of particle emitters.
       StateArray states; ///< Particle state variables (in n-dimensions).
-      
+
       Action action; ///< Current sprayer action (mode).
 
       Vrui::Point* selectedEmitter;
@@ -84,7 +84,7 @@ class ParticleSprayerData
       unsigned int lifetime; ///< Lifetime of particles.
       float emitter_radius; ///< Size of spheres representing emitters.
       float point_radius; ///< Size of the particles.
-      
+
       unsigned int currentVersion; ///< For syncing VOB rendering.
 
       BlueRedColorMap colorMap; ///< Color map for coloring by velocity.
@@ -93,9 +93,9 @@ class ParticleSprayerData
          action(SPRAY_PARTICLES), selectedEmitter(NULL), hoveringEmitter(NULL),
          cluster_size(15), cluster_radius(0.5), lifetime(750),
          emitter_radius(0.1), point_radius(0.05), currentVersion(0)
-         
+
       {
-         particles.reserve(200000);         
+         particles.reserve(200000);
       }
 
       ~ParticleSprayerData()
@@ -165,7 +165,7 @@ class ParticleSprayerTool: public AbstractDynamicsTool, public GLObject
       /* Interface */
 
       ParticleSprayerTool(ToolBox::ToolBox* toolBox, Viewer* app) :
-         AbstractDynamicsTool(toolBox, app), active(false)
+         AbstractDynamicsTool(toolBox, app), active(false), tempDisplay(3)
       {
          icon(new Icon(this));
 
@@ -181,6 +181,8 @@ class ParticleSprayerTool: public AbstractDynamicsTool, public GLObject
       void initContext(GLContextData& contextData) const;
       virtual void render(DTS::DataItem* dataItem) const;
       virtual void step();
+
+      virtual void setExperiment(DTSExperiment* e);
 
       virtual void moved(const ToolBox::MotionEvent & motionEvent);
       virtual void mainButtonPressed(const ToolBox::ButtonPressEvent & buttonPressEvent);
@@ -246,6 +248,8 @@ class ParticleSprayerTool: public AbstractDynamicsTool, public GLObject
 
       bool active;
       ParticleSprayerData data;
+
+      DTS::Vector<double> tempDisplay;
 
       /* Internal methods */
       void drawEmitters() const;
