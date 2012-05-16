@@ -248,6 +248,7 @@ int Vector<ScalarParam>::getDimension(void) const
 template <typename ScalarParam>
 void Vector<ScalarParam>::setDimension(int dimension)
 {
+	this->dimension = dimension;
     components.resize(dimension);
 }
 
