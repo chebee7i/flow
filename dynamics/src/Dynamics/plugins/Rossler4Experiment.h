@@ -20,10 +20,10 @@ public:
         ProjectionTransformer<double> *t;
         t = new ProjectionTransformer<double>(*model);
         
-        t->setIntParamValue("xCoordinate", 0);
-        t->setIntParamValue("yCoordinate", 2);
-        t->setIntParamValue("zCoordinate", 3);
-                
+        t->setIntParamValue("xDisplay", 0);
+        t->setIntParamValue("yDisplay", 1);
+        t->setIntParamValue("zDisplay", 2);
+
         addTransformer( t );
         setTransformer("projection");      
     }

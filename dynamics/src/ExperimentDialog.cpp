@@ -119,7 +119,7 @@ GLMotif::PopupWindow* ExperimentDialog::createDialog()
         textField->setString( experiment->transformer->getParameterDisplay(displayParamName).c_str() );
         textFields.push_back( textField );
         
-        slider = factory.createSlider( intItr->name.c_str(), 15);
+        slider = factory.createSlider( intItr->name.c_str(), 10);
         slider->setValueRange( intItr->minValue, intItr->maxValue, intItr->increment );
         slider->setValue( intItr->value );
         slider->getValueChangedCallbacks().add(this, &ExperimentDialog::sliderTransformerCallback);        

@@ -15,17 +15,21 @@ public:
     virtual ~ProjectionTransformer();
 
     virtual void transform(typename DynamicalModel<ScalarParam>::Vector const& v,
-                           typename DynamicalModel<ScalarParam>::Vector & out);
+                           typename DynamicalModel<ScalarParam>::Vector & out) const;
 
     virtual void invTransform(typename DynamicalModel<ScalarParam>::Vector const& v,
-                              typename DynamicalModel<ScalarParam>::Vector & out);
+                              typename DynamicalModel<ScalarParam>::Vector & out) const;
 
     virtual void transform(typename DynamicalModel<ScalarParam>::Vector const& v,
-                           Geometry::Vector<ScalarParam, 3> & out);
+                           Geometry::Vector<ScalarParam, 3> & out) const;
 
     virtual void invTransform(Geometry::Vector<ScalarParam,3> const& v,
-                              typename DynamicalModel<ScalarParam>::Vector & out);
+                              typename DynamicalModel<ScalarParam>::Vector & out) const;
 
+    virtual typename DynamicalModel<ScalarParam>::Scalar getRadius(void) const;
+
+    // necessary to find overloaded version
+    using Transformer<ScalarParam>::getParameterDisplay;
     virtual std::string getParameterDisplay(int parameter);
 };
 
@@ -62,7 +66,7 @@ ProjectionTransformer<ScalarParam>::~ProjectionTransformer()
 template <typename ScalarParam>
 inline
 void ProjectionTransformer<ScalarParam>::transform(typename DynamicalModel<ScalarParam>::Vector const& v,
-                                                   typename DynamicalModel<ScalarParam>::Vector & out)
+                                                   typename DynamicalModel<ScalarParam>::Vector & out) const
 {
     // A value of -1 means it will be mapped to the value 0.
     int const& xIndex = this->intParamValues[0];
@@ -76,7 +80,7 @@ void ProjectionTransformer<ScalarParam>::transform(typename DynamicalModel<Scala
 
 template <typename ScalarParam>
 void ProjectionTransformer<ScalarParam>::invTransform(typename DynamicalModel<ScalarParam>::Vector const& v,
-                                                      typename DynamicalModel<ScalarParam>::Vector & out)
+                                                      typename DynamicalModel<ScalarParam>::Vector & out) const
 {
     // A value of -1 means it will be mapped to the value 0.
     int const& xIndex = this->intParamValues[0];
@@ -101,7 +105,7 @@ void ProjectionTransformer<ScalarParam>::invTransform(typename DynamicalModel<Sc
 template <typename ScalarParam>
 inline
 void ProjectionTransformer<ScalarParam>::transform(typename DynamicalModel<ScalarParam>::Vector const& v,
-                                                   Geometry::Vector<ScalarParam, 3> & out)
+                                                   Geometry::Vector<ScalarParam, 3> & out) const
 {
     // A value of -1 means it will be mapped to the value 0.
     int const& xIndex = this->intParamValues[0];
@@ -115,7 +119,7 @@ void ProjectionTransformer<ScalarParam>::transform(typename DynamicalModel<Scala
 
 template <typename ScalarParam>
 void ProjectionTransformer<ScalarParam>::invTransform(Geometry::Vector<ScalarParam, 3> const& v,
-                                                      typename DynamicalModel<ScalarParam>::Vector & out)
+                                                      typename DynamicalModel<ScalarParam>::Vector & out) const
 {
     // A value of -1 means it will be mapped to the value 0.
     int const& xIndex = this->intParamValues[0];
@@ -135,6 +139,49 @@ void ProjectionTransformer<ScalarParam>::invTransform(Geometry::Vector<ScalarPar
         }
         out[i] = coords[i].defaultValue;
     }
+}
+
+template <typename ScalarParam>
+typename DynamicalModel<ScalarParam>::Scalar ProjectionTransformer<ScalarParam>::getRadius(void) const
+{   
+    typedef typename CoordinateClass<ScalarParam>::Coordinates Coords;
+    typedef typename ParameterClass<double>::IntParameters IntParams;
+    
+    // use the radius from the mapped coordinates.
+
+    // only use the coordinates which will be displayed
+    ScalarParam radius = 0;
+    ScalarParam tempRadius;
+    
+    Coords const coords = this->model.getCoords();
+    IntParams const iparams = this->getIntParams();
+    
+    IntParams::const_iterator itr;
+    for (itr = iparams.begin(); itr != iparams.end(); ++itr)
+    {
+        int i = (*itr).value;
+        if (i > -1) 
+        {
+            // then the display Coordinate is mapped to *some* coordinate        
+            tempRadius = coords[i].maxValue - coords[i].minValue;
+            if (tempRadius > radius and !std::isinf(tempRadius) )
+            {
+                radius = tempRadius;
+            }
+        }
+    }
+
+    // we actually computed diameter
+    radius /= 2;
+    
+    // testing if it is essentially zero
+    if ( radius < .0001 ) 
+    {
+        // default value
+        radius = 30;
+    }
+    
+    return radius;
 }
 
 template <typename ScalarParam>

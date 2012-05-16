@@ -24,6 +24,12 @@ public:
         addRealParameter( RealParameter("sigma", sigma, 0, 20,  10,    0.1) );
         addRealParameter( RealParameter("rho",   rho,   0, 100, 28,    0.1) );
         addRealParameter( RealParameter("beta",  beta,  0, 10,  8/3.0, 0.1) );
+        
+        centerPoint.setDimension(4);
+        centerPoint[0] = 0;
+        centerPoint[1] = 0;
+        centerPoint[2] = 25;
+        centerPoint[3] = 0;
     }
 
     virtual ~Lorenz() { }

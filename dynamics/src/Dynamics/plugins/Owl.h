@@ -24,6 +24,12 @@ public:
         addRealParameter( RealParameter("a", a, -20, 20,  10, .01) );
         addRealParameter( RealParameter("b", b, -20, 20,  10, .01) );
         addRealParameter( RealParameter("c", c, -20, 20,  13, .01) );
+        
+        centerPoint.setDimension(4);
+        centerPoint[0] = 0;
+        centerPoint[1] = 0;
+        centerPoint[2] = 0;
+        centerPoint[3] = 0;
     }
 
     virtual ~Owl() { }

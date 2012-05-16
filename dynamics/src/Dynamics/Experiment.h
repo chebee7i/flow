@@ -100,7 +100,8 @@ public:
     typedef ScalarParam Scalar;
     typedef std::map< std::string, Integrator<ScalarParam>* > IntegratorMap;
     typedef std::map< std::string, Transformer<ScalarParam>* > TransformerMap;    
-
+    typedef typename DynamicalModel<ScalarParam>::Vector Vector;
+    
     Experiment();
     virtual ~Experiment();
     
@@ -108,8 +109,8 @@ public:
     void setTransformer(std::string const&);
     
     void addIntegrator(Integrator<ScalarParam>*);
-    void addTransformer(Transformer<ScalarParam>*);    
-
+    void addTransformer(Transformer<ScalarParam>*);   
+    
     bool isOutdated();
     unsigned int updateVersion();
     unsigned int const & getVersion() const;
@@ -305,7 +306,6 @@ void Experiment<ScalarParam>::addTransformer(Transformer<ScalarParam> *transform
         transformers[name] = transformer;
     }
 }
-
 
 template <typename ScalarParam>
 bool Experiment<ScalarParam>::isOutdated()

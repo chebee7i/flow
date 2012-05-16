@@ -24,6 +24,13 @@ public:
         addRealParameter( RealParameter("a", a, -.5,    .5,  0.2, 0.01) );
         addRealParameter( RealParameter("b", b, -.5,    .5,  0.2, 0.01) );
         addRealParameter( RealParameter("c", c, 0,    10.0,  5.7, 0.01) );
+        
+        centerPoint.setDimension(4);
+        centerPoint[0] = 0;
+        centerPoint[1] = 0;
+        centerPoint[2] = 15;
+        centerPoint[3] = 0;
+        
     }
 
     virtual ~Rossler3() { }

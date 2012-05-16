@@ -25,7 +25,15 @@ public:
         addRealParameter( RealParameter("a", a, 0,    2.0,  0.25, 0.01) );
         addRealParameter( RealParameter("b", b, -2,   2.0, -0.50, 0.01) );
         addRealParameter( RealParameter("c", c, 0,    5.0,  2.20, 0.01) );
-        addRealParameter( RealParameter("d", d, -0.5, 0.5,  0.05, 0.01) );        
+        addRealParameter( RealParameter("d", d, -0.5, 0.5,  0.05, 0.01) );      
+
+        centerPoint.setDimension(5);
+        centerPoint[0] = -50;
+        centerPoint[1] = 0;
+        centerPoint[2] = 150;
+        centerPoint[3] = 35;
+        centerPoint[4] = 0;
+          
     }
 
     virtual ~Rossler4() { }

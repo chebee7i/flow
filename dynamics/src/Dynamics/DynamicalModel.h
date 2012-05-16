@@ -10,6 +10,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <cmath>
 
 //
 // Project includes
@@ -52,7 +53,9 @@ public:
     virtual void operator()(Vector const& x, Vector & out) const = 0;
 
     Vector getDefaultPoint() const;
-    //Vector getCenterPoint() const;
+    // centerPoint and radius corresponds to the attractor at the defaultPoint    
+    Vector getCenterPoint() const; 
+    ScalarParam getRadius() const;
 
     int getDimension(void) const;
     std::string const& getName() const;
@@ -62,7 +65,7 @@ protected:
 
     // Subclasses can specify a name in their constructor.
     std::string name;
-    //Vector center;
+    Vector centerPoint;
 
     // inherited from ParameterClass
     unsigned int updateVersion();
@@ -102,7 +105,7 @@ template <typename ScalarParam>
 DTS::Vector<ScalarParam> DynamicalModel<ScalarParam>::getDefaultPoint() const
 {
     Vector out(getDimension());
-    const std::vector<Coordinate> coords = this->getCoords();
+    typename CoordinateClass<ScalarParam>::Coordinates const coords = this->getCoords();
     for (unsigned i=0; i < coords.size(); i++)
     {
         out[i] = coords[i].defaultValue;
@@ -110,14 +113,45 @@ DTS::Vector<ScalarParam> DynamicalModel<ScalarParam>::getDefaultPoint() const
     return out;
 }
 
-/*
+
 template <typename ScalarParam>
 DTS::Vector<ScalarParam> DynamicalModel<ScalarParam>::getCenterPoint() const
 {
-    return center;
+    return centerPoint;
 }
-*/
 
+template <typename ScalarParam>
+ScalarParam DynamicalModel<ScalarParam>::getRadius() const
+{
+    // return the largest non-infinite radius from each coordinate
+    
+    typedef typename CoordinateClass<ScalarParam>::Coordiantes Coords;
+    Coords const coords = this->getCoords();
+    typename Coords::const_iterator itr;
+
+    ScalarParam radius = 0;
+    ScalarParam tempRadius;
+    for (itr = coords.begin(); itr != coords.end(); ++itr)
+    {
+        tempRadius = coords[0].maxValue - coords[0].minValue;
+        if (tempRadius > radius && !std::isinf(tempRadius) )
+        {
+            radius = tempRadius;
+        }
+    }
+    
+    // we actually computed diameter
+    radius /= 2;
+        
+    // testing if it is essentially zero
+    if ( radius < .0001 ) 
+    {
+        // default value
+        radius = 30;
+    }
+    
+    return radius;
+}
 
 template <typename ScalarParam>
 inline

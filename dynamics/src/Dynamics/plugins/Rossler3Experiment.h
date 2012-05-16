@@ -17,15 +17,8 @@ public:
         addIntegrator( new RungeKutta4(*model, .1) );
         setIntegrator("rk4");
         
-        ProjectionTransformer<double> *t;
-        t = new ProjectionTransformer<double>(*model);
-        
-        t->setIntParamValue("xCoordinate", 0);
-        t->setIntParamValue("yCoordinate", 1);
-        t->setIntParamValue("zCoordinate", 2);
-                
-        addTransformer( t );
-        setTransformer("projection");      
+        addTransformer( new ProjectionTransformer<double>(*model) );
+        setTransformer("projection");  
     }
 };
 

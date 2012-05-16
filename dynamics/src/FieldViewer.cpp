@@ -637,9 +637,17 @@ void Viewer::dynamicsMenuCallback(GLMotif::ToggleButton::ValueChangedCallbackDat
    if (it != toolmap.end())
    {
        StaticSolverTool* tool = static_cast<StaticSolverTool*>(it->second);
-       const DTS::Vector<double> defaultPoint = experiment->model->getDefaultPoint();
-       tool->addStaticSolution(experiment->transformer->transform(defaultPoint));
+       tool->addStaticSolution(experiment->transformer->getDefaultPoint());
    }
+   
+   // Center the model
+   DTS::Vector<double> center = experiment->transformer->getCenterPoint();
+   Vrui::Point p;
+   p[0] = center[0];
+   p[1] = center[1];
+   p[2] = center[2];
+   double radius = experiment->transformer->getRadius();
+   Vrui::setNavigationTransformation(p, radius);
    
    // fake radio-button behavior
    setRadioToggles(dynamicsToggleButtons, name);

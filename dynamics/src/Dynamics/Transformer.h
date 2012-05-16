@@ -31,21 +31,30 @@ public:
         writes to a preallocated vector, which is assumed to be distinct from
         the input vector. There will be problems if v == out.
     */
-    Vector transform(Vector const& v);
-    virtual void transform(Vector const& v, Vector & out);
+    Vector transform(Vector const& v) const;
+    virtual void transform(Vector const& v, Vector & out) const;
     
-    Vector invTransform(Vector const& v);
-    virtual void invTransform(Vector const& v, Vector & out);
+    Vector invTransform(Vector const& v) const;
+    virtual void invTransform(Vector const& v, Vector & out) const;
 
     /*
         Interaction with Geometry::Vector
     */
-    Geometry::Vector<ScalarParam,3> transform2(Vector const& v);
-    virtual void transform(Vector const& v, Geometry::Vector<ScalarParam, 3> & out);
+    Geometry::Vector<ScalarParam,3> transform2(Vector const& v) const;
+    virtual void transform(Vector const& v, Geometry::Vector<ScalarParam, 3> & out) const;
 
-    Vector invTransform(Geometry::Vector<ScalarParam,3> const& v);
-    virtual void invTransform(Geometry::Vector<ScalarParam,3> const& v, Vector & out);
+    Vector invTransform(Geometry::Vector<ScalarParam,3> const& v) const;
+    virtual void invTransform(Geometry::Vector<ScalarParam,3> const& v, Vector & out) const;
 
+    /* Generally you need to be careful.  If the coordinate ranges from 0, 2PI
+     * and you map it to polar coordinates, then its range is now 0. So
+     * the default point, center point, and radius is necessarily transformation
+     * dependent. Default implementation is to transform the first three
+     * coordinates.
+     */
+    virtual Vector getDefaultPoint(void) const;
+    virtual Vector getCenterPoint(void) const;
+    virtual Scalar getRadius(void) const;
 
     // generic methods
     std::string const& getName() const;
@@ -88,7 +97,7 @@ Transformer<ScalarParam>::~Transformer()
 }
 
 template <typename ScalarParam>
-typename DynamicalModel<ScalarParam>::Vector Transformer<ScalarParam>::transform(Vector const& v)
+typename DynamicalModel<ScalarParam>::Vector Transformer<ScalarParam>::transform(Vector const& v) const
 {
     Vector out(3);
     transform(v, out);
@@ -96,17 +105,24 @@ typename DynamicalModel<ScalarParam>::Vector Transformer<ScalarParam>::transform
 }
 
 template <typename ScalarParam>
-void Transformer<ScalarParam>::transform(Vector const& v, Vector & out)
+void Transformer<ScalarParam>::transform(Vector const& v, Vector & out) const
 {
     // Take the first three components
 
     out[0] = v[0];
     out[1] = v[1];
-    out[2] = v[2];
+    if (model.getDimension() > 2)
+    {
+        out[2] = v[2];
+    }
+    else
+    {
+        out[2] = 0;
+    }
 }
 
 template <typename ScalarParam>
-typename DynamicalModel<ScalarParam>::Vector Transformer<ScalarParam>::invTransform(Vector const& v)
+typename DynamicalModel<ScalarParam>::Vector Transformer<ScalarParam>::invTransform(Vector const& v) const
 {
     Vector out(model.getDimension());
     invTransform(v, out);
@@ -114,10 +130,9 @@ typename DynamicalModel<ScalarParam>::Vector Transformer<ScalarParam>::invTransf
 }
 
 template <typename ScalarParam>
-void Transformer<ScalarParam>::invTransform(Vector const& v, Vector & out)
+void Transformer<ScalarParam>::invTransform(Vector const& v, Vector & out) const
 {
     // Take the first three components
-
     out[0] = v[0];
     out[1] = v[1];
     out[2] = v[2];
@@ -130,7 +145,7 @@ void Transformer<ScalarParam>::invTransform(Vector const& v, Vector & out)
 }
 
 template <typename ScalarParam>
-Geometry::Vector<ScalarParam,3> Transformer<ScalarParam>::transform2(Vector const& v)
+Geometry::Vector<ScalarParam,3> Transformer<ScalarParam>::transform2(Vector const& v) const
 {
     Geometry::Vector<ScalarParam,3> out;
     transform(v, out);
@@ -138,17 +153,24 @@ Geometry::Vector<ScalarParam,3> Transformer<ScalarParam>::transform2(Vector cons
 }
 
 template <typename ScalarParam>
-void Transformer<ScalarParam>::transform(Vector const& v, Geometry::Vector<ScalarParam,3> & out)
+void Transformer<ScalarParam>::transform(Vector const& v, Geometry::Vector<ScalarParam,3> & out) const
 {
     // Take the first three components
 
     out[0] = v[0];
     out[1] = v[1];
-    out[2] = v[2];
+    if (model.getDimension() > 2)
+    {
+        out[2] = v[2];
+    }
+    else
+    {
+        out[2] = 0;
+    }
 }
 
 template <typename ScalarParam>
-typename DynamicalModel<ScalarParam>::Vector Transformer<ScalarParam>::invTransform(Geometry::Vector<ScalarParam,3> const& v)
+typename DynamicalModel<ScalarParam>::Vector Transformer<ScalarParam>::invTransform(Geometry::Vector<ScalarParam,3> const& v) const
 {
     Vector out(model.getDimension());
     invTransform(v, out);
@@ -156,7 +178,7 @@ typename DynamicalModel<ScalarParam>::Vector Transformer<ScalarParam>::invTransf
 }
 
 template <typename ScalarParam>
-void Transformer<ScalarParam>::invTransform(Geometry::Vector<ScalarParam,3> const& v, Vector & out)
+void Transformer<ScalarParam>::invTransform(Geometry::Vector<ScalarParam,3> const& v, Vector & out) const
 {
     // Take the first three components
 
@@ -169,6 +191,63 @@ void Transformer<ScalarParam>::invTransform(Geometry::Vector<ScalarParam,3> cons
     {
         out[i] = coords[i].defaultValue;
     }
+}
+
+template <typename ScalarParam>
+typename DynamicalModel<ScalarParam>::Vector Transformer<ScalarParam>::getDefaultPoint(void) const
+{
+    const DTS::Vector<double> defaultPoint = model.getDefaultPoint();
+    return transform(defaultPoint);
+
+}
+
+template <typename ScalarParam>
+typename DynamicalModel<ScalarParam>::Vector Transformer<ScalarParam>::getCenterPoint(void) const
+{
+    const DTS::Vector<double> centerPoint = model.getCenterPoint();
+    return transform(centerPoint);
+}    
+    
+template <typename ScalarParam>
+typename DynamicalModel<ScalarParam>::Scalar Transformer<ScalarParam>::getRadius(void) const
+{   
+    // return the largest non-infinite radius from the first 3 coordinates
+    
+    typedef typename CoordinateClass<ScalarParam>::Coordinates Coords;
+    Coords const coords = model.getCoords();
+
+    int iEnd;
+    if (model.getDimension() > 2)
+    {
+        iEnd = 3;
+    }
+    else
+    {
+        iEnd = 2;
+    }
+    
+    ScalarParam radius = 0;
+    ScalarParam tempRadius;
+    for (int i = 0; i < iEnd; i++)
+    {
+        tempRadius = coords[0].maxValue - coords[0].minValue;
+        if (tempRadius > radius && !std::isinf(tempRadius) )
+        {
+            radius = tempRadius;
+        }
+    }
+
+    // we actually computed diameter
+    radius /= 2;
+
+    // testing if it is essentially zero
+    if ( radius < .0001 ) 
+    {
+        // default value
+        radius = 30;
+    }
+
+    return radius;
 }
 
 template <typename ScalarParam>
@@ -203,6 +282,8 @@ template <typename ScalarParam>
 std::string Transformer<ScalarParam>::getParameterDisplay(int parameterIndex)
 {
     // Need to update this to work with all parameter types
+    // Right now it (and the one below) assume integer parameters.
+    // Also consider moving it to ParameterClass as virtual methods.
     return "";
 }
 
