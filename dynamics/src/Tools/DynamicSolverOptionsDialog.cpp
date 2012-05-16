@@ -42,9 +42,9 @@ GLMotif::PopupWindow* DynamicSolverOptionsDialog::createDialog()
    GLMotif::ToggleButton* noneLineToggle=
          factory.createCheckBox("NoneLineToggle", "None");
    GLMotif::ToggleButton* basicLineToggle=
-         factory.createCheckBox("BasicLineToggle", "2D", true);
+         factory.createCheckBox("BasicLineToggle", "2D");
    GLMotif::ToggleButton* polyLineToggle=
-         factory.createCheckBox("PolyLineToggle", "3D");
+         factory.createCheckBox("PolyLineToggle", "3D", true);
 
    // assign callbacks for line style toggle buttons
    noneLineToggle->getValueChangedCallbacks().add(this, &DynamicSolverOptionsDialog::lineStyleTogglesCallback);
@@ -59,8 +59,8 @@ GLMotif::PopupWindow* DynamicSolverOptionsDialog::createDialog()
    // create head style toggle buttons (check boxes)
    factory.createLabel("", "Head Style");
    GLMotif::ToggleButton* noneHeadToggle=factory.createCheckBox("NoneHeadToggle", "None");
-   GLMotif::ToggleButton* pointHeadToggle=factory.createCheckBox("PointHeadToggle", "Point");
-   GLMotif::ToggleButton* sphereHeadToggle=factory.createCheckBox("SphereHeadToggle", "Sphere", true);
+   GLMotif::ToggleButton* pointHeadToggle=factory.createCheckBox("PointHeadToggle", "Point", true);
+   GLMotif::ToggleButton* sphereHeadToggle=factory.createCheckBox("SphereHeadToggle", "Sphere");
 
    // assign callbacks for head style toggle buttons
    noneHeadToggle->getValueChangedCallbacks().add(this, &DynamicSolverOptionsDialog::headStyleTogglesCallback);

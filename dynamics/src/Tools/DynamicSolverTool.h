@@ -88,7 +88,7 @@ class DynamicSolverData
       ColorMap* colorMap; ///< Color map for rendering color gradient.
 
       DynamicSolverData() :
-         lineStyle(BASIC), headStyle(SPHERE), colorStyle(SOLID),
+         lineStyle(POLYLINE), headStyle(POINT), colorStyle(SOLID),
                point_radius(0.25), history_size(50), cluster_size(1)
       {
          colorMap=new BlueRedColorMap;

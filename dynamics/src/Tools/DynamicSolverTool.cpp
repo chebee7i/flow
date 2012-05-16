@@ -179,9 +179,11 @@ void DynamicSolverTool::mainButtonReleased(const ToolBox::ButtonReleaseEvent & b
 
    // initialize the array (set values to locator position)
    for (unsigned int i=0; i < data.history_size; i++)
+   {
       // makes a copy using copy constructor
       array.push_back(invPos);
-
+   }
+   
    // add to point array vector
    data.points.push_back(array);
 
@@ -215,7 +217,7 @@ void DynamicSolverTool::drawBasicLines() const
    glPushAttrib(GL_LIGHTING_BIT);
    glDisable(GL_LIGHTING);
 
-   DTS::Vector<double> tmp( experiment->model->getDimension() );
+   DTS::Vector<double> tmp( 3 );
 
    if (data.colorStyle == DynamicSolverData::SOLID)
    {
@@ -300,7 +302,7 @@ void DynamicSolverTool::drawPolylines() const
 
    }
 
-   DTS::Vector<double> tmp( experiment->model->getDimension() );
+   DTS::Vector<double> tmp( 3 );
 
    // for all lines
    for (unsigned int i=0; i < data.points.size(); i++)
@@ -398,7 +400,7 @@ void DynamicSolverTool::drawPointHeads(DTS::DataItem* dataItem) const
    // set point color
    glColor4f(1.0, 0.8, 0.0, 1.0);
 
-   DTS::Vector<double> tmp( experiment->model->getDimension() );
+   DTS::Vector<double> tmp( 3 );
 
    // render points
    glBegin(GL_POINTS);
