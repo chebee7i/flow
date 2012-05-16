@@ -75,22 +75,22 @@ Viewer::Viewer(int &argc, char** argv, char** appDefaults) :
    currentOptionsDialog(NULL),
    optionsDialogs(DialogArray()),
    elapsedTime(0.0),
-   masterout(std::cout), nodeout(std::cout), debugout(std::cerr)     
+   masterout(std::cout), nodeout(std::cout), debugout(std::cerr)
 {
 
     // load ToolBox
     ToolBox::ToolBoxFactory::instance();
 
     // load dynamics plugins
-    try 
+    try
     {
         experiment_names = loadPlugins();
     }
-    catch (std::runtime_error& e) 
+    catch (std::runtime_error& e)
     {
         std::cerr << "ERROR: " << e.what() << std::endl;
     }
-    catch (...) 
+    catch (...)
     {
         std::cerr << "UNDEFINED ERROR." << std::endl;
     }
@@ -126,12 +126,12 @@ Viewer::~Viewer()
     delete experimentDialog;
 
     delete experiment;
-    
+
     for (ToolList::iterator tool=tools.begin(); tool != tools.end(); ++tool)
     {
         delete *tool;
     }
-    
+
     // close all dynamic libs (plugins)
     for (DLList::iterator lib=dl_list.begin(); lib != dl_list.end(); ++lib)
     {
@@ -191,12 +191,12 @@ std::vector<std::string> Viewer::loadPlugins() throw(std::runtime_error)
     // create an array of model names
     std::vector<std::string> experiment_names;
     ExperimentFactory::iterator itr;
-    
+
     for (itr = Factory.begin(); itr != Factory.end(); ++itr)
     {
         experiment_names.insert(experiment_names.end(), itr->first);
     }
-    
+
     // return the name array
     return experiment_names;
 }
@@ -294,7 +294,7 @@ void Viewer::frame()
             // position tracking, we just track the position of the first tool.
             if (tool == tools.begin())
             {
-                //Vrui::getDeviceTransformation(input.getDevice(0)).getOrigin();            
+                //Vrui::getDeviceTransformation(input.getDevice(0)).getOrigin();
                 Vrui::Point position = tools[0]->toolBox()->deviceTransformationInModel().getOrigin();
                 positionDialog->setPosition(position);
             }
@@ -302,7 +302,7 @@ void Viewer::frame()
 
         }
     }
-    Vrui::scheduleUpdate(Vrui::getApplicationTime()+0.02);
+    Vrui::requestUpdate();
 }
 
 
@@ -314,7 +314,7 @@ void Viewer::updateToolToggles()
    {
       // get toggle button name
       std::string toggle_name=(*button)->getName();
-        
+
       // erase "toggle" from name
       toggle_name.erase(toggle_name.size() - 6, toggle_name.size());
 
@@ -463,7 +463,7 @@ void Viewer::toolCreationCallback(Vrui::ToolManager::ToolCreationCallbackData* c
       AbstractDynamicsTool* currentTool = static_cast<AbstractDynamicsTool*>(tools.front());
       currentTool->grab();
       updateCurrentOptionsDialog();
-  
+
    }
 }
 
@@ -639,7 +639,7 @@ void Viewer::dynamicsMenuCallback(GLMotif::ToggleButton::ValueChangedCallbackDat
        StaticSolverTool* tool = static_cast<StaticSolverTool*>(it->second);
        tool->addStaticSolution(experiment->transformer->getDefaultPoint());
    }
-   
+
    // Center the model
    DTS::Vector<double> center = experiment->transformer->getCenterPoint();
    Vrui::Point p;
@@ -648,7 +648,7 @@ void Viewer::dynamicsMenuCallback(GLMotif::ToggleButton::ValueChangedCallbackDat
    p[2] = center[2];
    double radius = experiment->transformer->getRadius();
    Vrui::setNavigationTransformation(p, radius);
-   
+
    // fake radio-button behavior
    setRadioToggles(dynamicsToggleButtons, name);
 }

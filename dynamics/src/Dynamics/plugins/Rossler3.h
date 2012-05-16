@@ -19,7 +19,7 @@ public:
         addCoordinate( Coordinate("x", 5, -15, 15) );
         addCoordinate( Coordinate("y", 5, -15, 15) );
         addCoordinate( Coordinate("z", 5, -1, 30) );
-        addCoordinate( Coordinate("t", 0, 0, inf) );        
+        addCoordinate( Coordinate("t", 0, 0, inf) );   
 
         addRealParameter( RealParameter("a", a, -.5,    .5,  0.2, 0.01) );
         addRealParameter( RealParameter("b", b, -.5,    .5,  0.2, 0.01) );
