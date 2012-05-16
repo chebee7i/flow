@@ -163,6 +163,8 @@ class StaticSolverTool: public AbstractDynamicsTool, public GLObject
       virtual void updatedExperiment();
       virtual void step();
 
+      void addStaticSolution(DTS::Vector<double> position);
+
       virtual void moved(const ToolBox::MotionEvent & motionEvent);
       virtual void mainButtonPressed(const ToolBox::ButtonPressEvent & buttonPressEvent);
       virtual void mainButtonReleased(const ToolBox::ButtonReleaseEvent & buttonReleaseEvent);

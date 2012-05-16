@@ -178,7 +178,12 @@ void StaticSolverTool::mainButtonReleased(const ToolBox::ButtonReleaseEvent & bu
    position[0] = pos[0];
    position[1] = pos[1];
    position[2] = pos[2];
+   
+   addStaticSolution(position);
+}
 
+void StaticSolverTool::addStaticSolution(DTS::Vector<double> position)
+{
    // create a new static solution
    std::cout << "Position: " << position << std::endl;
    StaticSolverData* newData = new StaticSolverData(experiment->model->getDimension());

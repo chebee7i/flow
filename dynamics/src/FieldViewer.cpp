@@ -628,11 +628,19 @@ void Viewer::dynamicsMenuCallback(GLMotif::ToggleButton::ValueChangedCallbackDat
 **/
 
    // iterate through tools and sets experiment
-   for (ToolList::iterator tool=tools.begin(); tool != tools.end(); ++tool)
+   for (ToolList::iterator toolItr=tools.begin(); toolItr != tools.end(); ++toolItr)
    {
-      (*tool)->setExperiment(experiment);
+      (*toolItr)->setExperiment(experiment);
    }
 
+   std::map<std::string, AbstractDynamicsTool*>::iterator it = toolmap.find("StaticSolverTool");
+   if (it != toolmap.end())
+   {
+       StaticSolverTool* tool = static_cast<StaticSolverTool*>(it->second);
+       const DTS::Vector<double> defaultPoint = experiment->model->getDefaultPoint();
+       tool->addStaticSolution(experiment->transformer->transform(defaultPoint));
+   }
+   
    // fake radio-button behavior
    setRadioToggles(dynamicsToggleButtons, name);
 }

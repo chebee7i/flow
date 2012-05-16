@@ -102,7 +102,7 @@ template <typename ScalarParam>
 DTS::Vector<ScalarParam> DynamicalModel<ScalarParam>::getDefaultPoint() const
 {
     Vector out(getDimension());
-    std::vector<Coordinate> coords = this->getCoords();
+    const std::vector<Coordinate> coords = this->getCoords();
     for (unsigned i=0; i < coords.size(); i++)
     {
         out[i] = coords[i].defaultValue;
