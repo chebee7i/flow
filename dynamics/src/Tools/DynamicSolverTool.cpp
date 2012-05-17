@@ -163,6 +163,11 @@ void DynamicSolverTool::mainButtonPressed(const ToolBox::ButtonPressEvent & moti
 
 void DynamicSolverTool::mainButtonReleased(const ToolBox::ButtonReleaseEvent & buttonReleaseEvent)
 {
+   if (experiment == NULL || locked)
+   {
+      return;
+   }
+   
    // get current locator position
    pos=toolBox()->deviceTransformationInModel().getOrigin();
    tempDisplay[0] = pos[0];

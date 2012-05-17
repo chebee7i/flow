@@ -351,6 +351,11 @@ void ParticleSprayerTool::step()
 
 void ParticleSprayerTool::moved(const ToolBox::MotionEvent & motionEvent)
 {
+   if (experiment == NULL || locked)
+   {
+      return;
+   }
+   
    // get current locator position
    pos=toolBox()->deviceTransformationInModel().getOrigin();
 
@@ -417,6 +422,12 @@ void ParticleSprayerTool::moved(const ToolBox::MotionEvent & motionEvent)
 
 void ParticleSprayerTool::mainButtonPressed(const ToolBox::ButtonPressEvent & motionEvent)
 {
+   if (experiment == NULL || locked)
+   {
+      return;
+   }
+
+
    // get current locator position
    pos=toolBox()->deviceTransformationInModel().getOrigin();
 
@@ -470,6 +481,11 @@ void ParticleSprayerTool::mainButtonPressed(const ToolBox::ButtonPressEvent & mo
 
 void ParticleSprayerTool::mainButtonReleased(const ToolBox::ButtonReleaseEvent & buttonReleaseEvent)
 {
+   if (experiment == NULL || locked)
+   {
+      return;
+   }
+
    data.selectedEmitter=NULL;
    active=false;
 }

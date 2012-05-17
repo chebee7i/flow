@@ -311,12 +311,21 @@ void DotSpreaderTool::step()
 
 void DotSpreaderTool::moved(const ToolBox::MotionEvent & motionEvent)
 {
+   if (experiment == NULL || locked)
+   {
+      return;
+   }
    // get current locator position and save value
    pos=toolBox()->deviceTransformationInModel().getOrigin();
 }
 
 void DotSpreaderTool::mainButtonPressed(const ToolBox::ButtonPressEvent & motionEvent)
 {
+   if (experiment == NULL || locked)
+   {
+      return;
+   }
+
    // get current locator position and set origin
    org=toolBox()->deviceTransformationInModel().getOrigin();
 
@@ -329,6 +338,11 @@ void DotSpreaderTool::mainButtonPressed(const ToolBox::ButtonPressEvent & motion
 
 void DotSpreaderTool::mainButtonReleased(const ToolBox::ButtonReleaseEvent & buttonReleaseEvent)
 {
+   if (experiment == NULL || locked)
+   {
+      return;
+   }
+
    master::filter(std::cout)() << "DotSpreader::releasing " << data.numPoints << " particles... "
          << std::endl;
 

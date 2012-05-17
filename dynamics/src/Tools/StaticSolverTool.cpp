@@ -137,6 +137,7 @@ void StaticSolverTool::render(DTS::DataItem* dataItem) const
       dataItem->dataDisplayListVersion = dataDisplayListVersion;
    } 
    glCallList(dataItem->dataDisplayListId);
+   
 }
 
 void StaticSolverTool::setExperiment(DTSExperiment* e)
@@ -172,6 +173,11 @@ void StaticSolverTool::mainButtonPressed(const ToolBox::ButtonPressEvent & butto
 
 void StaticSolverTool::mainButtonReleased(const ToolBox::ButtonReleaseEvent & buttonReleaseEvent)
 {
+   if (experiment == NULL || locked)
+   {
+      return;
+   }
+
    // get the current locator position
    pos=toolBox()->deviceTransformationInModel().getOrigin();
    DTS::Vector<double> position(3);
@@ -278,6 +284,14 @@ void StaticSolverTool::drawPolyLine(StaticSolverData* d) const
 
       glMaterial(GLMaterialEnums::FRONT_AND_BACK, material);
 
+      /*
+      float xmin = 0;
+      float xmax = 0;
+      float ymin = 0;
+      float ymax = 0;
+      float zmin = 0;
+      float zmax = 0;
+      */
       for (unsigned int i=1; i < numPoints; i++)
       {
          experiment->transformer->transform(d->points[i], tmp);
@@ -285,7 +299,16 @@ void StaticSolverTool::drawPolyLine(StaticSolverData* d) const
          points[i][0]=tmp[0];
          points[i][1]=tmp[1];
          points[i][2]=tmp[2];
+         /*
+          if (points[i][0] > xmax) xmax = points[i][0];
+          if (points[i][0] < xmin) xmin = points[i][0];      
+          if (points[i][0] > ymax) ymax = points[i][1];
+          if (points[i][0] < ymin) ymin = points[i][1];      
+          if (points[i][0] > zmax) zmax = points[i][2];
+          if (points[i][0] < zmin) zmin = points[i][2];      
+         */
       }
+      //std::cout << xmin << " " << xmax << " " << ymin << " " << ymax << " " << zmin << " " << zmax << std::endl;
       
       // set first and last
       points[0][0] = .95 * points[1][0];
@@ -352,13 +375,13 @@ void StaticSolverTool::drawPolyLine(StaticSolverData* d) const
 /* Private methods */
 
 void StaticSolverTool::computeStaticSolution(StaticSolverData* data)
-{
+{  
    DTS::Vector<double> tmp(experiment->model->getDimension());
    for (unsigned int i=1; i < data->numberOfPoints; i++)
    {  
       data->points[i] = data->points[i-1];
       experiment->integrator->step(data->points[i-1], tmp);
-      data->points[i] += tmp;
+      data->points[i] += tmp;      
    }   
 
 }

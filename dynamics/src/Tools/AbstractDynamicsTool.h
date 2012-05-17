@@ -59,6 +59,7 @@ class AbstractDynamicsTool: public ToolBox::Tool
 
       Vrui::Point pos;
       bool disabled;
+      bool locked; // when locked all user input is ignored but tools continue to step
       bool _needsGLSL;
 
    public:
@@ -67,7 +68,7 @@ class AbstractDynamicsTool: public ToolBox::Tool
 
       AbstractDynamicsTool(ToolBox::ToolBox* toolBox, Viewer* app) :
          Tool(toolBox), toolbox(toolBox), application(app), experiment(0),
-               disabled(false), _needsGLSL(true)
+               disabled(false), locked(false), _needsGLSL(true)
       {
       }
 
@@ -113,7 +114,15 @@ class AbstractDynamicsTool: public ToolBox::Tool
       {
          disabled=flag;
          if (flag)
+         {
+            // deselect tool from tool rotator
             drop(); // this works because there is only one active tool
+         }
+      }
+
+      void setLocked(bool flag)
+      {
+         locked=flag;
       }
 
       /** Return true if tool is currently disabled.
@@ -122,6 +131,12 @@ class AbstractDynamicsTool: public ToolBox::Tool
       {
          return disabled;
       }
+
+      bool isLocked() const
+      {
+         return locked;
+      }
+
 
       /** Return true if tool requires GLSL.
        */

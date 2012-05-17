@@ -76,7 +76,9 @@ Viewer::Viewer(int &argc, char** argv, char** appDefaults) :
    optionsDialogs(DialogArray()),
    toolbox(0),
    elapsedTime(0.0),
-   masterout(std::cout), nodeout(std::cout), debugout(std::cerr)
+   masterout(std::cout), nodeout(std::cout), debugout(std::cerr),
+   showingLogo(false),
+   showLogo(true)
 {
 
     // load ToolBox
@@ -99,15 +101,6 @@ Viewer::Viewer(int &argc, char** argv, char** appDefaults) :
     // alphabetize the names list
     std::sort(experiment_names.begin(), experiment_names.end());
 
-    // We will set a default system, but this is just to make the program
-    // load without errors.  The toogles will appear as if no system has
-    // been selected. The reason for these shenanigans is that we dont
-    // want the display() and frame() methods checking if an experiment
-    // has been set.  Its faster to just assume and use magic to achieve
-    // the desired effect of there not being a current system.
-    std::string name = "Lorenz";
-    experiment = Factory[name]();
-
     // create and set the main menu
     mainMenu=createMainMenu();
     Vrui::setMainMenu(mainMenu);
@@ -116,24 +109,17 @@ Viewer::Viewer(int &argc, char** argv, char** appDefaults) :
     frameRateDialog = new FrameRateDialog(mainMenu);
     positionDialog = new PositionDialog(mainMenu);
 
-    /* No need to bother when any of the below. */
-
-    // create and assign associated parameter dialog
-    //experimentDialog = new ExperimentDialog(mainMenu, experiment);
-
-    // Make sure the correct system is toggled
-    //setRadioToggles(dynamicsToggleButtons, name + "toggle");
-
-    // Center the model
-    //resetNavigationCallback(0);
+    /** Prepare to show logo! **/
+    setExperiment("Lorenz", false);
 }
 
 Viewer::~Viewer()
 {
     delete mainMenu;
-    delete experimentDialog;
 
-    delete experiment;
+    if (experimentDialog != NULL) delete experimentDialog;
+
+    if (experiment != NULL) delete experiment;
 
     for (ToolList::iterator tool=tools.begin(); tool != tools.end(); ++tool)
     {
@@ -151,6 +137,13 @@ Viewer::~Viewer()
 // Internal methods
 //
 
+void Viewer::drawLogo(GLContextData& contextData) const
+{
+}
+
+void Viewer::stepLogo()
+{
+}
 
 void Viewer::setRadioToggles(ToggleArray& toggles, const std::string& name)
 {
@@ -236,6 +229,11 @@ void Viewer::initContext(GLContextData& contextData) const
 
 void Viewer::display(GLContextData& contextData) const
 {
+    if(showingLogo)
+    {
+        drawLogo(contextData);
+    }
+
    // get data item from context data
    DTS::DataItem* dataItem=contextData.retrieveDataItem<DTS::DataItem> (this);
 
@@ -271,6 +269,51 @@ void Viewer::frame()
       elapsedTime = 0.0;
    }
 
+    if(experiment == NULL || showLogo)
+    {
+        if (!showingLogo)
+        {
+            showingLogo = true;
+            // disable user navigation with a dummy navigation tool
+            Vrui::activateNavigationTool(reinterpret_cast<Vrui::Tool*>(this));
+        }
+
+        // We are now showing the logo.
+
+        if (experiment == NULL)
+        {
+            // With the dummy navigation tool enabled, the navigation tool
+            // tied to the device is blocked.  This other navigation tool
+            // was actively updating the navigation transformation whenever
+            // the window containing Vrui moved.  Since we are blocking this
+            // tool, we must manually reset the navigation transformation.
+            Vrui::setNavigationTransformation(Vrui::Point::origin, 30);
+            // update the rotating tetrahedron in the logo
+            Vrui::scheduleUpdate(Vrui::getApplicationTime()+0.02);
+        }
+        else
+        {
+            // We might still want to do the same as if experiment is NULL,
+            // but this decision is left to the stepLogo() method.
+            stepLogo();
+        }
+    }
+    else
+    {
+        showingLogo = false;
+
+        // renable user navigation
+        Vrui::deactivateNavigationTool(reinterpret_cast<Vrui::Tool*>(this));
+    }
+
+    // If the experiment is not NULL, then we still might want dynamics
+    // while the logo is running.  So we do not exit out just because
+    // the logo is running. We exit only if there is no experiment.
+    if (experiment == NULL)
+    {
+        return;
+    }
+
    bool updatedExperiment = false;
    if ( experiment->isOutdated() )
    {
@@ -281,6 +324,17 @@ void Viewer::frame()
    // iterate over all tools and do required processing
    for (ToolList::iterator tool=tools.begin(); tool != tools.end(); ++tool)
    {
+        /* Update position whether the tool is disabled or not */
+        // If we want multiple users to be able to track various tools,
+        // we'll need to go back to the TrackerTool creation. For single
+        // position tracking, we just track the position of the first tool.
+        if (tool == tools.begin())
+        {
+            //Vrui::getDeviceTransformation(input.getDevice(0)).getOrigin();
+            Vrui::Point position = tools[0]->toolBox()->deviceTransformationInModel().getOrigin();
+            positionDialog->setPosition(position);
+        }
+
         if ((*tool)->isDisabled())
         {
             continue;
@@ -296,20 +350,9 @@ void Viewer::frame()
             {
              (*tool)->step();
             }
-
-            // If we want multiple users to be able to track various tools,
-            // we'll need to go back to the TrackerTool creation. For single
-            // position tracking, we just track the position of the first tool.
-            if (tool == tools.begin())
-            {
-                //Vrui::getDeviceTransformation(input.getDevice(0)).getOrigin();
-                Vrui::Point position = tools[0]->toolBox()->deviceTransformationInModel().getOrigin();
-                positionDialog->setPosition(position);
-            }
-
-
         }
     }
+    // as quickly as possible
     Vrui::requestUpdate();
 }
 
@@ -409,13 +452,13 @@ void Viewer::toolCreationCallback(Vrui::ToolManager::ToolCreationCallbackData* c
 {
    ToolBox::ToolBox* toolBox=dynamic_cast<ToolBox::ToolBox*> (cbData->tool);
 
-   if (toolBox == 0) return;
-   
-   if (toolbox == 0)
+   if (toolBox == 0) return; // bad cast, not a ToolBox
+
+   if (toolbox == 0) // If we don't already have a ToolBox
    {
       // store it
       toolbox = toolBox;
-            
+
       (new ToolBox::Extensions::ToolRotator(toolBox))->alwaysShowCurrent(false).positionOfCurrent(180).closeDelay(2.0);
 
       std::cout << "Creating tools and adding to toolbox..." << std::endl;
@@ -427,9 +470,7 @@ void Viewer::toolCreationCallback(Vrui::ToolManager::ToolCreationCallbackData* c
       std::cout << "\tAdding Static Solver..." << std::endl;
 
       tool=new StaticSolverTool(toolBox, this);
-
-      // set dynamical integrator and add tool to array
-      tool->setExperiment(experiment);
+      if (experiment != NULL) tool->setExperiment(experiment);
       tools.push_back(tool);
       // create associated options dialog and add to dialog array
       optionsDialogs.push_back(tool->createOptionsDialog(mainMenu));
@@ -439,8 +480,7 @@ void Viewer::toolCreationCallback(Vrui::ToolManager::ToolCreationCallbackData* c
       masterout() << "\tAdding Dot Spreader..." << std::endl;
 
       tool=new DotSpreaderTool(toolBox, this);
-      // set dynamical integrator and add tool to array
-      tool->setExperiment(experiment);
+      if (experiment != NULL) tool->setExperiment(experiment);
       tools.push_back(tool);
       // create associated options dialog and add to dialog array
       optionsDialogs.push_back(tool->createOptionsDialog(mainMenu));
@@ -450,8 +490,7 @@ void Viewer::toolCreationCallback(Vrui::ToolManager::ToolCreationCallbackData* c
       masterout() << "\tAdding Particle Sprayer..." << std::endl;
 
       tool=new ParticleSprayerTool(toolBox, this);
-      // set dynamical integrator and add tool to array
-      tool->setExperiment(experiment);
+      if (experiment != NULL) tool->setExperiment(experiment);
       tools.push_back(tool);
       // create associated options dialog and add to dialog array
       optionsDialogs.push_back(tool->createOptionsDialog(mainMenu));
@@ -461,8 +500,7 @@ void Viewer::toolCreationCallback(Vrui::ToolManager::ToolCreationCallbackData* c
       masterout() << "\tAdding Dynamic Solver..." << std::endl;
 
       tool=new DynamicSolverTool(toolBox, this);
-      // set dynamical integrator and add tool to array
-      tool->setExperiment(experiment);
+      if (experiment != NULL) tool->setExperiment(experiment);
       tools.push_back(tool);
       // create associated options dialog and add to dialog array
       optionsDialogs.push_back(tool->createOptionsDialog(mainMenu));
@@ -472,9 +510,18 @@ void Viewer::toolCreationCallback(Vrui::ToolManager::ToolCreationCallbackData* c
       // automatically load the first tool and set options dialog
       AbstractDynamicsTool* currentTool = static_cast<AbstractDynamicsTool*>(tools.front());
       currentTool->grab();
-      
+
       updateCurrentOptionsDialog();
       updateToolToggles();
+
+      if (showLogo || showingLogo)
+      {
+          for (ToolList::iterator tool=tools.begin(); tool != tools.end(); ++tool)
+          {
+              (*tool)->setLocked(true);
+          }
+      }
+
    }
    else
    {
@@ -498,6 +545,12 @@ void Viewer::toolDestructionCallback(Vrui::ToolManager::ToolDestructionCallbackD
 
 void Viewer::resetNavigationCallback(Misc::CallbackData* cbData)
 {
+    if (experiment == NULL || showingLogo)
+    {
+        // ignore this request
+        return;
+    }
+
     // if experiment defines default view, go there.
     // otherwise, go to center.
     DTS::Vector<double> center = experiment->transformer->getCenterPoint();
@@ -507,7 +560,7 @@ void Viewer::resetNavigationCallback(Misc::CallbackData* cbData)
     p[2] = center[2];
     double radius = experiment->transformer->getRadius();
     Vrui::setNavigationTransformation(p, radius);
-    
+
     //Vrui::setNavigationTransformation(Vrui::Point(0,0,0), 40.0);
 }
 
@@ -520,7 +573,7 @@ void Viewer::mainMenuTogglesCallback(GLMotif::ToggleButton::ValueChangedCallback
       // if toggle is set show the parameter dialog
       if (cbData->toggle->getToggle())
       {
-         if (!experimentDialog)
+         if (!experimentDialog || showingLogo)
          {
             cbData->toggle->setToggle(false);
             return;
@@ -539,7 +592,7 @@ void Viewer::mainMenuTogglesCallback(GLMotif::ToggleButton::ValueChangedCallback
       if (cbData->toggle->getToggle())
       {
          // if no tool is set reset toggle and return
-         if (!currentOptionsDialog)
+         if (!currentOptionsDialog || showingLogo)
          {
             cbData->toggle->setToggle(false);
             return;
@@ -586,6 +639,39 @@ void Viewer::mainMenuTogglesCallback(GLMotif::ToggleButton::ValueChangedCallback
 
 void Viewer::dynamicsMenuCallback(GLMotif::ToggleButton::ValueChangedCallbackData *cbData)
 {
+   std::string name = cbData->toggle->getName();
+   std::string key(name);
+   key.erase( key.find("toggle") );
+
+   debugout() << "  toggle: " << name << "\tkey: " << key << std::endl;
+
+   setExperiment(key);
+   // make this call separate from setExperiment to give us the freedom to
+   // display a system during the logo
+   showLogo = false;
+   showingLogo = false; // set now so that resetNavigationCallback takes effect
+
+   std::map<std::string, AbstractDynamicsTool*>::iterator it = toolmap.find("StaticSolverTool");
+   if (it != toolmap.end())
+   {
+       StaticSolverTool* tool = static_cast<StaticSolverTool*>(it->second);
+       tool->addStaticSolution(experiment->transformer->getDefaultPoint());
+   }
+
+   // Center the model
+   resetNavigationCallback(0);
+
+   // Unlock all tools (in case we are coming from the logo)
+   for (ToolList::iterator tool=tools.begin(); tool != tools.end(); ++tool)
+   {
+     (*tool)->setLocked(false);
+   }
+
+
+}
+
+void Viewer::setExperiment(std::string name, bool updateToggle)
+{
    bool popup=false;
 
    // delete current dynamical model
@@ -595,9 +681,11 @@ void Viewer::dynamicsMenuCallback(GLMotif::ToggleButton::ValueChangedCallbackDat
    GLMotif::WidgetManager::Transformation oldTrans;
 
    // delete current parameter dialog
+   bool dialogExisted = false;
    if (experimentDialog != NULL)
    {
       // save the old transformation
+      dialogExisted = true;
       oldTrans=experimentDialog->getTransformation();
 
       // if dialog is currently shown hide before deleting
@@ -612,28 +700,14 @@ void Viewer::dynamicsMenuCallback(GLMotif::ToggleButton::ValueChangedCallbackDat
       delete experimentDialog;
    }
 
-   std::string name=cbData->toggle->getName();
-
-   // create the key from the toggle name
-   std::string key(name);
-   key.erase(key.find("toggle"));
-
-   debugout() << "  toggle: " << name << "\tkey: " << key << std::endl;
-
    // create the dynamical model
-   experiment = Factory[key]();
-
+   experiment = Factory[name]();
 
    // create/assign parameter dialog
-   if (experimentDialog != NULL)
+   experimentDialog = new ExperimentDialog(mainMenu, experiment);
+   if (dialogExisted)
    {
-        // then we have an oldTrans
-        experimentDialog = new ExperimentDialog(mainMenu, experiment);
         experimentDialog->setTransformation(oldTrans);
-   }
-   else
-   {
-        experimentDialog = new ExperimentDialog(mainMenu, experiment);   
    }
 
    // popup parameter dialog if previously shown or system requests it
@@ -646,68 +720,79 @@ void Viewer::dynamicsMenuCallback(GLMotif::ToggleButton::ValueChangedCallbackDat
       (*toolItr)->setExperiment(experiment);
    }
 
-   std::map<std::string, AbstractDynamicsTool*>::iterator it = toolmap.find("StaticSolverTool");
-   if (it != toolmap.end())
-   {
-       StaticSolverTool* tool = static_cast<StaticSolverTool*>(it->second);
-       tool->addStaticSolution(experiment->transformer->getDefaultPoint());
-   }
-
-   // Center the model
-   resetNavigationCallback(0);
-
    // fake radio-button behavior
-   setRadioToggles(dynamicsToggleButtons, name);
+   if (updateToggle)
+       setRadioToggles(dynamicsToggleButtons, name + "toggle");
 }
 
 void Viewer::toolsMenuCallback(GLMotif::ToggleButton::ValueChangedCallbackData *cbData)
 {
    AbstractDynamicsTool* tool;
-   
-   // make sure tools exist!
-   if (toolmap.size() == 0)
-   {
-      return;
-   }
 
-   std::string name=cbData->toggle->getName();
-   {
-      if (name == "ParticleSprayerToggle")
-      {
-         masterout() << "Current Tool: Particle Sprayer" << std::endl;
+   // If we are showing the logo, we ignore their request and revert the toggle.
+   // Similarly if there is not ToolBox.
 
+  std::string name=cbData->toggle->getName();
+  if (name == "ParticleSprayerToggle")
+  {
+
+     if (showingLogo || toolmap.size() == 0)
+     {
+        cbData->toggle->setToggle( !cbData->toggle->getToggle() );
+     }
+     else
+     {
+         //masterout() << "Current Tool: Particle Sprayer" << std::endl;
          tool=toolmap["ParticleSprayerTool"];
          bool state=tool->isDisabled();
          tool->setDisabled(!state);
-
-      }
-      else if (name == "DotSpreaderToggle")
-      {
-         masterout() << "Current Tool: Dot Spreader" << std::endl;
-
+     }
+  }
+  else if (name == "DotSpreaderToggle")
+  {
+     if (showingLogo || toolmap.size() == 0)
+     {
+        cbData->toggle->setToggle( !cbData->toggle->getToggle() );
+     }
+     else
+     {
+         //masterout() << "Current Tool: Dot Spreader" << std::endl;
          tool=toolmap["DotSpreaderTool"];
          bool state=tool->isDisabled();
          tool->setDisabled(!state);
-      }
-      else if (name == "StaticSolverToggle")
-      {
-         masterout() << "Current Tool: Static Solver" << std::endl;
-
+     }
+  }
+  else if (name == "StaticSolverToggle")
+  {
+     if (showingLogo || toolmap.size() == 0)
+     {
+        cbData->toggle->setToggle( !cbData->toggle->getToggle() );
+     }
+     else
+     {
+         //masterout() << "Current Tool: Static Solver" << std::endl;
          tool=toolmap["StaticSolverTool"];
          bool state=tool->isDisabled();
          tool->setDisabled(!state);
-      }
-      else if (name == "DynamicSolverToggle")
-      {
-         masterout() << "Current Tool: Dynamic Solver" << std::endl;
+     }
+  }
+  else if (name == "DynamicSolverToggle")
+  {
 
+     if (showingLogo || toolmap.size() == 0)
+     {
+        cbData->toggle->setToggle( !cbData->toggle->getToggle() );
+     }
+     else
+     {
+         //masterout() << "Current Tool: Dynamic Solver" << std::endl;
          tool=toolmap["DynamicSolverTool"];
          bool state=tool->isDisabled();
          tool->setDisabled(!state);
-      }
-      else
-      {
-      }
-   }
-
+     }
+  }
+  else
+  {
+  }
 }
+

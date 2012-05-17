@@ -52,12 +52,12 @@ class Viewer: public Vrui::Application, public GLObject
 {
    public:
       /* Embedded classes */
-      
+
       typedef AbstractDynamicsTool ADT;
       typedef std::vector<ADT*> ToolList;
       typedef std::vector<GLMotif::ToggleButton*> ToggleArray;
       typedef std::vector<CaveDialog*> DialogArray;
-      
+
       /* Interface */
       Viewer(int &argc, char** argv, char** appDefaults);
       virtual ~Viewer();
@@ -65,7 +65,7 @@ class Viewer: public Vrui::Application, public GLObject
       void initContext(GLContextData& contextData) const;
       virtual void display(GLContextData& contextData) const;
       virtual void frame();
-      
+
       /** Update the tool toggle buttons.
        *
        *  Iterates over tools and sets the toggle state to false if the tool
@@ -82,16 +82,18 @@ class Viewer: public Vrui::Application, public GLObject
 
       /* Callbacks */
       virtual void toolCreationCallback(Vrui::ToolManager::ToolCreationCallbackData* cbData);
-      virtual void toolDestructionCallback(Vrui::ToolManager::ToolDestructionCallbackData* cbData); 
+      virtual void toolDestructionCallback(Vrui::ToolManager::ToolDestructionCallbackData* cbData);
       void mainMenuTogglesCallback(GLMotif::ToggleButton::ValueChangedCallbackData *cbData);
       void dynamicsMenuCallback(GLMotif::ToggleButton::ValueChangedCallbackData *cbData);
       void toolsMenuCallback(GLMotif::ToggleButton::ValueChangedCallbackData *cbData);
       void resetNavigationCallback(Misc::CallbackData* cbData);
 
+      void setExperiment(std::string, bool updateToggle=true);
+
    private:
       ToolList tools; ///< Array of all tools currently being used.
       Experiment<Scalar> *experiment;
-      
+
       FrameRateDialog* frameRateDialog; ///< Dialog for throttling the frame rate.
       PositionDialog* positionDialog; ///< Dialog for displaying cursor position.
       ExperimentDialog* experimentDialog; ///< Parameter dialog associated with current experiment
@@ -111,7 +113,7 @@ class Viewer: public Vrui::Application, public GLObject
       /* So that we can make sure only one toolbox is created (and deleted) */
       ToolBox::ToolBox* toolbox;
       std::map<std::string, AbstractDynamicsTool*> toolmap;
-      
+
       typedef std::list<void*> DLList;
       DLList dl_list; ///< Dynamic library (plugin) list.
       std::vector<std::string> experiment_names; ///< Names of all experiments (obtained from plugins).
@@ -123,6 +125,8 @@ class Viewer: public Vrui::Application, public GLObject
       node::filter nodeout;
       debug::filter debugout;
 
+      bool showingLogo; // whether the logo is presently being showed
+      bool showLogo; // whether we want the logo to show
 
       /* Internal methods */
 
@@ -145,6 +149,9 @@ class Viewer: public Vrui::Application, public GLObject
        * \return An array of the names of all plugins.
        */
       std::vector<std::string> loadPlugins() throw(std::runtime_error);
+
+      virtual void drawLogo(GLContextData& contextData) const;
+      virtual void stepLogo();
 };
 
 #endif
