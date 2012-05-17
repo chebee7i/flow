@@ -87,8 +87,8 @@ GLMotif::Popup* Viewer::createDynamicsTogglesMenu()
       GLMotif::ToggleButton* toggle=factory.createToggleButton(const_cast<char*> (toggle_name.c_str()), const_cast<char*> ((*name).c_str()));
 
       // turn on the first toggle
-      if (name == experiment_names.begin())
-         toggle->setToggle(true);
+      //if (name == experiment_names.begin())
+      //   toggle->setToggle(true);
 
       toggle->getValueChangedCallbacks().add(this, &Viewer::dynamicsMenuCallback);
       dynamicsToggleButtons.push_back(toggle);

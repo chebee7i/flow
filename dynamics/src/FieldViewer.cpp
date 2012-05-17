@@ -99,7 +99,12 @@ Viewer::Viewer(int &argc, char** argv, char** appDefaults) :
     // alphabetize the names list
     std::sort(experiment_names.begin(), experiment_names.end());
 
-    // default to Lorenz
+    // We will set a default system, but this is just to make the program
+    // load without errors.  The toogles will appear as if no system has
+    // been selected. The reason for these shenanigans is that we dont
+    // want the display() and frame() methods checking if an experiment
+    // has been set.  Its faster to just assume and use magic to achieve
+    // the desired effect of there not being a current system.
     std::string name = "Lorenz";
     experiment = Factory[name]();
 
@@ -111,14 +116,16 @@ Viewer::Viewer(int &argc, char** argv, char** appDefaults) :
     frameRateDialog = new FrameRateDialog(mainMenu);
     positionDialog = new PositionDialog(mainMenu);
 
+    /* No need to bother when any of the below. */
+
     // create and assign associated parameter dialog
-    experimentDialog = new ExperimentDialog(mainMenu, experiment);
+    //experimentDialog = new ExperimentDialog(mainMenu, experiment);
 
     // Make sure the correct system is toggled
-    setRadioToggles(dynamicsToggleButtons, name + "toggle");
+    //setRadioToggles(dynamicsToggleButtons, name + "toggle");
 
     // Center the model
-    resetNavigationCallback(0);
+    //resetNavigationCallback(0);
 }
 
 Viewer::~Viewer()
@@ -513,6 +520,11 @@ void Viewer::mainMenuTogglesCallback(GLMotif::ToggleButton::ValueChangedCallback
       // if toggle is set show the parameter dialog
       if (cbData->toggle->getToggle())
       {
+         if (!experimentDialog)
+         {
+            cbData->toggle->setToggle(false);
+            return;
+         }
          experimentDialog->show();
       }
       // otherwise hide the parameter dialog
@@ -613,9 +625,16 @@ void Viewer::dynamicsMenuCallback(GLMotif::ToggleButton::ValueChangedCallbackDat
 
 
    // create/assign parameter dialog
-   experimentDialog = new ExperimentDialog(mainMenu, experiment);
-
-   experimentDialog->setTransformation(oldTrans);
+   if (experimentDialog != NULL)
+   {
+        // then we have an oldTrans
+        experimentDialog = new ExperimentDialog(mainMenu, experiment);
+        experimentDialog->setTransformation(oldTrans);
+   }
+   else
+   {
+        experimentDialog = new ExperimentDialog(mainMenu, experiment);   
+   }
 
    // popup parameter dialog if previously shown or system requests it
    if (popup)
