@@ -214,6 +214,7 @@ class ParticleSprayerTool: public AbstractDynamicsTool, public GLObject
       void clearParticles()
       {
          data.particles.clear();
+         data.states.clear();
          data.currentVersion++;
       }
 
