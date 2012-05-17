@@ -260,7 +260,7 @@ install: all
 	$(QUIET)mkdir -p $(BININSTALLDIR) 
 	$(QUIET)mkdir -p $(SHAREINSTALLDIR)/images
 	$(QUIET)cp $(PROGRAM) $(BININSTALLDIR)
-	$(QUIET)cp Vrui.cfg $(SHAREINSTALLDIR)
+	$(QUIET)cp etc/ToolBox.cfg $(SHAREINSTALLDIR)
 	$(QUIET)cp images/particle.png $(SHAREINSTALLDIR)/images
 	$(QUIET)cp -r plugins $(SHAREINSTALLDIR)/
 	$(QUIET)cp -r fonts $(SHAREINSTALLDIR)/	
