@@ -82,6 +82,13 @@ GLMotif::Popup* Viewer::createDynamicsTogglesMenu()
    // for each of the experiment names
    for (std::vector<std::string>::const_iterator name=experiment_names.begin(); name!=experiment_names.end(); ++name)
    {
+      size_t iIndex = (*name).rfind("Hidden");
+      if( iIndex != std::string::npos )
+      {
+         // then while loaded, we do not make this experiment available to the user
+         continue;
+      }
+
       // create toggle button
       std::string toggle_name=(*name) + "toggle";
       GLMotif::ToggleButton* toggle=factory.createToggleButton(const_cast<char*> (toggle_name.c_str()), const_cast<char*> ((*name).c_str()));
@@ -92,6 +99,7 @@ GLMotif::Popup* Viewer::createDynamicsTogglesMenu()
 
       toggle->getValueChangedCallbacks().add(this, &Viewer::dynamicsMenuCallback);
       dynamicsToggleButtons.push_back(toggle);
+
    }
 
    dynamicsTogglesMenu->manageChild();
