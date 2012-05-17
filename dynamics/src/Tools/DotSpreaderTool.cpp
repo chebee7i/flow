@@ -353,6 +353,12 @@ void DotSpreaderTool::mainButtonReleased(const ToolBox::ButtonReleaseEvent & but
    float radius=Math::sqrt((pos[0] - org[0]) * (pos[0] - org[0]) + (pos[1]
          - org[1]) * (pos[1] - org[1]) + (pos[2] - org[2]) * (pos[2] - org[2]));
 
+   releaseParticles(pos, radius);
+}
+
+
+void DotSpreaderTool::releaseParticles(Vrui::Point pos, Vrui::Scalar radius)
+{
    // release particles distributed within sphere
    double x, y, z;
 

@@ -241,6 +241,8 @@ class DotSpreaderTool: public AbstractDynamicsTool, public GLObject
          data.point_radius=value;
       }
 
+      void releaseParticles(Vrui::Point pos, Vrui::Scalar radius);
+
    private:
       DotSpreaderData data;
       bool dataInited;

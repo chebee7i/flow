@@ -24,6 +24,7 @@
 //
 #include <Vrui/Application.h>
 #include <GL/GLObject.h>
+#include <IO/OpenFile.h>
 
 // STL includes
 //
@@ -43,6 +44,9 @@
 // External includes
 //
 #include "VruiStreamManip.h"
+
+// font rendering
+#include <FTGL/ftgl.h>
 
 
 
@@ -118,7 +122,8 @@ class Viewer: public Vrui::Application, public GLObject
       DLList dl_list; ///< Dynamic library (plugin) list.
       std::vector<std::string> experiment_names; ///< Names of all experiments (obtained from plugins).
 
-      double elapsedTime; // Cummulative time between frames
+      double elapsedTime; // Cummulative time between frames (that is reset frequently)
+      double absoluteTime;
 
       /* Output streams */
       master::filter masterout;
@@ -127,7 +132,8 @@ class Viewer: public Vrui::Application, public GLObject
 
       bool showingLogo; // whether the logo is presently being showed
       bool showLogo; // whether we want the logo to show
-
+      bool firstTime; // for the first time the logo is drawn
+      
       /* Internal methods */
 
       /** Internal method for faking radio-button behavior.
@@ -152,6 +158,9 @@ class Viewer: public Vrui::Application, public GLObject
 
       virtual void drawLogo(GLContextData& contextData) const;
       virtual void stepLogo();
+      virtual void renderTools(DTS::DataItem*) const;
+      virtual void resetView(); 
+      virtual bool loadViewpointFile(IO::Directory& directory,const char* viewpointFileName);
 };
 
 #endif

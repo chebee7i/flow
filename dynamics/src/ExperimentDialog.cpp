@@ -77,7 +77,7 @@ GLMotif::PopupWindow* ExperimentDialog::createDialog()
         textField->setString(toString(realItr->value).c_str());
         textFields.push_back( textField );
         
-        slider = factory.createSlider( realItr->name.c_str(), 15);
+        slider = factory.createSlider( realItr->name.c_str(), 20);
         slider->setValueRange( realItr->minValue, realItr->maxValue, realItr->increment );
         slider->setValue( realItr->value );
         slider->getValueChangedCallbacks().add(this, &ExperimentDialog::sliderIntegratorCallback);
@@ -156,7 +156,7 @@ void ExperimentDialog::sliderIntegratorCallback(GLMotif::Slider::ValueChangedCal
     double value = cbData->value;
 
     char buff[10];
-    snprintf(buff, sizeof(buff), "%3.3f", value);
+    snprintf(buff, sizeof(buff), "%3.4f", value);
   
     std::vector<GLMotif::TextField *>::iterator itr; 
     for (itr = textFields.begin(); itr != textFields.end(); ++itr )

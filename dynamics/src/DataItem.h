@@ -29,6 +29,11 @@
 #include <GL/Extensions/GLARBVertexBufferObject.h>
 #include <GL/Extensions/GLARBShaderObjects.h>
 
+// font rendering
+#include <FTGL/ftgl.h>
+
+
+
 namespace DTS
 {
 
@@ -87,6 +92,9 @@ struct DataItem: public GLObject::DataItem
       */
       GLuint dataDisplayListId;
       unsigned int dataDisplayListVersion;
+      
+      // fonts
+      FTFont* font;      
 
       DataItem(void);
       virtual ~DataItem(void);

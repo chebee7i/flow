@@ -28,7 +28,7 @@ public:
     {
         name = "rk4";
 
-        addRealParameter( RealParameter("stepSize", stepSize, .001, .2, .01, .001) );
+        addRealParameter( RealParameter("stepSize", stepSize, .0001, .2, .01, .0001) );
     }
 
     virtual ~RungeKutta4()

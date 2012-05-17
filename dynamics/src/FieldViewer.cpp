@@ -20,14 +20,22 @@
 
 #include <algorithm>
 #include <iostream>
+#include <cmath>
 
 #include <Vrui/Vrui.h>
+#include <Vrui/Geometry.h>
 #include <IO/OpenFile.h>
+#include <IO/StandardDirectory.h>
+#include <Vrui/DisplayState.h> 
+#include <GL/gl.h>
+#include <GL/GLGeometryWrappers.h>
+#include <GL/GLTransformationWrappers.h> 
 
 // Vrui includes
 //
 #include <Images/RGBImage.h>
 #include <Images/ReadImageFile.h>
+#include <GL/GLGeometryWrappers.h>
 
 // ToolBox includes
 //
@@ -43,6 +51,13 @@
 #include "Directory.h"
 
 ExperimentFactory Factory;
+
+
+//#define FONT_SIZE 16.0
+//#define FONT_MODIFIER 0.04
+
+static const float FONT_SIZE=96.0;
+static const float FONT_MODIFIER=0.02;
 
 /** Returns the base directory for resource files.
  *
@@ -64,6 +79,11 @@ std::string getResourceDir()
     return dir;
 }
 
+Vrui::Scalar getAngle(const Vrui::Vector& u, const Vrui::Vector& v)
+{
+    return std::acos((u * v) / (Geometry::mag(u) * Geometry::mag(v)));
+}
+
 
 Viewer::Viewer(int &argc, char** argv, char** appDefaults) :
    Vrui::Application(argc, argv, appDefaults),
@@ -76,9 +96,11 @@ Viewer::Viewer(int &argc, char** argv, char** appDefaults) :
    optionsDialogs(DialogArray()),
    toolbox(0),
    elapsedTime(0.0),
+   absoluteTime(0.0),
    masterout(std::cout), nodeout(std::cout), debugout(std::cerr),
    showingLogo(false),
-   showLogo(true)
+   showLogo(true),
+   firstTime(true)
 {
 
     // load ToolBox
@@ -137,12 +159,131 @@ Viewer::~Viewer()
 // Internal methods
 //
 
+bool Viewer::loadViewpointFile(IO::Directory& directory,const char* viewpointFileName)
+{
+const char* vruiViewpointFileHeader="Vrui viewpoint file v1.0\n";
+bool result=false;
+
+try
+	{
+	/* Open the viewpoint file: */
+	IO::FilePtr viewpointFile=directory.openFile(viewpointFileName);
+	viewpointFile->setEndianness(Misc::LittleEndian);
+	
+	/* Check the header: */
+	char header[80];
+	viewpointFile->read(header,strlen(vruiViewpointFileHeader));
+	header[strlen(vruiViewpointFileHeader)]='\0';
+	if(strcmp(header,vruiViewpointFileHeader)==0)
+		{
+		/* Read the environment's center point in navigational coordinates: */
+		Vrui::Point center;
+		viewpointFile->read<Scalar>(center.getComponents(),3);
+		
+		/* Read the environment's size in navigational coordinates: */
+		Scalar size=viewpointFile->read<Scalar>();
+		
+		/* Read the environment's forward direction in navigational coordinates: */
+		Vrui::Vector forward;
+		viewpointFile->read<Scalar>(forward.getComponents(),3);
+		
+		/* Read the environment's up direction in navigational coordinates: */
+		Vrui::Vector up;
+		viewpointFile->read<Scalar>(up.getComponents(),3);
+		
+		Vrui::Point p = Vrui::getDisplayCenter();
+		
+		/* Construct the navigation transformation: */
+		Vrui::NavTransform nav=Vrui::NavTransform::identity;
+		nav*=Vrui::NavTransform::translateFromOriginTo(Vrui::getDisplayCenter());
+		nav*=Vrui::NavTransform::rotate(Vrui::Rotation::fromBaseVectors(Geometry::cross(Vrui::getForwardDirection(),Vrui::getUpDirection()),Vrui::getForwardDirection()));
+		nav*=Vrui::NavTransform::scale(Vrui::getDisplaySize()/size);
+		nav*=Vrui::NavTransform::rotate(Geometry::invert(Vrui::Rotation::fromBaseVectors(Geometry::cross(forward,up),forward)));
+		nav*=Vrui::NavTransform::translateToOriginFrom(center);
+		Vrui::setNavigationTransformation(nav);
+		
+		result=true;
+		}
+	}
+catch(std::runtime_error error)
+	{
+	/* Ignore the error and return a failure code: */
+	}
+
+return result;
+}
+
 void Viewer::drawLogo(GLContextData& contextData) const
 {
+    DTS::DataItem* dataItem=contextData.retrieveDataItem<DTS::DataItem> (this);
+
+   	// Haven't figure out what Render() is changing...but unless we push
+    // GL_TEXTURE_BIT, the rendered text disappears on the second call to
+    // display() on some platforms (eg Linux on Intel Mac).
+    //glPushAttrib(GL_TEXTURE_BIT);
+    glPushAttrib(GL_ALL_ATTRIB_BITS);
+    
+    Vrui::Rotation inverseRotation = Vrui::getInverseNavigationTransformation().getRotation();
+    
+    // Fonts are drawn with up direction (0,1,0). So we need to rotate them to
+    // Vrui's up direction which is not necessarily (0,0,1).
+    Vrui::Vector upVector = Vrui::getUpDirection();
+    Vrui::Vector rightVector = Geometry::cross( Vrui::getForwardDirection(), upVector );
+    
+    Vrui::Vector fontUpVector = Vrui::Vector(0,1,0);
+    Vrui::Scalar angle = getAngle( fontUpVector, upVector );
+    Vrui::Vector rotationAxis = Geometry::cross(fontUpVector, upVector);
+    inverseRotation *= Vrui::Rotation(rotationAxis, angle);
+
+    if (absoluteTime > 3.5)
+	{
+		glPushMatrix();
+		glTranslatef(12, 10, 10);
+	    glRotate(inverseRotation);
+		glScalef(FONT_MODIFIER, FONT_MODIFIER, FONT_MODIFIER);
+		dataItem->font->Render("flow.");
+		glPopMatrix();
+	}
+    glPopAttrib();
+    
+    renderTools(dataItem);
 }
 
 void Viewer::stepLogo()
 {
+    /* requires an experiment */
+    
+    if (firstTime and toolbox != NULL)
+    {
+        /* Spread some particles */
+        experiment->integrator->setRealParamValue("stepSize", .01);
+        std::map<std::string, AbstractDynamicsTool*>::iterator it = toolmap.find("DotSpreaderTool");
+        if (it != toolmap.end())
+        {
+           DTS::Vector<double> position = experiment->transformer->getCenterPoint();
+           Vrui::Point pos;
+           pos[0] = position[0];
+           pos[1] = position[1];
+           pos[2] = position[2];   
+           DotSpreaderTool* tool = static_cast<DotSpreaderTool*>(it->second);
+           tool->releaseParticles(pos, experiment->transformer->getRadius());
+        }    
+        firstTime = false;        
+    }
+    
+    /* load viewPoint file transformation. */
+    std::string dirstr( getResourceDir() + "/views");
+	IO::StandardDirectory dir(dirstr);
+	std::string resource = "logo.view";
+    loadViewpointFile(dir, resource.c_str());
+    
+    double oldValue = experiment->integrator->getRealParamValue("stepSize");
+    double newValue = .98 * oldValue;
+    if (newValue < .0001)
+    {
+        newValue = .0001;
+    }
+    experiment->integrator->setRealParamValue("stepSize", newValue);
 }
 
 void Viewer::setRadioToggles(ToggleArray& toggles, const std::string& name)
@@ -213,8 +354,13 @@ void Viewer::initContext(GLContextData& contextData) const
    DTS::DataItem* dataItem=new DTS::DataItem;
    contextData.addDataItem(this, dataItem);
 
-   // get point sprite image
    std::string directory(getResourceDir());
+
+   // load the font
+   dataItem->font = new FTGLTextureFont((directory+"/fonts/VeggiMed.otf").c_str());
+   dataItem->font->FaceSize(FONT_SIZE);
+
+   // get point sprite image
    Images::RGBImage spriteTexture=Images::readImageFile((directory+"/images/particle.png").c_str());
 
    // initialize texture parameters
@@ -236,7 +382,12 @@ void Viewer::display(GLContextData& contextData) const
 
    // get data item from context data
    DTS::DataItem* dataItem=contextData.retrieveDataItem<DTS::DataItem> (this);
+   
+   renderTools(dataItem);
+}
 
+void Viewer::renderTools(DTS::DataItem* dataItem) const
+{
    // iterator over all tools and render data
    for (ToolList::const_iterator tool=tools.begin(); tool != tools.end(); ++tool)
    {
@@ -260,6 +411,7 @@ void Viewer::frame()
    double throttledFrameRate = frameRateDialog->getThrottledFrameRate();
    frameRateDialog->setFrameRate(1.0/frameTime);
    elapsedTime += frameTime;
+   absoluteTime += frameTime;
 
    bool stepTools = false;
    if (elapsedTime >= 1.0/throttledFrameRate)
@@ -518,7 +670,7 @@ void Viewer::toolCreationCallback(Vrui::ToolManager::ToolCreationCallbackData* c
       {
           for (ToolList::iterator tool=tools.begin(); tool != tools.end(); ++tool)
           {
-              (*tool)->setLocked(true);
+              (*tool)->setLocked(false);
           }
       }
 
@@ -545,23 +697,29 @@ void Viewer::toolDestructionCallback(Vrui::ToolManager::ToolDestructionCallbackD
 
 void Viewer::resetNavigationCallback(Misc::CallbackData* cbData)
 {
-    if (experiment == NULL || showingLogo)
+    if (showingLogo)
     {
         // ignore this request
         return;
     }
 
-    // if experiment defines default view, go there.
-    // otherwise, go to center.
-    DTS::Vector<double> center = experiment->transformer->getCenterPoint();
-    Vrui::Point p;
-    p[0] = center[0];
-    p[1] = center[1];
-    p[2] = center[2];
-    double radius = experiment->transformer->getRadius();
-    Vrui::setNavigationTransformation(p, radius);
+    resetView();
+}
 
-    //Vrui::setNavigationTransformation(Vrui::Point(0,0,0), 40.0);
+void Viewer::resetView()
+{
+    if (experiment != NULL)
+    {
+        // if experiment defines default view, go there.
+        // otherwise, go to center.
+        DTS::Vector<double> center = experiment->transformer->getCenterPoint();
+        Vrui::Point p;
+        p[0] = center[0];
+        p[1] = center[1];
+        p[2] = center[2];
+        double radius = experiment->transformer->getRadius();
+        Vrui::setNavigationTransformation(p, radius);
+    }
 }
 
 void Viewer::mainMenuTogglesCallback(GLMotif::ToggleButton::ValueChangedCallbackData *cbData)
@@ -664,7 +822,7 @@ void Viewer::dynamicsMenuCallback(GLMotif::ToggleButton::ValueChangedCallbackDat
    // Unlock all tools (in case we are coming from the logo)
    for (ToolList::iterator tool=tools.begin(); tool != tools.end(); ++tool)
    {
-     (*tool)->setLocked(false);
+     (*tool)->setLocked(false); // lock them again
    }
 
 
