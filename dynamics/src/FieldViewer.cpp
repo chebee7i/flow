@@ -191,8 +191,6 @@ try
 		Vrui::Vector up;
 		viewpointFile->read<Scalar>(up.getComponents(),3);
 		
-		Vrui::Point p = Vrui::getDisplayCenter();
-		
 		/* Construct the navigation transformation: */
 		Vrui::NavTransform nav=Vrui::NavTransform::identity;
 		nav*=Vrui::NavTransform::translateFromOriginTo(Vrui::getDisplayCenter());
@@ -228,7 +226,6 @@ void Viewer::drawLogo(GLContextData& contextData) const
     // Fonts are drawn with up direction (0,1,0). So we need to rotate them to
     // Vrui's up direction which is not necessarily (0,0,1).
     Vrui::Vector upVector = Vrui::getUpDirection();
-    Vrui::Vector rightVector = Geometry::cross( Vrui::getForwardDirection(), upVector );
     
     Vrui::Vector fontUpVector = Vrui::Vector(0,1,0);
     Vrui::Scalar angle = getAngle( fontUpVector, upVector );
