@@ -13,7 +13,7 @@ public:
     Rossler4(Scalar a=.25,  Scalar b=-.5, Scalar c=2.2, Scalar d=.05)
     : DynamicalModel<double>()
     {
-        name = "Rossler4";
+        name = "Hyperchaos";
 
         double inf = std::numeric_limits<Scalar>::infinity();
         addCoordinate( Coordinate("x", -20, -130, 30) );
