@@ -55,7 +55,7 @@ endif
 #
 CC     = g++
 CFLAGS = -Wall
-OPT    = #-mfpmath=sse -msse2 -mmmx -g0 -DNDEBUG -O3
+OPT    = -mfpmath=sse -msse2 -mmmx -g0 -DNDEBUG -O3
 
 ## If using MESA and getting GL enum errors, set this flag
 #OPT    += -DMESA 
@@ -64,9 +64,13 @@ OPT    = #-mfpmath=sse -msse2 -mmmx -g0 -DNDEBUG -O3
 ## but actually displays nothing, set this flag
 #OPT     += -DGHETTO
 
-OPT += -ggdb
+#OPT += -ggdb
 
-LOCAL_INCLUDE += -Isrc -Isrc/Dynamics -Isrc/External -Isrc/External/VruiSupport -Isrc/ToolBox
+# ftgl font renderer
+BASEDIR = /usr
+LOCAL_LINK += -lftgl -lfreetype
+
+LOCAL_INCLUDE += -Isrc -Isrc/Dynamics -Isrc/External -Isrc/External/VruiSupport -Isrc/ToolBox -I$(BASEDIR)/include/freetype2
 LOCAL_LINK += -lGLU -lgle
 
 # Object and dependency file locations
@@ -259,6 +263,8 @@ install: all
 	$(QUIET)cp Vrui.cfg $(SHAREINSTALLDIR)
 	$(QUIET)cp images/particle.png $(SHAREINSTALLDIR)/images
 	$(QUIET)cp -r plugins $(SHAREINSTALLDIR)/
+	$(QUIET)cp -r fonts $(SHAREINSTALLDIR)/	
+	$(QUIET)cp -r views $(SHAREINSTALLDIR)/		
 
 # Code documentation
 #
