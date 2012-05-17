@@ -55,6 +55,36 @@ struct DataItem: public GLObject::DataItem
 
 
       /* Variables for StaticSolverTool */
+      /* 
+         Note, each static solver tool must have its own id and version.
+         If they share an id, then if you ever have two static solver tools,
+         they will enter an endless loop:
+         
+         Initially, we might have:
+           dataDisplayListVersion = 2
+           staticSolverTool_1_DisplayListVersion = 2
+           staticSolverTool_2_DisplayListVersion = 2
+         
+         After a click with the first static solver tool, we have:
+           dataDisplayListVersion = 2
+           staticSolverTool_1_DisplayListVersion = 3
+           staticSolverTool_2_DisplayListVersion = 2
+           
+         When the first tool is rendered, we have:
+           dataDisplayListVersion = 3
+           staticSolverTool_1_DisplayListVersion = 3
+           staticSolverTool_2_DisplayListVersion = 2
+        
+         When the second tool is rendered, we have:
+           dataDisplayListVersion = 2
+           staticSolverTool_1_DisplayListVersion = 3
+           staticSolverTool_2_DisplayListVersion = 2
+           
+         And so, we see that the the effect the first tool must be rendered
+         again, giving us an endless loop.  The same holds true for anything
+         else where we must make use of an id and version. To avoid this,
+         we will make the tool a singleton.
+      */
       GLuint dataDisplayListId;
       unsigned int dataDisplayListVersion;
 

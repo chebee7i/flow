@@ -108,6 +108,8 @@ class Viewer: public Vrui::Application, public GLObject
       ToggleArray toolsToggleButtons;
       ToggleArray dynamicsToggleButtons;
 
+      /* So that we can make sure only one toolbox is created (and deleted) */
+      ToolBox::ToolBox* toolbox;
       std::map<std::string, AbstractDynamicsTool*> toolmap;
       
       typedef std::list<void*> DLList;
@@ -120,6 +122,7 @@ class Viewer: public Vrui::Application, public GLObject
       master::filter masterout;
       node::filter nodeout;
       debug::filter debugout;
+
 
       /* Internal methods */
 

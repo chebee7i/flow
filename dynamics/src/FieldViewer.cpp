@@ -74,6 +74,7 @@ Viewer::Viewer(int &argc, char** argv, char** appDefaults) :
    experimentDialog(NULL),
    currentOptionsDialog(NULL),
    optionsDialogs(DialogArray()),
+   toolbox(0),
    elapsedTime(0.0),
    masterout(std::cout), nodeout(std::cout), debugout(std::cerr)
 {
@@ -401,8 +402,13 @@ void Viewer::toolCreationCallback(Vrui::ToolManager::ToolCreationCallbackData* c
 {
    ToolBox::ToolBox* toolBox=dynamic_cast<ToolBox::ToolBox*> (cbData->tool);
 
-   if (toolBox != 0)
+   if (toolBox == 0) return;
+   
+   if (toolbox == 0)
    {
+      // store it
+      toolbox = toolBox;
+            
       (new ToolBox::Extensions::ToolRotator(toolBox))->alwaysShowCurrent(false).positionOfCurrent(180).closeDelay(2.0);
 
       std::cout << "Creating tools and adding to toolbox..." << std::endl;
@@ -462,18 +468,25 @@ void Viewer::toolCreationCallback(Vrui::ToolManager::ToolCreationCallbackData* c
       
       updateCurrentOptionsDialog();
       updateToolToggles();
-
+   }
+   else
+   {
+        std::cerr << "ERROR: Multiple ToolRotators are not supported." << std::endl;
    }
 }
 
 void Viewer::toolDestructionCallback(Vrui::ToolManager::ToolDestructionCallbackData* cbData)
 {
+   ToolBox::ToolBox* toolBox=dynamic_cast<ToolBox::ToolBox*> (cbData->tool);
+   if (toolBox != 0 && toolBox == toolbox)
+   {
       // need to fix this to handle multiple users each with their own toolbox
       tools.clear();
       toolmap.clear();
 
       optionsDialogs.clear();
       currentOptionsDialog = NULL;
+   }
 }
 
 void Viewer::resetNavigationCallback(Misc::CallbackData* cbData)
@@ -607,32 +620,6 @@ void Viewer::dynamicsMenuCallback(GLMotif::ToggleButton::ValueChangedCallbackDat
    // popup parameter dialog if previously shown or system requests it
    if (popup)
       experimentDialog->show();
-/**   else if (model->autoShowParameterDialog())
-   {
-      showParameterDialogToggle->setToggle(true);
-      experimentDialog->show();
-   }
-   **/
-
-/**
-   // update the integration step size
-   double step_size=IntegrationStepSize::instance()->getSavedValue(key);
-
-   if (step_size > 0.0)
-   {
-      masterout() << key << ":restoring step size [" << step_size << "]"
-                  << std::endl;
-   }
-   else
-   {
-      // set the integration step size to the default value
-      step_size=IntegrationStepSize::DefaultStepSize;
-      masterout() << key << ":integration step size not set."
-                  << " Setting to default (" << step_size << ")" << std::endl;
-   }
-
-   IntegrationStepSize::instance()->setValue(step_size);
-**/
 
    // iterate through tools and sets experiment
    for (ToolList::iterator toolItr=tools.begin(); toolItr != tools.end(); ++toolItr)
