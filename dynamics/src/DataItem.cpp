@@ -135,6 +135,9 @@ DataItem::DataItem(void)
 
 DataItem::~DataItem(void)
 {
+
+    delete font;
+
    if(vertexBufferId>0)
    {
       // delete the vertex buffer object

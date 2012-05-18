@@ -57,7 +57,7 @@ ExperimentFactory Factory;
 //#define FONT_MODIFIER 0.04
 
 static const float FONT_SIZE=96.0;
-static const float FONT_MODIFIER=0.02;
+static const float FONT_MODIFIER=0.003;
 
 /** Returns the base directory for resource files.
  *
@@ -99,8 +99,8 @@ Viewer::Viewer(int &argc, char** argv, char** appDefaults) :
    absoluteTime(0.0),
    masterout(std::cout), nodeout(std::cout), debugout(std::cerr),
    showingLogo(false),
-   showLogo(true),
-   firstTime(true)
+   firstTime(true),
+   startLogo(true)
 {
 
     // load ToolBox
@@ -133,6 +133,8 @@ Viewer::Viewer(int &argc, char** argv, char** appDefaults) :
 
     /** Prepare to show logo! **/
     setExperiment("Lorenz", false);
+    //setExperiment("Lorenz", false); // find out why we must do this twice in order to avoid flicker
+	//beginLogo();
 }
 
 Viewer::~Viewer()
@@ -213,41 +215,53 @@ return result;
 
 void Viewer::drawLogo(GLContextData& contextData) const
 {
+
     DTS::DataItem* dataItem=contextData.retrieveDataItem<DTS::DataItem> (this);
 
    	// Haven't figure out what Render() is changing...but unless we push
     // GL_TEXTURE_BIT, the rendered text disappears on the second call to
     // display() on some platforms (eg Linux on Intel Mac).
     //glPushAttrib(GL_TEXTURE_BIT);
-    glPushAttrib(GL_ALL_ATTRIB_BITS);
-    
-    Vrui::Rotation inverseRotation = Vrui::getInverseNavigationTransformation().getRotation();
-    
-    // Fonts are drawn with up direction (0,1,0). So we need to rotate them to
-    // Vrui's up direction which is not necessarily (0,0,1).
-    Vrui::Vector upVector = Vrui::getUpDirection();
-    
-    Vrui::Vector fontUpVector = Vrui::Vector(0,1,0);
-    Vrui::Scalar angle = getAngle( fontUpVector, upVector );
-    Vrui::Vector rotationAxis = Geometry::cross(fontUpVector, upVector);
-    inverseRotation *= Vrui::Rotation(rotationAxis, angle);
 
+    glPushAttrib(GL_ALL_ATTRIB_BITS);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix(); // <-- Don't forget this!
+    glLoadMatrix(Vrui::getDisplayState(contextData).modelviewPhysical);
+
+    Vrui::Point center=Vrui::getDisplayCenter();
+    glTranslate(center-Vrui::Point::origin); // Now origin is in center of environment
+
+    Vrui::Vector fw=Vrui::getForwardDirection();
+    Vrui::Vector up=Vrui::getUpDirection();
+    Vrui::Vector right=Geometry::cross(fw,up);
+    glRotate(Vrui::Rotation::fromBaseVectors(right,up)); // Now x goes right, y goes up
+
+    Vrui::Scalar ds=Vrui::getDisplaySize();
+    glScale(ds,ds,ds); // Now radius 1 corresponds to environment size
+
+    glScalef(FONT_MODIFIER, FONT_MODIFIER, FONT_MODIFIER);
+    glTranslatef(-200, 75, 0);
     if (absoluteTime > 3.5)
 	{
-		glPushMatrix();
-		glTranslatef(12, 10, 10);
-	    glRotate(inverseRotation);
-		glScalef(FONT_MODIFIER, FONT_MODIFIER, FONT_MODIFIER);
-		dataItem->font->Render("flow.");
-		glPopMatrix();
-	}
+        glColor3f(1.0,1.0,1.0);
+    	dataItem->font->Render("flow.");
+    }
+    glPopMatrix(); // <-- Don't forget this!
+
+    glDisable(GL_BLEND);
     glPopAttrib();
-    
-    renderTools(dataItem);
 }
 
 void Viewer::stepLogo()
 {
+    if (experiment == NULL)
+    {
+        return;
+    }
+
     /* requires an experiment */
     
     if (firstTime and toolbox != NULL)
@@ -263,19 +277,23 @@ void Viewer::stepLogo()
            pos[1] = position[1];
            pos[2] = position[2];   
            DotSpreaderTool* tool = static_cast<DotSpreaderTool*>(it->second);
+           tool->setPointSize(.1);
            tool->releaseParticles(pos, experiment->transformer->getRadius());
-        }    
+        }
+
         firstTime = false;        
-    }
     
-    /* load viewPoint file transformation. */
+    // load viewPoint file transformation. 
     std::string dirstr( getResourceDir() + "/views");
 	IO::StandardDirectory dir(dirstr);
 	std::string resource = "logo.view";
     loadViewpointFile(dir, resource.c_str());
+
+    }
+
     
     double oldValue = experiment->integrator->getRealParamValue("stepSize");
-    double newValue = .98 * oldValue;
+    double newValue = .9999 * oldValue;
     if (newValue < .0001)
     {
         newValue = .0001;
@@ -418,42 +436,27 @@ void Viewer::frame()
       elapsedTime = 0.0;
    }
 
-    if(experiment == NULL || showLogo)
+    if(experiment == NULL)
     {
         if (!showingLogo)
         {
-            showingLogo = true;
-            // disable user navigation with a dummy navigation tool
-            Vrui::activateNavigationTool(reinterpret_cast<Vrui::Tool*>(this));
-        }
+			beginLogo();
+		}
 
-        // We are now showing the logo.
+        // With the dummy navigation tool enabled, the navigation tool
+        // tied to the device is blocked.  This other navigation tool
+        // was actively updating the navigation transformation whenever
+        // the window containing Vrui moved.  Since we are blocking this
+        // tool, we must manually reset the navigation transformation.
+        Vrui::setNavigationTransformation(Vrui::Point::origin, 30);
+        // update the rotating tetrahedron in the logo
+        Vrui::scheduleUpdate(Vrui::getApplicationTime()+0.02);
+	}
 
-        if (experiment == NULL)
-        {
-            // With the dummy navigation tool enabled, the navigation tool
-            // tied to the device is blocked.  This other navigation tool
-            // was actively updating the navigation transformation whenever
-            // the window containing Vrui moved.  Since we are blocking this
-            // tool, we must manually reset the navigation transformation.
-            Vrui::setNavigationTransformation(Vrui::Point::origin, 30);
-            // update the rotating tetrahedron in the logo
-            Vrui::scheduleUpdate(Vrui::getApplicationTime()+0.02);
-        }
-        else
-        {
-            // We might still want to do the same as if experiment is NULL,
-            // but this decision is left to the stepLogo() method.
-            stepLogo();
-        }
-    }
-    else
-    {
-        showingLogo = false;
-
-        // renable user navigation
-        Vrui::deactivateNavigationTool(reinterpret_cast<Vrui::Tool*>(this));
-    }
+	if (showingLogo)
+	{
+		stepLogo();
+	}
 
     // If the experiment is not NULL, then we still might want dynamics
     // while the logo is running.  So we do not exit out just because
@@ -501,10 +504,51 @@ void Viewer::frame()
             }
         }
     }
+
+    if (startLogo && !showingLogo)
+    {
+        /* Need to figure this out. We cannot start spreading dots until
+         * the DotSpreader's frame() function has run at least once.  Maybe 
+         * this is related to the DotSpreaders initContext not being ready
+         * by the time we start the dot spreading.
+         */
+        beginLogo();
+        startLogo = false;
+    }
+
     // as quickly as possible
     Vrui::requestUpdate();
 }
 
+void Viewer::beginLogo()
+{
+	showingLogo = true;
+
+	/* disable user navigation with a dummy navigation tool */
+	Vrui::activateNavigationTool(reinterpret_cast<Vrui::Tool*>(this));
+
+
+   // Unlock all tools (in case we are coming from the logo)
+   for (ToolList::iterator tool=tools.begin(); tool != tools.end(); ++tool)
+   {
+     (*tool)->setLocked(true);
+   }
+}
+
+void Viewer::endLogo()
+{
+	// re-enable resetNavigationCallbacks
+	showingLogo = false;
+
+	// renable user navigation
+	Vrui::deactivateNavigationTool(reinterpret_cast<Vrui::Tool*>(this));
+
+   // Unlock all tools (in case we are coming from the logo)
+   for (ToolList::iterator tool=tools.begin(); tool != tools.end(); ++tool)
+   {
+     (*tool)->setLocked(false);
+   }
+}
 
 void Viewer::updateToolToggles()
 {
@@ -547,8 +591,7 @@ void Viewer::updateCurrentOptionsDialog()
    int index=0;
    for (ToolList::iterator tool=tools.begin(); tool != tools.end(); ++tool)
    {
-      if (*tool == currentTool)
-         break;
+      if (*tool == currentTool) break;
       index++;
    }
 
@@ -663,11 +706,11 @@ void Viewer::toolCreationCallback(Vrui::ToolManager::ToolCreationCallbackData* c
       updateCurrentOptionsDialog();
       updateToolToggles();
 
-      if (showLogo || showingLogo)
+      if (showingLogo)
       {
           for (ToolList::iterator tool=tools.begin(); tool != tools.end(); ++tool)
           {
-              (*tool)->setLocked(false);
+              (*tool)->setLocked(true);
           }
       }
 
@@ -728,7 +771,7 @@ void Viewer::mainMenuTogglesCallback(GLMotif::ToggleButton::ValueChangedCallback
       // if toggle is set show the parameter dialog
       if (cbData->toggle->getToggle())
       {
-         if (!experimentDialog || showingLogo)
+         if (!experimentDialog || showingLogo) 
          {
             cbData->toggle->setToggle(false);
             return;
@@ -747,7 +790,7 @@ void Viewer::mainMenuTogglesCallback(GLMotif::ToggleButton::ValueChangedCallback
       if (cbData->toggle->getToggle())
       {
          // if no tool is set reset toggle and return
-         if (!currentOptionsDialog || showingLogo)
+    if (!currentOptionsDialog || showingLogo)
          {
             cbData->toggle->setToggle(false);
             return;
@@ -794,36 +837,44 @@ void Viewer::mainMenuTogglesCallback(GLMotif::ToggleButton::ValueChangedCallback
 
 void Viewer::dynamicsMenuCallback(GLMotif::ToggleButton::ValueChangedCallbackData *cbData)
 {
-   std::string name = cbData->toggle->getName();
-   std::string key(name);
-   key.erase( key.find("toggle") );
+	std::string name = cbData->toggle->getName();
+	std::string key(name);
+	key.erase( key.find("toggle") );
 
-   debugout() << "  toggle: " << name << "\tkey: " << key << std::endl;
+	setExperiment(key);
 
-   setExperiment(key);
-   // make this call separate from setExperiment to give us the freedom to
-   // display a system during the logo
-   showLogo = false;
-   showingLogo = false; // set now so that resetNavigationCallback takes effect
+	// Stop splash screen mode and unlock all the tools.
+	endLogo();
 
-   std::map<std::string, AbstractDynamicsTool*>::iterator it = toolmap.find("StaticSolverTool");
-   if (it != toolmap.end())
-   {
-       StaticSolverTool* tool = static_cast<StaticSolverTool*>(it->second);
-       tool->addStaticSolution(experiment->transformer->getDefaultPoint());
-   }
+	// Load the initial static solution
+	std::map<std::string, AbstractDynamicsTool*>::iterator it;
+
+    
+    it = toolmap.find("StaticSolverTool");
+	if (it != toolmap.end())
+	{
+		StaticSolverTool* tool = static_cast<StaticSolverTool*>(it->second);
+		tool->addStaticSolution(experiment->transformer->getDefaultPoint());
+	}
+    
+    /**
+    it = toolmap.find("DotSpreaderTool");
+    if (it != toolmap.end())
+    {
+       DTS::Vector<double> position = experiment->transformer->getCenterPoint();
+       Vrui::Point pos;
+       pos[0] = position[0];
+       pos[1] = position[1];
+       pos[2] = position[2];   
+       DotSpreaderTool* tool = static_cast<DotSpreaderTool*>(it->second);
+       tool->releaseParticles(pos, experiment->transformer->getRadius());
+    }
+    **/  
 
    // Center the model
-   resetNavigationCallback(0);
-
-   // Unlock all tools (in case we are coming from the logo)
-   for (ToolList::iterator tool=tools.begin(); tool != tools.end(); ++tool)
-   {
-     (*tool)->setLocked(false); // lock them again
-   }
-
-
+   resetView();
 }
+
 
 void Viewer::setExperiment(std::string name, bool updateToggle)
 {
@@ -885,13 +936,13 @@ void Viewer::toolsMenuCallback(GLMotif::ToggleButton::ValueChangedCallbackData *
    AbstractDynamicsTool* tool;
 
    // If we are showing the logo, we ignore their request and revert the toggle.
-   // Similarly if there is not ToolBox.
+   // Similarly if there is no ToolBox.
 
   std::string name=cbData->toggle->getName();
   if (name == "ParticleSprayerToggle")
   {
 
-     if (showingLogo || toolmap.size() == 0)
+     if (showingLogo || toolbox == 0)
      {
         cbData->toggle->setToggle( !cbData->toggle->getToggle() );
      }
@@ -905,7 +956,7 @@ void Viewer::toolsMenuCallback(GLMotif::ToggleButton::ValueChangedCallbackData *
   }
   else if (name == "DotSpreaderToggle")
   {
-     if (showingLogo || toolmap.size() == 0)
+     if (showingLogo || toolbox == 0)
      {
         cbData->toggle->setToggle( !cbData->toggle->getToggle() );
      }
@@ -919,7 +970,7 @@ void Viewer::toolsMenuCallback(GLMotif::ToggleButton::ValueChangedCallbackData *
   }
   else if (name == "StaticSolverToggle")
   {
-     if (showingLogo || toolmap.size() == 0)
+     if (showingLogo || toolbox == 0)
      {
         cbData->toggle->setToggle( !cbData->toggle->getToggle() );
      }
@@ -934,7 +985,7 @@ void Viewer::toolsMenuCallback(GLMotif::ToggleButton::ValueChangedCallbackData *
   else if (name == "DynamicSolverToggle")
   {
 
-     if (showingLogo || toolmap.size() == 0)
+     if (showingLogo || toolbox == 0)
      {
         cbData->toggle->setToggle( !cbData->toggle->getToggle() );
      }

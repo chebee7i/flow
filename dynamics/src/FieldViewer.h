@@ -131,9 +131,9 @@ class Viewer: public Vrui::Application, public GLObject
       debug::filter debugout;
 
       bool showingLogo; // whether the logo is presently being showed
-      bool showLogo; // whether we want the logo to show
       bool firstTime; // for the first time the logo is drawn
-      
+      bool startLogo;
+
       /* Internal methods */
 
       /** Internal method for faking radio-button behavior.
@@ -161,6 +161,8 @@ class Viewer: public Vrui::Application, public GLObject
       virtual void renderTools(DTS::DataItem*) const;
       virtual void resetView(); 
       virtual bool loadViewpointFile(IO::Directory& directory,const char* viewpointFileName);
+      void beginLogo();
+      void endLogo();
 };
 
 #endif
