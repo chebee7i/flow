@@ -26,10 +26,10 @@
 #include <Vrui/Geometry.h>
 #include <IO/OpenFile.h>
 #include <IO/StandardDirectory.h>
-#include <Vrui/DisplayState.h> 
+#include <Vrui/DisplayState.h>
 #include <GL/gl.h>
 #include <GL/GLGeometryWrappers.h>
-#include <GL/GLTransformationWrappers.h> 
+#include <GL/GLTransformationWrappers.h>
 
 // Vrui includes
 //
@@ -171,7 +171,7 @@ try
 	/* Open the viewpoint file: */
 	IO::FilePtr viewpointFile=directory.openFile(viewpointFileName);
 	viewpointFile->setEndianness(Misc::LittleEndian);
-	
+
 	/* Check the header: */
 	char header[80];
 	viewpointFile->read(header,strlen(vruiViewpointFileHeader));
@@ -181,18 +181,18 @@ try
 		/* Read the environment's center point in navigational coordinates: */
 		Vrui::Point center;
 		viewpointFile->read<Scalar>(center.getComponents(),3);
-		
+
 		/* Read the environment's size in navigational coordinates: */
 		Scalar size=viewpointFile->read<Scalar>();
-		
+
 		/* Read the environment's forward direction in navigational coordinates: */
 		Vrui::Vector forward;
 		viewpointFile->read<Scalar>(forward.getComponents(),3);
-		
+
 		/* Read the environment's up direction in navigational coordinates: */
 		Vrui::Vector up;
 		viewpointFile->read<Scalar>(up.getComponents(),3);
-		
+
 		/* Construct the navigation transformation: */
 		Vrui::NavTransform nav=Vrui::NavTransform::identity;
 		nav*=Vrui::NavTransform::translateFromOriginTo(Vrui::getDisplayCenter());
@@ -201,7 +201,7 @@ try
 		nav*=Vrui::NavTransform::rotate(Geometry::invert(Vrui::Rotation::fromBaseVectors(Geometry::cross(forward,up),forward)));
 		nav*=Vrui::NavTransform::translateToOriginFrom(center);
 		Vrui::setNavigationTransformation(nav);
-		
+
 		result=true;
 		}
 	}
@@ -226,7 +226,7 @@ void Viewer::drawLogo(GLContextData& contextData) const
     glPushAttrib(GL_ALL_ATTRIB_BITS);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    
+
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix(); // <-- Don't forget this!
     glLoadMatrix(Vrui::getDisplayState(contextData).modelviewPhysical);
@@ -257,14 +257,14 @@ void Viewer::drawLogo(GLContextData& contextData) const
 
 void Viewer::stepLogo()
 {
-    if (experiment == NULL)
+    if (experiment == NULL || toolbox == NULL)
     {
         return;
     }
 
     /* requires an experiment */
-    
-    if (firstTime and toolbox != NULL)
+
+    if (firstTime)
     {
         /* Spread some particles */
         experiment->integrator->setRealParamValue("stepSize", .01);
@@ -275,30 +275,29 @@ void Viewer::stepLogo()
            Vrui::Point pos;
            pos[0] = position[0];
            pos[1] = position[1];
-           pos[2] = position[2];   
+           pos[2] = position[2];
            DotSpreaderTool* tool = static_cast<DotSpreaderTool*>(it->second);
            tool->setPointSize(.1);
            tool->releaseParticles(pos, experiment->transformer->getRadius());
         }
 
-        firstTime = false;        
-    
-    // load viewPoint file transformation. 
-    std::string dirstr( getResourceDir() + "/views");
-	IO::StandardDirectory dir(dirstr);
-	std::string resource = "logo.view";
-    loadViewpointFile(dir, resource.c_str());
+        firstTime = false;
+
+		// load viewPoint file transformation.
+		std::string dirstr( getResourceDir() + "/views");
+		IO::StandardDirectory dir(dirstr);
+		std::string resource = "logo.view";
+		loadViewpointFile(dir, resource.c_str());
 
     }
 
-    
-    double oldValue = experiment->integrator->getRealParamValue("stepSize");
-    double newValue = .9999 * oldValue;
-    if (newValue < .0001)
-    {
-        newValue = .0001;
-    }
-    experiment->integrator->setRealParamValue("stepSize", newValue);
+	double oldValue = experiment->integrator->getRealParamValue("stepSize");
+	double newValue = .9999 * oldValue;
+	if (newValue < .0001)
+	{
+	    newValue = .0001;
+	}
+	experiment->integrator->setRealParamValue("stepSize", newValue);
 }
 
 void Viewer::setRadioToggles(ToggleArray& toggles, const std::string& name)
@@ -397,7 +396,7 @@ void Viewer::display(GLContextData& contextData) const
 
    // get data item from context data
    DTS::DataItem* dataItem=contextData.retrieveDataItem<DTS::DataItem> (this);
-   
+
    renderTools(dataItem);
 }
 
@@ -508,7 +507,7 @@ void Viewer::frame()
     if (startLogo && !showingLogo)
     {
         /* Need to figure this out. We cannot start spreading dots until
-         * the DotSpreader's frame() function has run at least once.  Maybe 
+         * the DotSpreader's frame() function has run at least once.  Maybe
          * this is related to the DotSpreaders initContext not being ready
          * by the time we start the dot spreading.
          */
@@ -771,7 +770,7 @@ void Viewer::mainMenuTogglesCallback(GLMotif::ToggleButton::ValueChangedCallback
       // if toggle is set show the parameter dialog
       if (cbData->toggle->getToggle())
       {
-         if (!experimentDialog || showingLogo) 
+         if (!experimentDialog || showingLogo)
          {
             cbData->toggle->setToggle(false);
             return;
@@ -849,14 +848,14 @@ void Viewer::dynamicsMenuCallback(GLMotif::ToggleButton::ValueChangedCallbackDat
 	// Load the initial static solution
 	std::map<std::string, AbstractDynamicsTool*>::iterator it;
 
-    
+
     it = toolmap.find("StaticSolverTool");
 	if (it != toolmap.end())
 	{
 		StaticSolverTool* tool = static_cast<StaticSolverTool*>(it->second);
 		tool->addStaticSolution(experiment->transformer->getDefaultPoint());
 	}
-    
+
     /**
     it = toolmap.find("DotSpreaderTool");
     if (it != toolmap.end())
@@ -865,11 +864,11 @@ void Viewer::dynamicsMenuCallback(GLMotif::ToggleButton::ValueChangedCallbackDat
        Vrui::Point pos;
        pos[0] = position[0];
        pos[1] = position[1];
-       pos[2] = position[2];   
+       pos[2] = position[2];
        DotSpreaderTool* tool = static_cast<DotSpreaderTool*>(it->second);
        tool->releaseParticles(pos, experiment->transformer->getRadius());
     }
-    **/  
+    **/
 
    // Center the model
    resetView();
