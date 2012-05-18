@@ -209,14 +209,16 @@ class StaticSolverTool: public AbstractDynamicsTool, public GLObject
 
       void setNumberOfPoints(unsigned int size)
       {
-         if (size > datasets[0]->numberOfPoints)
+         StaticSolverData* data;
+         std::vector<StaticSolverData*>::iterator it;
+         DTS::Vector<double> step(experiment->model->getDimension());
+
+         for (it = datasets.begin(); it != datasets.end(); it++)
          {
-            StaticSolverData* data;
-            std::vector<StaticSolverData*>::iterator it;
-            DTS::Vector<double> step(experiment->model->getDimension());
-            for (it = datasets.begin(); it != datasets.end(); it++)
+            data = *it;
+
+            if (size > data->numberOfPoints)
             {
-               data = *it;
                //data->points.resize(size);
                // can't resize since dimension must be known at initialization
                // so we push_back as we update...
@@ -227,12 +229,8 @@ class StaticSolverTool: public AbstractDynamicsTool, public GLObject
                   data->points[i] += step;
                }
             }
-         }
 
-         // Update the size no matter what
-         std::vector<StaticSolverData*>::iterator it;
-         for (it = datasets.begin(); it != datasets.end(); it++)
-         {
+            // Update the size no matter what
             (*it)->numberOfPoints = size;
          }
 
@@ -245,7 +243,7 @@ class StaticSolverTool: public AbstractDynamicsTool, public GLObject
       std::vector<StaticSolverData*> datasets; ///< Container for pointers to dynamically allocated StaticSolverData instances.
       unsigned int dataDisplayListVersion;
       bool multipleStaticSolutions;
-      
+
       // Store current values so we can reset to save values after clearing.
       StaticSolverData::LineStyle lineStyle;
       StaticSolverData::ColorStyle colorStyle;
