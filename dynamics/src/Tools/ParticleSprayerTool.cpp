@@ -40,6 +40,7 @@ void ParticleSprayerTool::Icon::display(GLContextData& contextData) const
 
 void ParticleSprayerTool::initContext(GLContextData& contextData) const
 {
+
    DataItem* dataItem=new DataItem;
    contextData.addDataItem(this, dataItem);
 
@@ -95,6 +96,7 @@ void ParticleSprayerTool::initContext(GLContextData& contextData) const
    glPopAttrib();
 
    glEndList();
+   
 }
 
 void ParticleSprayerTool::render(DTS::DataItem* dataItem) const
@@ -126,7 +128,7 @@ void ParticleSprayerTool::render(DTS::DataItem* dataItem) const
 
    // Query the OpenGL viewing frustrum
    GLFrustum<float> frustum;
-   frustum.setFromGL();
+   frustum.setFromGL();   
 
    #ifdef GHETTO
    if (0)
@@ -179,17 +181,18 @@ void ParticleSprayerTool::render(DTS::DataItem* dataItem) const
    glEnableClientState(GL_VERTEX_ARRAY);
    glEnableClientState(GL_COLOR_ARRAY);
 
-   if (dataItem->version != data.currentVersion)
+   if (dataItem->versionPS != data.currentVersion)
    {
-      dataItem->numParticles = data.particles.size();
-      glBufferDataARB(GL_ARRAY_BUFFER_ARB, dataItem->numParticles * sizeof(PointParticle), &data.particles[0], GL_DYNAMIC_DRAW_ARB);
-      dataItem->version=data.currentVersion;
+      dataItem->numParticlesDS = data.particles.size();
+      glBufferDataARB(GL_ARRAY_BUFFER_ARB, dataItem->numParticlesDS * sizeof(PointParticle), &data.particles[0], GL_DYNAMIC_DRAW_ARB);
+      dataItem->versionPS = data.currentVersion;
    }
 
    glInterleavedArrays(GL_C4UB_V3F, sizeof(PointParticle), 0);
 
+
    // Care needed if particle number has changed but we haven't updated buffer.
-   glDrawArrays(GL_POINTS, 0, dataItem->numParticles);
+   glDrawArrays(GL_POINTS, 0, dataItem->numParticlesDS);
 
    glDisableClientState(GL_COLOR_ARRAY);
    glDisableClientState(GL_VERTEX_ARRAY);

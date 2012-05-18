@@ -43,10 +43,10 @@ DataItem::DataItem(void)
    : hasPointParameterExtension(GLARBPointParameters::isSupported()),
    hasVertexBufferObjectExtension(GLARBVertexBufferObject::isSupported()),
    hasShaders(GLARBShaderObjects::isSupported()&&GLARBVertexShader::isSupported()&&GLARBFragmentShader::isSupported()),
-   vertexBufferId(0), spriteTextureObjectId(0),
-   version(0),
+   vertexBufferId(0), spriteTextureObjectId(0), versionDS(0),
+   versionPS(0),
    vertexShaderObject(0),fragmentShaderObject(0),programObject(0),
-   numParticles(0)
+   numParticlesDS(0), numParticlesPS(0)
 {
    master::filter masterout(std::cout);
 

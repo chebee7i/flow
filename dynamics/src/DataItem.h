@@ -49,42 +49,45 @@ struct DataItem: public GLObject::DataItem
       GLuint vertexBufferId; ///< Vertex object buffer ID.
       GLuint spriteTextureObjectId; ///< Texture object ID for point sprites.
 
-      unsigned int version; ///< Used for syncing VOB rendering.
+      ///< Used for syncing VOB rendering.
+      unsigned int versionDS;
+      unsigned int versionPS;
 
       /* State for vertex / fragment shaders: */
 
       GLhandleARB vertexShaderObject, fragmentShaderObject, programObject; ///< Shader for proper point size attenuation
       GLint scaledParticleRadiusLocation; ///< Location of particle radius uniform variable in shader program
       GLint tex0Location; ///< Location of texture sample uniform variable in shader program
-      int numParticles; ///< Number of particles still alive at last step()
+      int numParticlesDS; ///< Number of particles still alive at last step()
+      int numParticlesPS; ///< Number of particles still alive at last step()
 
 
       /* Variables for StaticSolverTool */
-      /* 
+      /*
          Note, each static solver tool must have its own id and version.
          If they share an id, then if you ever have two static solver tools,
          they will enter an endless loop:
-         
+
          Initially, we might have:
            dataDisplayListVersion = 2
            staticSolverTool_1_DisplayListVersion = 2
            staticSolverTool_2_DisplayListVersion = 2
-         
+
          After a click with the first static solver tool, we have:
            dataDisplayListVersion = 2
            staticSolverTool_1_DisplayListVersion = 3
            staticSolverTool_2_DisplayListVersion = 2
-           
+
          When the first tool is rendered, we have:
            dataDisplayListVersion = 3
            staticSolverTool_1_DisplayListVersion = 3
            staticSolverTool_2_DisplayListVersion = 2
-        
+
          When the second tool is rendered, we have:
            dataDisplayListVersion = 2
            staticSolverTool_1_DisplayListVersion = 3
            staticSolverTool_2_DisplayListVersion = 2
-           
+
          And so, we see that the the effect the first tool must be rendered
          again, giving us an endless loop.  The same holds true for anything
          else where we must make use of an id and version. To avoid this,
@@ -92,9 +95,9 @@ struct DataItem: public GLObject::DataItem
       */
       GLuint dataDisplayListId;
       unsigned int dataDisplayListVersion;
-      
+
       // fonts
-      FTFont* font;      
+      FTFont* font;
 
       DataItem(void);
       virtual ~DataItem(void);

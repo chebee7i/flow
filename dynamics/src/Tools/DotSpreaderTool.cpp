@@ -157,6 +157,7 @@ void DotSpreaderTool::render(DTS::DataItem* dataItem) const
       glColor4f(0.0f, 0.6f, 1.0f, 0.2f);
 
       gluSphere(quadric, radius, 10, 15);
+      glDisable(GL_BLEND);
 
       // draw surrounding wireframe (solid)
       gluQuadricDrawStyle(quadric, GLU_LINE);
@@ -164,6 +165,7 @@ void DotSpreaderTool::render(DTS::DataItem* dataItem) const
       glColor4f(0.0f, 0.8f, 1.0f, 1.0f);
 
       gluSphere(quadric, radius, 10, 15);
+      glDepthMask(GL_FALSE);
 
       gluDeleteQuadric(quadric);
 
@@ -257,18 +259,18 @@ void DotSpreaderTool::render(DTS::DataItem* dataItem) const
       glEnableClientState(GL_COLOR_ARRAY);
 
       // If data has been modified, send to graphics card
-      if (dataItem->version != data.currentVersion)
+      if (dataItem->versionDS != data.currentVersion)
       {
-         dataItem->numParticles = data.numPoints;
-         glBufferDataARB(GL_ARRAY_BUFFER_ARB, dataItem->numParticles
+         dataItem->numParticlesDS = data.numPoints;
+         glBufferDataARB(GL_ARRAY_BUFFER_ARB, dataItem->numParticlesDS
                * sizeof(ColorPoint), &data.particles[0], GL_DYNAMIC_DRAW_ARB);
 
-         dataItem->version=data.currentVersion;
+         dataItem->versionDS = data.currentVersion;
       }
 
       glInterleavedArrays(GL_C4UB_V3F, sizeof(ColorPoint), 0);
 
-      glDrawArrays(GL_POINTS, 0, dataItem->numParticles);
+      glDrawArrays(GL_POINTS, 0, dataItem->numParticlesDS);
 
       glDisableClientState(GL_COLOR_ARRAY);
       glDisableClientState(GL_VERTEX_ARRAY);
@@ -284,6 +286,7 @@ void DotSpreaderTool::render(DTS::DataItem* dataItem) const
       glBindTexture(GL_TEXTURE_2D, 0);
       glDisable(GL_TEXTURE_2D);
       glDisable(GL_POINT_SPRITE_ARB);
+      glDisable(GL_BLEND);
 
       // restore previous attribute state
       glPopAttrib();
