@@ -2,12 +2,21 @@
 #define TRANSFORMER_H
 
 #include <cmath>
+#include <exception>
 
 #include "Geometry/Vector.h"
 
 #include "DynamicalModel.h"
 #include "Vector.h"
 #include "Parameter.h"
+
+class TransformerException: public std::exception
+{
+    virtual const char* what() const throw()
+    {
+        return "Cannot transform 0-dimensional model.";
+    }
+};
 
 template <typename ScalarParam>
 class Experiment;

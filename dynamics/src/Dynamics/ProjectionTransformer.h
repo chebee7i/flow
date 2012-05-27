@@ -52,6 +52,11 @@ ProjectionTransformer<ScalarParam>::ProjectionTransformer(DynamicalModel<ScalarP
 
     typedef typename ParameterClass<ScalarParam>::IntParameter IntParameter;
 
+    if (d == 0)
+    {
+        throw TransformerException();
+    }
+    
     addIntParameter( IntParameter("xDisplay", x, -1, d-1, x, 1) );
     addIntParameter( IntParameter("yDisplay", y, -1, d-1, y, 1) );
     addIntParameter( IntParameter("zDisplay", z, -1, d-1, z, 1) );
