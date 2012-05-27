@@ -160,10 +160,16 @@ Experiment<ScalarParam>::~Experiment()
 {
     delete model;
 
-    typename IntegratorMap::iterator it;
-    for ( it = integrators.begin(); it != integrators.end(); it++ )
+    typename IntegratorMap::iterator it1;
+    for ( it1 = integrators.begin(); it1 != integrators.end(); it1++ )
     {
-        delete it->second;
+        delete it1->second;
+    }
+
+    typename TransformerMap::iterator it2;
+    for ( it2 = transformers.begin(); it2 != transformers.end(); it2++ )
+    {
+        delete it2->second;
     }
 }
 
