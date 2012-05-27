@@ -19,7 +19,7 @@ public:
         addCoordinate( Coordinate("x", 1, -30, 30) );
         addCoordinate( Coordinate("y", 1, -30, 30) );
         addCoordinate( Coordinate("z", 1, 0, 50) );
-        addCoordinate( Coordinate("t", 0, 0, inf) );        
+        addCoordinate( Coordinate("t", 0, 0, inf) ); 
 
         addRealParameter( RealParameter("sigma", sigma, 0, 20,  10,    0.1) );
         addRealParameter( RealParameter("rho",   rho,   0, 100, 28,    0.1) );
@@ -30,6 +30,7 @@ public:
         centerPoint[1] = 0;
         centerPoint[2] = 25;
         centerPoint[3] = 0;
+
     }
 
     virtual ~Lorenz() { }

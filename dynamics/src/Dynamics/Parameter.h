@@ -472,9 +472,9 @@ void ParameterClass<RealParam>::_setRealParamValue(std::string const& name, Real
     it = realParamIndex.find(name);
     if (it != realParamIndex.end())
     {
-        //realParams[it->second].validate(value);    
+        //realParams[it->second].validate(value);
         realParams[it->second].value = value;
-        realParamValues[it->second] = value;
+        realParamValues[it->second] = value; 
     }
 }
 
