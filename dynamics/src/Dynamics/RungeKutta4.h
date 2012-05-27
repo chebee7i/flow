@@ -9,6 +9,9 @@ private:
 
     /* Elements: */
 
+    typedef void (RungeKutta4::*StepFunction)(Vector const& v, Vector & out);
+    StepFunction stepFunction;
+
     // Vectors for intermediate calculations
     Vector v0;
     Vector v1;
@@ -29,6 +32,33 @@ public:
         name = "rk4";
 
         addRealParameter( RealParameter("stepSize", stepSize, .0001, .2, .01, .0001) );
+
+        int dimension = model.getDimension();
+
+        switch (dimension)
+        {
+        case 0:
+            throw IntegratorException();
+            break;
+        case 1:
+            stepFunction = &RungeKutta4::step_1d;
+            break;
+        case 2:
+            stepFunction = &RungeKutta4::step_2d;
+            break;
+        case 3:
+            stepFunction = &RungeKutta4::step_3d;
+            break;
+        case 4:
+            stepFunction = &RungeKutta4::step_4d;
+            break;
+        case 5:
+            stepFunction = &RungeKutta4::step_5d;
+            break;
+        default:
+            stepFunction = &RungeKutta4::step_nd;
+            break;
+        }
     }
 
     virtual ~RungeKutta4()
@@ -36,9 +66,15 @@ public:
     }
 
     /* Methods: */
+    inline
+    void step(Vector const& v, Vector &out)
+    {
+        // call pointer to member function
+        (this->*stepFunction)(v, out);
+    }
 
     // Computes one Runge-Kutta integration step vector
-    void step(Vector const& v, Vector &out)
+    void step_nd(Vector const& v, Vector &out)
     {
         Scalar stepSize = realParamValues[0];
 
@@ -73,6 +109,7 @@ public:
         out /= Scalar(6);
     }
 
+    #include "RungeKutta4Step.inc.h"
 };
 
 #endif
