@@ -63,8 +63,12 @@ class StaticSolverData
          points.reserve(numberOfPoints);
 
          // initialize the array with default (0,0,0) point values
-         for (unsigned int i=0; i < MaxPoints; i++)
-            points.push_back(DTS::Vector<double>(modelDimension));
+         DTS::Vector<double> dummy(modelDimension);
+         for (unsigned int i=0; i < numberOfPoints; i++)
+         {
+            // std::vector copy constructs on push_back()
+            points.push_back(dummy);
+         }
 
          // create the color map
          colorMap=new BlueRedColorMap;
@@ -84,6 +88,15 @@ class StaticSolverData
       {
          SOLID, GRADIENT
       };
+
+      void setNumberOfPoints(unsigned int size, unsigned int dimension)
+      {
+         // resize, provide vector of proper dimension to copy from
+         DTS::Vector<double> dummy(dimension);
+         points.resize(size, dummy);
+         numberOfPoints = size;
+
+      }
 
       static const unsigned int MaxPoints;
 
@@ -210,29 +223,27 @@ class StaticSolverTool: public AbstractDynamicsTool, public GLObject
       void setNumberOfPoints(unsigned int size)
       {
          StaticSolverData* data;
-         std::vector<StaticSolverData*>::iterator it;
-         DTS::Vector<double> step(experiment->model->getDimension());
 
+         std::vector<StaticSolverData*>::iterator it;
          for (it = datasets.begin(); it != datasets.end(); it++)
          {
             data = *it;
+            data->setNumberOfPoints(size, experiment->model->getDimension());
 
-            if (size > data->numberOfPoints)
+            // Assumption: All StaticSolutions have the same number of points.
+            // So if we enter this branch for one solution, we will enter this
+            // for all solutions.
+            if (size > numberOfPoints)
             {
-               //data->points.resize(size);
-               // can't resize since dimension must be known at initialization
-               // so we push_back as we update...
-               for (unsigned int i=data->numberOfPoints; i < size; i++)
+               // So, we need to calculate solutions for new points
+               for (unsigned int i=numberOfPoints; i < size; i++)
                {
-                  data->points.push_back( data->points[i-1] );
-                  experiment->integrator->step(data->points[i-1], step);
-                  data->points[i] += step;
+                  experiment->integrator->step(data->points[i-1], data->points[i]);
+                  data->points[i] += data->points[i-1];
                }
             }
-
-            // Update the size no matter what
-            (*it)->numberOfPoints = size;
          }
+         numberOfPoints = size;
 
          requestDataDisplayListUpdate();
          Vrui::requestUpdate();
@@ -245,6 +256,7 @@ class StaticSolverTool: public AbstractDynamicsTool, public GLObject
       bool multipleStaticSolutions;
 
       // Store current values so we can reset to save values after clearing.
+      unsigned int numberOfPoints;
       StaticSolverData::LineStyle lineStyle;
       StaticSolverData::ColorStyle colorStyle;
 

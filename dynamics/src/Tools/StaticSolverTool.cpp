@@ -57,6 +57,7 @@ StaticSolverTool::StaticSolverTool(ToolBox::ToolBox* toolBox, Viewer* app) :
          AbstractDynamicsTool(toolBox, app),
          dataDisplayListVersion(1), // Start higher so displayList is compiled.
          multipleStaticSolutions(false),
+         numberOfPoints(5000),
          lineStyle(StaticSolverData::POLY_LINE),
          colorStyle(StaticSolverData::SOLID)
       {
@@ -135,9 +136,9 @@ void StaticSolverTool::render(DTS::DataItem* dataItem) const
       updateDataDisplayList(dataItem);
       /* Mark the display list as up-to-date: */
       dataItem->dataDisplayListVersion = dataDisplayListVersion;
-   } 
+   }
    glCallList(dataItem->dataDisplayListId);
-   
+
 }
 
 void StaticSolverTool::setExperiment(DTSExperiment* e)
@@ -184,7 +185,7 @@ void StaticSolverTool::mainButtonReleased(const ToolBox::ButtonReleaseEvent & bu
    position[0] = pos[0];
    position[1] = pos[1];
    position[2] = pos[2];
-   
+
    addStaticSolution(position);
 }
 
@@ -195,12 +196,13 @@ void StaticSolverTool::addStaticSolution(DTS::Vector<double> position)
    StaticSolverData* newData = new StaticSolverData(experiment->model->getDimension());
    experiment->transformer->invTransform(position, newData->points[0]);
    std::cout << "invTransform: " << newData->points[0] << std::endl;
-   std::cout << std::endl; 
+   std::cout << std::endl;
 
-   computeStaticSolution(newData);
    newData->colorStyle = colorStyle;
-   newData->lineStyle = lineStyle;   
-   
+   newData->lineStyle = lineStyle;
+   newData->setNumberOfPoints(numberOfPoints, experiment->model->getDimension());
+   computeStaticSolution(newData);
+
    if (not multipleStaticSolutions)
    {
       clearDatasets();
@@ -262,17 +264,17 @@ void StaticSolverTool::drawBasicLine(StaticSolverData* d) const
 
 void StaticSolverTool::drawPolyLine(StaticSolverData* d) const
 {
+   unsigned int numPoints = datasets[0]->numberOfPoints;
+
    // save the current attribute state
    glPushAttrib(GL_LIGHTING_BIT);
 
    // allocate memory for gle rendering methods
    // first and last points set the angle, not position: add 2 extra points
-   gleDouble points[datasets[0]->numberOfPoints+2][3];
-   float colors[datasets[0]->numberOfPoints+2][3];
+   gleDouble points[numPoints + 2][3];
+   float colors[numPoints + 2][3];
    gleDouble radius=0.1; // radius of poly-cylinder
 
-   unsigned int numPoints = datasets[0]->numberOfPoints;
-   
    DTS::Vector<double> tmp(experiment->model->getDimension());
 
    if (datasets[0]->colorStyle == StaticSolverData::SOLID)
@@ -292,43 +294,42 @@ void StaticSolverTool::drawPolyLine(StaticSolverData* d) const
       float zmin = 0;
       float zmax = 0;
       */
-      for (unsigned int i=1; i < numPoints; i++)
+      for (unsigned int i=0; i < numPoints; i++)
       {
          experiment->transformer->transform(d->points[i], tmp);
-               
-         points[i][0]=tmp[0];
-         points[i][1]=tmp[1];
-         points[i][2]=tmp[2];
+
+         points[i+1][0]=tmp[0];
+         points[i+1][1]=tmp[1];
+         points[i+1][2]=tmp[2];
          /*
           if (points[i][0] > xmax) xmax = points[i][0];
-          if (points[i][0] < xmin) xmin = points[i][0];      
+          if (points[i][0] < xmin) xmin = points[i][0];
           if (points[i][0] > ymax) ymax = points[i][1];
-          if (points[i][0] < ymin) ymin = points[i][1];      
+          if (points[i][0] < ymin) ymin = points[i][1];
           if (points[i][0] > zmax) zmax = points[i][2];
-          if (points[i][0] < zmin) zmin = points[i][2];      
+          if (points[i][0] < zmin) zmin = points[i][2];
          */
       }
       //std::cout << xmin << " " << xmax << " " << ymin << " " << ymax << " " << zmin << " " << zmax << std::endl;
-      
+
       // set first and last
       points[0][0] = .95 * points[1][0];
       points[0][1] = .95 * points[1][1];
       points[0][2] = .95 * points[1][2];
-      points[numPoints][0] = .95 * points[numPoints-1][0];
-      points[numPoints][1] = .95 * points[numPoints-1][1];
-      points[numPoints][2] = .95 * points[numPoints-1][2];
+      points[numPoints+1][0] = .95 * points[numPoints][0];
+      points[numPoints+1][1] = .95 * points[numPoints][1];
+      points[numPoints+1][2] = .95 * points[numPoints][2];
 
 
-      
+
    }
    else if (datasets[0]->colorStyle == StaticSolverData::GRADIENT)
    {
       glDisable(GL_LIGHTING);
 
-      for (unsigned int i=1; i < datasets[0]->numberOfPoints; i++)
+      for (unsigned int i=0; i < numPoints; i++)
       {
-         unsigned int index=(int) ((float) i / (float) datasets[0]->numberOfPoints
-               * 255.0);
+         unsigned int index=(int) ((float) i / (float) numPoints * 255.0);
 
          const float* color=datasets[0]->colorMap->getColor(index);
          glColor3fv(color);
@@ -339,34 +340,36 @@ void StaticSolverTool::drawPolyLine(StaticSolverData* d) const
 
          experiment->transformer->transform(d->points[i], tmp);
 
-         points[i][0]=tmp[0];
-         points[i][1]=tmp[1];
-         points[i][2]=tmp[2];
+         points[i+1][0]=tmp[0];
+         points[i+1][1]=tmp[1];
+         points[i+1][2]=tmp[2];
       }
-      
+
       // set first and last
       colors[0][0] = colors[1][0];
       colors[0][1] = colors[1][1];
       colors[0][2] = colors[1][2];
-      colors[numPoints][0] = colors[numPoints-1][0];
-      colors[numPoints][1] = colors[numPoints-1][1];
-      colors[numPoints][2] = colors[numPoints-1][2];      
-      
+      colors[numPoints+1][0] = colors[numPoints][0];
+      colors[numPoints+1][1] = colors[numPoints][1];
+      colors[numPoints+1][2] = colors[numPoints][2];
+
       points[0][0] = .95 * points[1][0];
       points[0][1] = .95 * points[1][1];
       points[0][2] = .95 * points[1][2];
-      points[numPoints][0] = .95 * points[numPoints-1][0];
-      points[numPoints][1] = .95 * points[numPoints-1][1];
-      points[numPoints][2] = .95 * points[numPoints-1][2];
-      
-      
+      points[numPoints+1][0] = .95 * points[numPoints][0];
+      points[numPoints+1][1] = .95 * points[numPoints][1];
+      points[numPoints+1][2] = .95 * points[numPoints][2];
+
+
    }
 
    // draw line as generalized cylinder
-   glePolyCylinder(datasets[0]->numberOfPoints, // num points in polyline
-   points, // polyline vertces
-   colors, // colors at polyline verts
-   radius); // radius of polycylinder
+   glePolyCylinder(
+      numPoints,  // num points in polyline
+      points,     // polyline vertces
+      colors,     // colors at polyline verts
+      radius      // radius of polycylinder
+   );
 
    // restore previous attribute state
    glPopAttrib();
@@ -375,15 +378,14 @@ void StaticSolverTool::drawPolyLine(StaticSolverData* d) const
 /* Private methods */
 
 void StaticSolverTool::computeStaticSolution(StaticSolverData* data)
-{  
+{
    DTS::Vector<double> tmp(experiment->model->getDimension());
    for (unsigned int i=1; i < data->numberOfPoints; i++)
-   {  
+   {
       data->points[i] = data->points[i-1];
       experiment->integrator->step(data->points[i-1], tmp);
-      data->points[i] += tmp;      
-   }   
-
+      data->points[i] += tmp;
+   }
 }
 
 
