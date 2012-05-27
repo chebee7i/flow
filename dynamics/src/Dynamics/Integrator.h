@@ -1,6 +1,7 @@
 #ifndef INTEGRATOR_H
 #define INTEGRATOR_H
 
+#include <exception>
 #include <string>
 #include <iostream>
 
@@ -14,6 +15,14 @@
 // rather than as basic members. This is done so that code can work
 // generic Integrator objects without needing to perform a dynamic_cast.
 // They can simply query the integrator for its parameters.
+
+class IntegratorException: public std::exception
+{
+    virtual const char* what() const throw()
+    {
+        return "Cannot integrate 0-dimensional model.";
+    }
+};
 
 template <typename ScalarParam>
 class Experiment;
