@@ -219,11 +219,11 @@ class DynamicSolverTool: public AbstractDynamicsTool, public GLObject
       DTS::Vector<double> tempDisplay;
 
       /* Internal methods */
-      void drawBasicLines() const;
-      void drawPolylines() const;
+      void drawBasicLines(DTS::DataItem* dataItem) const;
+      void drawPolylines(DTS::DataItem* dataItem) const;
 
       void drawPointHeads(DTS::DataItem* dataItem) const;
-      void drawSphereHeads() const;
+      void drawSphereHeads(DTS::DataItem* dataItem) const;
 };
 
 #endif

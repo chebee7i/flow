@@ -46,7 +46,7 @@ DataItem::DataItem(void)
    vertexBufferId(0), spriteTextureObjectId(0), versionDS(0),
    versionPS(0),
    vertexShaderObject(0),fragmentShaderObject(0),programObject(0),
-   numParticlesDS(0), numParticlesPS(0)
+   numParticlesDS(0), numParticlesPS(0), tempDisplay(3)
 {
    master::filter masterout(std::cout);
 

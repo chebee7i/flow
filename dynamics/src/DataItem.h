@@ -32,6 +32,9 @@
 // font rendering
 #include <FTGL/ftgl.h>
 
+// local Vector
+#include "Vector.h"
+
 
 
 namespace DTS
@@ -98,6 +101,10 @@ struct DataItem: public GLObject::DataItem
 
       // fonts
       FTFont* font;
+
+      // temporary vectors
+      Vector<double> tempDisplay;
+      Vector<double> temp;
 
       DataItem(void);
       virtual ~DataItem(void);
