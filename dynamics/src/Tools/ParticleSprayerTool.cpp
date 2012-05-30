@@ -181,11 +181,11 @@ void ParticleSprayerTool::render(DTS::DataItem* dataItem) const
    glEnableClientState(GL_VERTEX_ARRAY);
    glEnableClientState(GL_COLOR_ARRAY);
 
-   if (dataItem->versionPS != data.currentVersion)
+   if (dataItem->versionDS != data.currentVersion)
    {
       dataItem->numParticlesDS = data.particles.size();
       glBufferDataARB(GL_ARRAY_BUFFER_ARB, dataItem->numParticlesDS * sizeof(PointParticle), &data.particles[0], GL_DYNAMIC_DRAW_ARB);
-      dataItem->versionPS = data.currentVersion;
+      dataItem->versionDS = data.currentVersion;
    }
 
    glInterleavedArrays(GL_C4UB_V3F, sizeof(PointParticle), 0);
