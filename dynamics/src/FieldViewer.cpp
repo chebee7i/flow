@@ -57,7 +57,7 @@ ExperimentFactory Factory;
 //#define FONT_MODIFIER 0.04
 
 static const float FONT_SIZE=96.0;
-static const float FONT_MODIFIER=0.003;
+static const float FONT_MODIFIER=0.006;
 
 /** Returns the base directory for resource files.
  *
@@ -243,7 +243,7 @@ void Viewer::drawLogo(GLContextData& contextData) const
     glScale(ds,ds,ds); // Now radius 1 corresponds to environment size
 
     glScalef(FONT_MODIFIER, FONT_MODIFIER, FONT_MODIFIER);
-    glTranslatef(-200, 75, 0);
+    glTranslatef(-400, 150, 0);
     if (absoluteTime > 3.5)
 	{
         glColor3f(1.0,1.0,1.0);
@@ -277,7 +277,7 @@ void Viewer::stepLogo()
            pos[1] = position[1];
            pos[2] = position[2];
            DotSpreaderTool* tool = static_cast<DotSpreaderTool*>(it->second);
-           tool->setPointSize(.1);
+           tool->setPointSize(.25);
            tool->releaseParticles(pos, experiment->transformer->getRadius());
         }
 
