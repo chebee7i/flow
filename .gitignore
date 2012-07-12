@@ -1,1 +1,7 @@
 *~
+dep
+lib
+obj
+plugins
+
+flow
