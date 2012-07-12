@@ -1,0 +1,66 @@
+
+Dependencies
+============
+
+Flow requires:
+
+    - Vrui 2.3
+      (http://idav.ucdavis.edu/~okreylos/ResDev/Vrui/Download.html)
+      
+    - GLE Tubing and Extrusion Library > 3.1
+      (http://www.linas.org/gle/)
+      
+      This is available on Debian-like systems via:
+      
+        sudo apt-get install libgle-dev
+        
+    - FTGL 2.1.3 
+      http://sourceforge.net/projects/ftgl
+      
+      This is available on Debian-like systems via:
+      
+        sudo apt-get install libftgl-dev
+        
+Configuration
+=============
+
+Open 'Makefile' and change the line which says:
+
+  override VRUI_MAKEDIR = ...
+  
+Change this so that it points to the subdirectory which contains your
+Vrui.makeinclude file.
+
+
+Build
+=====
+
+Type:
+  
+    make
+    
+
+Installation
+=============
+
+At this point, you can install flow systemwide with:
+
+  make install
+
+but you may need to adjust some parameters in the Makefile before doing so.
+Alternatively, you can choose to run flow within this directory.  To run on
+your laptop try:
+
+  ./flow -mergeConfig etc/2D.cfg
+  
+Then the keys 1,2,3 (not on the keypad) are automatically configured for flow.
+
+  1 - primary click
+  2 - alternate click
+  3 - tool rotator
+  
+The mouse behaves like it does for any Vrui program.  In order to begin using
+the program, you must right-click with the mouse and select an "Experiment".
+Then press 3 to select a tool, and then 1 to use the tool.
+
+
