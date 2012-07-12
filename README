@@ -37,13 +37,13 @@ Build
 
 Type:
   
-    make
+  make
     
 
 Installation
-=============
+============
 
-At this point, you can install flow systemwide with:
+At this point, you can install flow system-wide with:
 
   make install
 
