@@ -20,11 +20,11 @@
 
 # Set the Vrui installation directory
 #
-VRUI_MAKEDIR = $(HOME)/usr/share/Vrui-2.2-003/share
+VRUI_MAKEDIR = $(HOME)/usr/share/Vrui-2.3-001/share
 
 # Set the installation root directory
 #
-INSTALLDIR = /usr/local
+INSTALLDIR = .
 
 ifeq ($(INSTALLDIR), /)
 	BININSTALLDIR = /usr/bin
@@ -67,6 +67,8 @@ OPT    = #-mfpmath=sse -msse2 -mmmx -g0 -DNDEBUG -O3
 ## If you have a ghetto video card that claims to support shaders
 ## but actually displays nothing, set this flag
 #OPT     += -DGHETTO
+
+OPT += -ggdb
 
 LOCAL_INCLUDE += -I. -IExternal -IExternal/VruiSupport -IToolBox
 LOCAL_LINK += -lGLU -lgle
