@@ -14,6 +14,7 @@ class Vector
 {
     public:
     typedef ScalarParam Scalar;
+    static unsigned int allocations;
 
     protected:
     /**
@@ -102,15 +103,17 @@ inline bool operator!=(const Vector<ScalarParam>& v1, const Vector<ScalarParam>&
 
 /*
  * For addition and subtraction, we do not check that the length of the
- * vectors is the same.  So: (1,2) + (1,2,3) = (2,4).  That is, we truncate
- * the tail of the longer vector since the dimension of the shorter vector
- * is used to construct the new vector.
+ * vectors is the same.  So: (1,2) + (1,2,3) = (2,4) and similarly
+ * (1,2,3) + (1,2) = (2,4).  That is, we truncate the tail of the longer 
+ * vector since the dimension of the shorter vector is used to construct 
+ * the new vector.
  */
 
 // Addition
 template <typename ScalarParam>
 inline Vector<ScalarParam> operator+(const Vector<ScalarParam>& v1, const Vector<ScalarParam>& v2)
 {
+	std::cout << "addition" << std::endl;
 	int dimension = v1.getDimension();
 	int dimension2 = v2.getDimension();
 	if (dimension2 < dimension)
@@ -188,7 +191,11 @@ inline Vector<ScalarParam> operator/(const Vector<ScalarParam>& v, ScalarParam s
 /*******************
  * Implementations *
  *******************/
+ 
+/* Static members */
 
+template <typename ScalarParam>
+unsigned int Vector<ScalarParam>::allocations = 0;
 
 /* Constructors and destructors */
 
@@ -197,6 +204,8 @@ Vector<ScalarParam>::Vector(void)
 : dimension(0)
 {
 	components.resize(dimension);
+	allocations += 1;
+	std::cout << "default Allocations " << allocations << std::endl;
 }
 
 template <typename ScalarParam>
@@ -208,6 +217,8 @@ Vector<ScalarParam>::Vector(int const dimension, ScalarParam const& value)
     {
         components[i] = value;
     }
+    allocations += 1;
+	//std::cout << "standard Allocations " << allocations << std::endl;    
 }
 
 template <typename ScalarParam>
@@ -219,6 +230,8 @@ Vector<ScalarParam>::Vector(Vector<ScalarParam> const& v)
     {
         components[i] = v[i];
     }
+    allocations += 1;
+	//std::cout << "copyVector Allocations " << allocations << std::endl;    
 }
 
 template <typename ScalarParam>
@@ -230,6 +243,8 @@ Vector<ScalarParam>::Vector(std::vector<ScalarParam> const& v)
     {
         components[i] = v[i];
     }
+    allocations += 1;
+	std::cout << "copyvector Allocations " << allocations << std::endl;    
 }
 
 template <typename ScalarParam>
@@ -298,6 +313,11 @@ Vector<ScalarParam> Vector<ScalarParam>::operator-(void) const
 template <typename ScalarParam>
 Vector<ScalarParam>& Vector<ScalarParam>::operator=(const Vector<ScalarParam>& other)
 {
+/*
+	std::cout << "\neq operator, dimension:" << dimension << "  otherdimen:" << other.getDimension() << std::endl;
+	std::cout << "this: " << *this << std::endl;
+	std::cout << "other: " << other << std::endl;	
+	*/
 	for(int i = 0; i < dimension; ++i)
 	{
 		components[i] = other.components[i];

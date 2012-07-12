@@ -64,7 +64,7 @@ OPT    = -mfpmath=sse -msse2 -mmmx -g0 -DNDEBUG -O3
 ## but actually displays nothing, set this flag
 #OPT     += -DGHETTO
 
-#OPT += -ggdb
+OPT += -ggdb
 
 # ftgl font renderer
 BASEDIR = /usr
@@ -134,8 +134,11 @@ endif
 .PHONY: all
 all: $(TOOLBOX) $(PROGRAM) $(PLUGINS_OBJECTS) $(PLUGINS)
 
-
-
+.PHONY: test
+test: 
+	$(QUIET)$(CC) -c -ggdb -o main.o $(CFLAGS) $(LOCAL_INCLUDE) $(VRUI_CFLAGS) $(OPT) src/Dynamics/main.cpp
+	$(QUIET)$(CC) $(CFLAGS) -o test main.o
+	
 # Main program
 #
 $(PROGRAM): $(SOURCES:src/%.cpp=$(OBJECT_DIR)/%.o)
