@@ -26,7 +26,7 @@ Configuration
 
 Open 'Makefile' and change the line which says:
 
-  override VRUI_MAKEDIR = ...
+  VRUI_MAKEDIR = ...
   
 Change this so that it points to the subdirectory which contains your
 Vrui.makeinclude file.

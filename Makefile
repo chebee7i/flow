@@ -18,8 +18,6 @@
 # along with the Dynamics Toolset. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-override VRUI_MAKEDIR=$(HOME)/usr/share/Vrui-2.3-001/share
-
 # Set the Vrui installation directory
 #
 VRUI_MAKEDIR = /usr/share/Vrui
@@ -261,13 +259,13 @@ distclean: squeaky
 install: all
 	@echo "installing program and libraries"
 	$(QUIET)mkdir -p $(BININSTALLDIR) 
-	$(QUIET)mkdir -p $(SHAREINSTALLDIR)/images
-	$(QUIET)cp $(PROGRAM) $(BININSTALLDIR)
-	$(QUIET)cp etc/ToolBox.cfg $(SHAREINSTALLDIR)
-	$(QUIET)cp images/particle.png $(SHAREINSTALLDIR)/images
+	$(QUIET)mkdir -p $(SHAREINSTALLDIR)
+	$(QUIET)cp $(PROGRAM) $(BININSTALLDIR)/
+	$(QUIET)cp -r etc     $(SHAREINSTALLDIR)/
+	$(QUIET)cp -r images  $(SHAREINSTALLDIR)/
 	$(QUIET)cp -r plugins $(SHAREINSTALLDIR)/
-	$(QUIET)cp -r fonts $(SHAREINSTALLDIR)/	
-	$(QUIET)cp -r views $(SHAREINSTALLDIR)/		
+	$(QUIET)cp -r fonts   $(SHAREINSTALLDIR)/
+	$(QUIET)cp -r views   $(SHAREINSTALLDIR)/
 
 # Code documentation
 #
