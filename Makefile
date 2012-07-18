@@ -29,9 +29,11 @@ INSTALLDIR = /usr/local
 ifeq ($(INSTALLDIR), /)
 	BININSTALLDIR = /usr/bin
 	SHAREINSTALLDIR = /usr/share/flow
+	ETCINSTALLDIR = /etc/flow
 else
 	BININSTALLDIR = $(INSTALLDIR)/bin
-	SHAREINSTALLDIR = $(INSTALLDIR)/share/flow
+	SHAREINSTALLDIR = $(INSTALLDIR)/share
+	ETCINSTALLDIR = $(INSTALLDIR)/etc
 endif
 
 # Program name
@@ -261,7 +263,7 @@ install: all
 	$(QUIET)mkdir -p $(BININSTALLDIR) 
 	$(QUIET)mkdir -p $(SHAREINSTALLDIR)
 	$(QUIET)cp $(PROGRAM) $(BININSTALLDIR)/
-	$(QUIET)cp -r etc     $(SHAREINSTALLDIR)/
+	$(QUIET)cp -r etc/*   $(ETCINSTALLDIR)/
 	$(QUIET)cp -r images  $(SHAREINSTALLDIR)/
 	$(QUIET)cp -r plugins $(SHAREINSTALLDIR)/
 	$(QUIET)cp -r fonts   $(SHAREINSTALLDIR)/
