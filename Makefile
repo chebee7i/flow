@@ -24,16 +24,17 @@ VRUI_MAKEDIR = /usr/share/Vrui
 
 # Set the installation root directory
 #
-INSTALLDIR = /usr/local
+INSTALLDIR = /usr/local/flow
 
 ifeq ($(INSTALLDIR), /)
 	BININSTALLDIR = /usr/bin
-	SHAREINSTALLDIR = /usr/share/flow
 	ETCINSTALLDIR = /etc/flow
+	SHAREINSTALLDIR = /usr/share/flow
 else
 	BININSTALLDIR = $(INSTALLDIR)/bin
-	SHAREINSTALLDIR = $(INSTALLDIR)/share
 	ETCINSTALLDIR = $(INSTALLDIR)/etc
+	SHAREINSTALLDIR = $(INSTALLDIR)/share
+
 endif
 
 # Program name
@@ -233,8 +234,8 @@ plugins/lib%.so: $(OBJECT_DIR)/Dynamics/plugins/%.o
 .PHONY: clean
 clean:
 	@echo "Removing object files and dependencies..."
-	$(QUIET)rm -rdf $(OBJECT_DIR)
-	$(QUIET)rm -rdf $(DEPEND_DIR)
+	$(QUIET)rm -rf $(OBJECT_DIR)
+	$(QUIET)rm -rf $(DEPEND_DIR)
 	@echo "Removing libraries and binaries..."
 	$(QUIET)rm -rf lib/ $(PROGRAM)
 
@@ -244,23 +245,24 @@ BACKUP_FILES = $(subst ./,,$(shell find . -name "*~"))
 .PHONY: squeaky
 squeaky: clean
 	@echo "Removing plugins..."	
-	$(QUIET)rm -rdf plugins
+	$(QUIET)rm -rf plugins
 	@echo "Removing backup files..."
 	$(QUIET)rm -f $(BACKUP_FILES)	
 
 .PHONY: distclean
 distclean: squeaky
 	@echo "Removing plugin code..."
-	$(QUIET)rm -rdf src/Dynamics/plugins
+	$(QUIET)rm -rf src/Dynamics/plugins
 	$(QUIET)rm -f etc/plugin.mk
 	@echo "Removing documentation..."
-	$(QUIET)rm -rdf doc
+	$(QUIET)rm -rf doc
 
 
 .PHONY: install
 install: all
 	@echo "installing program and libraries"
 	$(QUIET)mkdir -p $(BININSTALLDIR) 
+	$(QUIET)mkdir -p $(ETCINSTALLDIR)
 	$(QUIET)mkdir -p $(SHAREINSTALLDIR)
 	$(QUIET)cp $(PROGRAM) $(BININSTALLDIR)/
 	$(QUIET)cp -r etc/*   $(ETCINSTALLDIR)/

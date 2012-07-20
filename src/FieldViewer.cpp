@@ -74,6 +74,9 @@ std::string getResourceDir()
     catch (IO::Directory::OpenError e)
     {
         // This means FieldViewer must exist in the CWD.
+        std::cerr << "Could not locate " << RESOURCEDIR << "." << std::endl;
+        std::cerr << "Defaulting to the current working directory." << std::endl;
+
         dir = ".";
     }
     return dir;
