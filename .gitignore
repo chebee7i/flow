@@ -1,7 +1,7 @@
 *~
-dep
-lib
-obj
-plugins
+dep/*
+lib/*
+obj/*
+plugins/*
 
 flow
