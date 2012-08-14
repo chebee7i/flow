@@ -40,19 +40,15 @@ Type:
   make
     
 
-Installation
-============
+Run / Installation
+==================
 
-At this point, you can install flow system-wide with:
-
-  make install
-
-but you may need to adjust some parameters in the Makefile before doing so.
-Alternatively, you can choose to run flow within this directory.  To run on
-your laptop try:
+At this point, you can choose to run flow within this directory. To run on
+your laptop or desktop using the mouse as your primary navigation device,
+type in the following:
 
   ./flow -mergeConfig etc/2D.cfg
-  
+
 Then the keys 1,2,3 (not on the keypad) are automatically configured for flow.
 
   1 - primary click
@@ -62,5 +58,13 @@ Then the keys 1,2,3 (not on the keypad) are automatically configured for flow.
 The mouse behaves like it does for any Vrui program.  In order to begin using
 the program, you must right-click with the mouse and select an "Experiment".
 Then press 3 to select a tool, and then 1 to use the tool.
+
+Alternatively, you can install flow system-wide with:
+
+  make install
+
+but you may need to adjust the INSTALLDIR variable in the Makefile.
+After adjusting that variable, type 'make clean' and then 'make' again,
+as the resource directory is compiled into the program.
 
 
