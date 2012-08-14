@@ -2,7 +2,7 @@
 #define DTS_ROSSLER3EXPERIMENT
 
 #include "Experiment.h"
-#include "Rossler3.h"
+#include "Models/Rossler3.h"
 
 #include "RungeKutta4.h"
 #include "ProjectionTransformer.h"

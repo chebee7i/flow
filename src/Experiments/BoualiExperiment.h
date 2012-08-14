@@ -2,7 +2,7 @@
 #define FLOW_BOUALIZEXPERIMENT
 
 #include "Experiment.h"
-#include "Bouali.h"
+#include "Models/Bouali.h"
 
 #include "RungeKutta4.h"
 #include "ProjectionTransformer.h"

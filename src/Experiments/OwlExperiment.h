@@ -1,18 +1,18 @@
-#ifndef DTS_LORENZEXPERIMENT
-#define DTS_LORENZEXPERIMENT
+#ifndef DTS_OWLEXPERIMENT
+#define DTS_OWLEXPERIMENT
 
 #include "Experiment.h"
-#include "Lorenz.h"
+#include "Models/Owl.h"
 
 #include "RungeKutta4.h"
 #include "ProjectionTransformer.h"
 
-class LorenzExperiment : public Experiment<double>
+class OwlExperiment : public Experiment<double>
 {
 public:
-    LorenzExperiment() : Experiment<double>()
+    OwlExperiment() : Experiment<double>()
     {
-        model = new Lorenz();
+        model = new Owl();
 
         addIntegrator( new RungeKutta4(*model, .01) );
         setIntegrator("rk4");

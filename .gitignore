@@ -1,7 +1,4 @@
 *~
-dep/*
-lib/*
-obj/*
+build/*
 plugins/*
-
 flow

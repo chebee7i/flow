@@ -31,11 +31,21 @@ ifeq ($(INSTALLDIR), /)
 	ETCINSTALLDIR = /etc/flow
 	SHAREINSTALLDIR = /usr/share/flow
 else
+	# Assumption: "flow" appears in INSTALLDIR
 	BININSTALLDIR = $(INSTALLDIR)/bin
 	ETCINSTALLDIR = $(INSTALLDIR)/etc
 	SHAREINSTALLDIR = $(INSTALLDIR)/share
 
 endif
+
+# Object and dependency file locations
+#
+BUILD_DIR = build
+OBJECT_DIR = $(BUILD_DIR)/obj
+DEPEND_DIR = $(BUILD_DIR)/dep
+LIB_DIR = $(BUILD_DIR)/lib
+PLUGIN_DIR = plugins
+
 
 # Program name
 #
@@ -74,13 +84,8 @@ LOCAL_LINK += -lftgl -lfreetype
 LOCAL_INCLUDE += -Isrc -Isrc/Dynamics -Isrc/External -Isrc/External/VruiSupport -Isrc/ToolBox -I$(BASEDIR)/include/freetype2
 LOCAL_LINK += -lGLU -lgle
 
-# Object and dependency file locations
-#
-OBJECT_DIR = obj
-DEPEND_DIR = dep
-
-# Need to fix makedepend.  Changes in header files do not notify Fieldviewer
-TOOLBOX = lib/libToolBox.a
+# Need to fix makedepend.  Changes in toolbox header files do not notify flow
+TOOLBOX = $(LIB_DIR)/libToolBox.a
 TOOLBOX_SOURCES = $(shell find src/ToolBox -name "*.cpp")
 
 # Search plugin directory and generate list of plugin names
@@ -88,8 +93,8 @@ TOOLBOX_SOURCES = $(shell find src/ToolBox -name "*.cpp")
 # For now, we only support Experiment plugins. This should be changed to support
 # other types of plugins: Transformers, DynamicalModels, Integrators, etc.
 #
-PLUGINS_OBJECTS = $(addprefix $(OBJECT_DIR),$(subst .cpp,.o,$(subst ./src,,$(shell find ./src/Dynamics/plugins -name *Experiment.cpp))))
-PLUGINS = $(addprefix plugins/lib,$(subst .cpp,.so,$(subst ./src/Dynamics/plugins/,,$(shell find ./src/Dynamics/plugins -name *Experiment.cpp))))
+PLUGINS_OBJECTS = $(addprefix $(OBJECT_DIR),$(subst .cpp,.o,$(subst ./src,,$(shell find ./src/Experiments -name *Experiment.cpp))))
+PLUGINS = $(addprefix $(PLUGIN_DIR)/lib,$(subst .cpp,.so,$(subst ./src/Experiments/,,$(shell find ./src/Experiments -name *Experiment.cpp))))
 
 # Project source files
 #
@@ -151,21 +156,8 @@ $(PROGRAM): $(SOURCES:src/%.cpp=$(OBJECT_DIR)/%.o)
 #
 $(TOOLBOX): $(TOOLBOX_SOURCES:src/%.cpp=$(OBJECT_DIR)/%.o)
 	@echo Creating  $@...
-	$(QUIET)mkdir -p lib
+	$(QUIET)mkdir -p $(LIB_DIR)
 	$(QUIET)$(AR) rcs $@ $^
-
-
-# Include plugin makefile fragment
-#
-#include etc/plugin.mk
-
-# Additional plugins
-#plugins/libCartesianGrid3D.so: obj/Dynamics/plugins/CartesianGrid3D.o obj/Dynamics/plugins/CartesianGrid3DParameterDialog.o
-#obj/Dynamics/plugins/CartesianGrid3D.o: Dynamics/plugins/CartesianGrid3D.cpp
-#obj/Dynamics/plugins/CartesianGrid3DParameterDialog.o: Dynamics/plugins/CartesianGrid3DParameterDialog.cpp
-
-#plugins/libLorenzExperiment.so: obj/Dynamics/plugins/LorenzExperiment.o
-#obj/Dynamics/plugins/LorenzExperiment.o: src/Dynamics/plugins/LorenzExperiment.cpp
 
 
 #
@@ -175,7 +167,7 @@ $(TOOLBOX): $(TOOLBOX_SOURCES:src/%.cpp=$(OBJECT_DIR)/%.o)
 ifneq "$(MAKECMDGOALS)" "clean"
  -include $(SOURCES:src/%.cpp=./$(DEPEND_DIR)/%.d)
  -include $(TOOLBOX_SOURCES:src/%.cpp=$(DEPEND_DIR)/%.d)
- -include $(PLUGINS:plugins/lib%.so=$(DEPEND_DIR)/Dynamics/plugins/%.d)
+ -include $(PLUGINS:$(PLUGIN_DIR)/lib%.so=$(DEPEND_DIR)/Experiments/%.d)
 endif
 
 # $(call make-depend,source-file,object-file,depend-file)
@@ -186,9 +178,9 @@ endef
 
 # Plugin object files
 #
-$(OBJECT_DIR)/Dynamics/plugins/%.o: src/Dynamics/plugins/%.cpp
-	$(QUIET)mkdir -p $(OBJECT_DIR)/Dynamics/plugins/
-	$(QUIET)mkdir -p $(DEPEND_DIR)/Dynamics/plugins/
+$(OBJECT_DIR)/Experiments/%.o: src/Experiments/%.cpp
+	$(QUIET)mkdir -p $(OBJECT_DIR)/Experiments
+	$(QUIET)mkdir -p $(DEPEND_DIR)/Experiments
 	@echo [plugin] Compiling $<...
 	$(QUIET)$(call make-depend,$<,$@,$(@:$(OBJECT_DIR)/%.o=$(DEPEND_DIR)/%.d))
 	$(QUIET)$(CC) $(CFLAGS) $(LOCAL_INCLUDE) $(VRUI_CFLAGS) -fPIC -c -g -o $@ $<
@@ -217,11 +209,11 @@ endif
 
 # Dynamic libraries (plugins)
 #
-plugins/lib%.so: $(OBJECT_DIR)/Dynamics/plugins/%.o
-	$(QUIET)mkdir -p plugins
+$(PLUGIN_DIR)/lib%.so: $(OBJECT_DIR)/Experiments/%.o
+	$(QUIET)mkdir -p $(PLUGIN_DIR)
 	@echo "[plugin] Creating $@..."
-	$(QUIET)$(call plugin-compile,$(subst plugins/,,$@),$@,$^)
-	$(QUIET)ln -sf $(subst plugins/,,$@) $@.1
+	$(QUIET)$(call plugin-compile,$(subst $(PLUGIN_DIR)/,,$@),$@,$^)
+	$(QUIET)ln -sf $(subst $(PLUGIN_DIR)/,,$@) $@.1
 
 # Unset all default rules
 #
@@ -234,10 +226,9 @@ plugins/lib%.so: $(OBJECT_DIR)/Dynamics/plugins/%.o
 .PHONY: clean
 clean:
 	@echo "Removing object files and dependencies..."
-	$(QUIET)rm -rf $(OBJECT_DIR)
-	$(QUIET)rm -rf $(DEPEND_DIR)
+	$(QUIET)rm -rf $(BUILD_DIR)
 	@echo "Removing libraries and binaries..."
-	$(QUIET)rm -rf lib/ $(PROGRAM)
+	$(QUIET)rm -rf $(PLUGIN_DIR) $(PROGRAM)
 
 
 BACKUP_FILES = $(subst ./,,$(shell find . -name "*~"))
@@ -245,29 +236,27 @@ BACKUP_FILES = $(subst ./,,$(shell find . -name "*~"))
 .PHONY: squeaky
 squeaky: clean
 	@echo "Removing plugins..."	
-	$(QUIET)rm -rf plugins
+	$(QUIET)rm -rf $(PLUGIN_DIR)
 	@echo "Removing backup files..."
 	$(QUIET)rm -f $(BACKUP_FILES)	
 
 .PHONY: distclean
 distclean: squeaky
-	@echo "Removing plugin code..."
-	$(QUIET)rm -rf src/Dynamics/plugins
-	$(QUIET)rm -f etc/plugin.mk
 	@echo "Removing documentation..."
 	$(QUIET)rm -rf doc
 
 
 .PHONY: install
 install: all
-	@echo "installing program and libraries"
+	@echo "Installing program and libraries..."
 	$(QUIET)mkdir -p $(BININSTALLDIR) 
 	$(QUIET)mkdir -p $(ETCINSTALLDIR)
 	$(QUIET)mkdir -p $(SHAREINSTALLDIR)
+	$(QUIET)mkdir -p $(SHAREINSTALLDIR)/plugins
 	$(QUIET)cp $(PROGRAM) $(BININSTALLDIR)/
 	$(QUIET)cp -r etc/*   $(ETCINSTALLDIR)/
 	$(QUIET)cp -r images  $(SHAREINSTALLDIR)/
-	$(QUIET)cp -r plugins $(SHAREINSTALLDIR)/
+	$(QUIET)cp -r $(PLUGIN_DIR)/* $(SHAREINSTALLDIR)/plugins/
 	$(QUIET)cp -r fonts   $(SHAREINSTALLDIR)/
 	$(QUIET)cp -r views   $(SHAREINSTALLDIR)/
 
@@ -283,26 +272,6 @@ endif
 doc:
 	@echo "generating documentation"
 	@$(MAKEDOC)
-
-
-ARCHIVE_LIST = $(filter-out src/Dynamics/plugins/%,$(subst ./,,$(shell find . -name "*h" -o -name "*.cpp")))
-ARCHIVE_LIST += src/ToolBox/ToolBox src/DTSTools Makefile Doxyfile Vrui.cfg images/particle.png
-ARCHIVE_LIST += bin/generate_plugin_code.py etc/dynamics.xml
-ARCHIVE_LIST += src/External
-
-# Code archival
-#
-ifdef VERBOSE
-	TAR = tar czvf
-else
-	TAR = tar czf
-endif
-
-.PHONY: archive
-archive:
-	@echo "creating archive..."
-	$(QUIET)$(TAR) $(PROGRAM)-$(VERSION).tgz $(ARCHIVE_LIST)
-
 
 .PHONY: debug
 debug:
